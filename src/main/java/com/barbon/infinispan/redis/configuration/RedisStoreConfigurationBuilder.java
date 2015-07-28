@@ -9,7 +9,7 @@ final public class RedisStoreConfigurationBuilder
 {
     public RedisStoreConfigurationBuilder(PersistenceConfigurationBuilder builder)
     {
-        super(builder, RedisStoreConfiguration.attributeDefinitionSet());
+        super(builder);
     }
 
     @Override

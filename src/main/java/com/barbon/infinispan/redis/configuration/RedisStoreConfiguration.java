@@ -3,29 +3,27 @@ package com.barbon.infinispan.redis.configuration;
 import com.barbon.infinispan.redis.RedisStore;
 import org.infinispan.commons.configuration.BuiltBy;
 import org.infinispan.commons.configuration.ConfigurationFor;
-import org.infinispan.commons.configuration.attributes.AttributeSet;
 import org.infinispan.configuration.cache.AbstractStoreConfiguration;
 import org.infinispan.configuration.cache.AsyncStoreConfiguration;
 import org.infinispan.configuration.cache.SingletonStoreConfiguration;
-import org.infinispan.configuration.global.ExecutorFactoryConfiguration;
+
+import java.util.Properties;
 
 @BuiltBy(RedisStoreConfigurationBuilder.class)
 @ConfigurationFor(RedisStore.class)
 final public class RedisStoreConfiguration extends AbstractStoreConfiguration
 {
     public RedisStoreConfiguration(
-        AttributeSet attributes,
+        boolean purgeOnStartup,
+        boolean fetchPersistentState,
+        boolean ignoreModifications,
         AsyncStoreConfiguration async,
         SingletonStoreConfiguration singletonStore,
-        ExecutorFactoryConfiguration asyncExecutorFactory,
-        ConnectionPoolConfiguration connectionPool
+        boolean preload,
+        boolean shared,
+        Properties properties
     )
     {
-        super(attributes, async, singletonStore);
-    }
-
-    public static AttributeSet attributeDefinitionSet()
-    {
-        return new AttributeSet(RedisStoreConfiguration.class, AbstractStoreConfiguration.attributeDefinitionSet());
+        super(purgeOnStartup, fetchPersistentState, ignoreModifications, async, singletonStore, preload, shared, properties);
     }
 }

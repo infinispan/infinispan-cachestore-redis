@@ -1,6 +1,7 @@
 package com.barbon.infinispan.redis;
 
 import com.barbon.infinispan.redis.configuration.RedisStoreConfiguration;
+import org.infinispan.commons.configuration.ConfiguredBy;
 import org.infinispan.commons.io.ByteBuffer;
 import org.infinispan.filter.KeyFilter;
 import org.infinispan.marshall.core.MarshalledEntry;
@@ -13,7 +14,10 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
 import java.util.concurrent.Executor;
+import net.jcip.annotations.ThreadSafe;
 
+@ThreadSafe
+@ConfiguredBy(RedisStoreConfiguration.class)
 final public class RedisStore implements AdvancedLoadWriteStore
 {
     private static final Log log = LogFactory.getLog(RedisStore.class, Log.class);
@@ -33,6 +37,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void init(InitializationContext ctx)
     {
+        RedisStore.log.info("Redis cache store initialising");
+
         this.ctx = ctx;
         this.configuration = this.ctx.getConfiguration();
 
@@ -126,7 +132,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
                         }
                         finally {
                             if (null != jedis) {
-                                jedis.close();
+                                jedis.disconnect();
                             }
                         }
                     }
@@ -139,7 +145,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         }
         finally {
             if (null != jedis) {
-                jedis.close();
+                jedis.disconnect();
             }
         }
     }
@@ -193,7 +199,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         }
         finally {
             if (null != jedis) {
-                jedis.close();
+                jedis.disconnect();
             }
         }
     }
@@ -218,7 +224,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         }
         finally {
             if (null != jedis) {
-                jedis.close();
+                jedis.disconnect();
             }
         }
     }
@@ -255,7 +261,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         }
         finally {
             if (null != jedis) {
-                jedis.close();
+                jedis.disconnect();
             }
         }
     }
@@ -285,7 +291,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         }
         finally {
             if (null != jedis) {
-                jedis.close();
+                jedis.disconnect();
             }
         }
     }
@@ -312,7 +318,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         }
         finally {
             if (null != jedis) {
-                jedis.close();
+                jedis.disconnect();
             }
         }
     }
@@ -339,7 +345,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         }
         finally {
             if (null != jedis) {
-                jedis.close();
+                jedis.disconnect();
             }
         }
     }

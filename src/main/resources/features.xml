@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<features name="infinispan-cachestore-redis-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
+    <repository>mvn:org.infinispan/infinispan-commons/${project.version}/xml/features</repository>
+    <repository>mvn:org.infinispan/infinispan-core/${project.version}/xml/features</repository>
+
+    <feature name="infinispan-cachestore-redis" version="${project.version}">
+        <feature version="${project.version}">infinispan-commons</feature>
+        <feature version="${project.version}">infinispan-core</feature>
+        <bundle>mvn:org.infinispan/infinispan-cachestore-redis/${project.version}</bundle>
+    </feature>
+</features>
