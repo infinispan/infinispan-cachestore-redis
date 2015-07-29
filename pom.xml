@@ -9,7 +9,7 @@
     <description>Infinispan remote CacheStore using Redis</description>
 
     <properties>
-        <infinispan.core.schema.version>7.1</infinispan.core.schema.version>
+        <infinispan.core.schema.version>8.0</infinispan.core.schema.version>
     </properties>
 
     <build>
@@ -97,7 +97,7 @@
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-core</artifactId>
-            <version>7.2.2.Final</version>
+            <version>8.0.0.Beta2</version>
         </dependency>
 
         <dependency>
