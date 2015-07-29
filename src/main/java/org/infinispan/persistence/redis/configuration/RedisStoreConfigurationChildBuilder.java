@@ -1,4 +1,4 @@
-package com.barbon.infinispan.redis.configuration;
+package org.infinispan.persistence.redis.configuration;
 
 import org.infinispan.configuration.cache.StoreConfigurationChildBuilder;
 

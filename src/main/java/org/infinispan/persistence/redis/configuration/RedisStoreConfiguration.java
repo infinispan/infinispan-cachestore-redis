@@ -1,6 +1,7 @@
-package com.barbon.infinispan.redis.configuration;
+package org.infinispan.persistence.redis.configuration;
 
-import com.barbon.infinispan.redis.RedisStore;
+import org.infinispan.commons.configuration.attributes.AttributeSet;
+import org.infinispan.persistence.redis.RedisStore;
 import org.infinispan.commons.api.BasicCacheContainer;
 import org.infinispan.commons.configuration.BuiltBy;
 import org.infinispan.commons.configuration.ConfigurationFor;
@@ -20,16 +21,11 @@ final public class RedisStoreConfiguration extends AbstractStoreConfiguration
     static final AttributeDefinition<Long> SOCKET_TIMEOUT = AttributeDefinition.builder("socketTimeout", 30L).build();
 
     public RedisStoreConfiguration(
-        boolean purgeOnStartup,
-        boolean fetchPersistentState,
-        boolean ignoreModifications,
+        AttributeSet attributes,
         AsyncStoreConfiguration async,
-        SingletonStoreConfiguration singletonStore,
-        boolean preload,
-        boolean shared,
-        Properties properties
+        SingletonStoreConfiguration singletonStore
     )
     {
-        super(purgeOnStartup, fetchPersistentState, ignoreModifications, async, singletonStore, preload, shared, properties);
+        super(attributes, async, singletonStore);
     }
 }

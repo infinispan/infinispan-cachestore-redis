@@ -1,4 +1,4 @@
-package com.barbon.infinispan.redis.configuration;
+package org.infinispan.persistence.redis.configuration;
 
 import java.util.HashMap;
 import java.util.Map;

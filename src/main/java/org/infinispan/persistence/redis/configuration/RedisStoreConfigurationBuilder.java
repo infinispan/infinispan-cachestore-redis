@@ -1,10 +1,7 @@
-package com.barbon.infinispan.redis.configuration;
+package org.infinispan.persistence.redis.configuration;
 
 import org.infinispan.configuration.cache.AbstractStoreConfigurationBuilder;
 import org.infinispan.configuration.cache.PersistenceConfigurationBuilder;
-import static com.barbon.infinispan.redis.configuration.RedisStoreConfiguration.CONNECTION_TIMEOUT;
-import static com.barbon.infinispan.redis.configuration.RedisStoreConfiguration.REMOTE_CACHE_NAME;
-import static com.barbon.infinispan.redis.configuration.RedisStoreConfiguration.SOCKET_TIMEOUT;
 
 final public class RedisStoreConfigurationBuilder
     extends AbstractStoreConfigurationBuilder<RedisStoreConfiguration, RedisStoreConfigurationBuilder>
@@ -18,33 +15,33 @@ final public class RedisStoreConfigurationBuilder
     @Override
     public RedisStoreConfiguration create()
     {
-        return null;
+        return new RedisStoreConfiguration(attributes.protect(), async.create(), singletonStore.create());
     }
 
     @Override
     public RedisStoreConfigurationBuilder self()
     {
-        return null;
+        return this;
     }
 
     @Override
     public RedisStoreConfigurationBuilder connectionTimeout(long connectionTimeout)
     {
-        attributes.attribute(CONNECTION_TIMEOUT).set(connectionTimeout);
+        attributes.attribute(RedisStoreConfiguration.CONNECTION_TIMEOUT).set(connectionTimeout);
         return this;
     }
 
     @Override
     public RedisStoreConfigurationBuilder remoteCacheName(String remoteCacheName)
     {
-        attributes.attribute(REMOTE_CACHE_NAME).set(remoteCacheName);
+        attributes.attribute(RedisStoreConfiguration.REMOTE_CACHE_NAME).set(remoteCacheName);
         return this;
     }
 
     @Override
     public RedisStoreConfigurationBuilder socketTimeout(long socketTimeout)
     {
-        attributes.attribute(SOCKET_TIMEOUT).set(socketTimeout);
+        attributes.attribute(RedisStoreConfiguration.SOCKET_TIMEOUT).set(socketTimeout);
         return this;
     }
 }

@@ -1,6 +1,6 @@
-package com.barbon.infinispan.redis;
+package org.infinispan.persistence.redis;
 
-import com.barbon.infinispan.redis.configuration.RedisStoreConfiguration;
+import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
 import org.infinispan.commons.configuration.ConfiguredBy;
 import org.infinispan.commons.io.ByteBuffer;
 import org.infinispan.filter.KeyFilter;
@@ -127,12 +127,18 @@ final public class RedisStore implements AdvancedLoadWriteStore
                             }
                         }
                         catch(Exception ex) {
-                            RedisStore.log.error("Failure processing redis store key", ex);
+                            RedisStore.log.error("Failed to process the redis store key", ex);
+
+                            if (null != jedis) {
+                                pool.returnBrokenResource(jedis);
+                                jedis = null;
+                            }
+
                             throw new PersistenceException(ex);
                         }
                         finally {
                             if (null != jedis) {
-                                jedis.disconnect();
+                                pool.returnResource(jedis);
                             }
                         }
                     }
@@ -140,12 +146,18 @@ final public class RedisStore implements AdvancedLoadWriteStore
             }
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failure processing redis store keys", ex);
+            RedisStore.log.error("Failed to process the redis store keys", ex);
+
+            if (null != jedis) {
+                pool.returnBrokenResource(jedis);
+                jedis = null;
+            }
+
             throw new PersistenceException(ex);
         }
         finally {
             if (null != jedis) {
-                jedis.disconnect();
+                pool.returnResource(jedis);
             }
         }
     }
@@ -194,12 +206,18 @@ final public class RedisStore implements AdvancedLoadWriteStore
             }
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failure fetching number of elements in redis store", ex);
+            RedisStore.log.error("Failed to fetch element count from the redis store", ex);
+
+            if (null != jedis) {
+                this.pool.returnBrokenResource(jedis);
+                jedis = null;
+            }
+
             throw new PersistenceException(ex);
         }
         finally {
             if (null != jedis) {
-                jedis.disconnect();
+                this.pool.returnResource(jedis);
             }
         }
     }
@@ -219,12 +237,18 @@ final public class RedisStore implements AdvancedLoadWriteStore
             jedis.flushDB();
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failure clearing all elements in redis store", ex);
+            RedisStore.log.error("Failed to clear all elements in the redis store", ex);
+
+            if (null != jedis) {
+                this.pool.returnBrokenResource(jedis);
+                jedis = null;
+            }
+
             throw new PersistenceException(ex);
         }
         finally {
             if (null != jedis) {
-                jedis.disconnect();
+                this.pool.returnResource(jedis);
             }
         }
     }
@@ -256,12 +280,18 @@ final public class RedisStore implements AdvancedLoadWriteStore
             return this.ctx.getMarshalledEntryFactory().newMarshalledEntry(keyRaw, valueBuf, (ByteBuffer) null);
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failure loading element from redis store", ex);
+            RedisStore.log.error("Failed to load element from the redis store", ex);
+
+            if (null != jedis) {
+                this.pool.returnBrokenResource(jedis);
+                jedis = null;
+            }
+
             throw new PersistenceException(ex);
         }
         finally {
             if (null != jedis) {
-                jedis.disconnect();
+                this.pool.returnResource(jedis);
             }
         }
     }
@@ -286,12 +316,18 @@ final public class RedisStore implements AdvancedLoadWriteStore
             jedis.expire(key, 100); // todo: set based on configuration
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failure writing element to redis store", ex);
+            RedisStore.log.error("Failed to write element to the redis store", ex);
+
+            if (null != jedis) {
+                this.pool.returnBrokenResource(jedis);
+                jedis = null;
+            }
+
             throw new PersistenceException(ex);
         }
         finally {
             if (null != jedis) {
-                jedis.disconnect();
+                this.pool.returnResource(jedis);
             }
         }
     }
@@ -313,12 +349,18 @@ final public class RedisStore implements AdvancedLoadWriteStore
             return jedis.del(marshaledBuff.getBuf()) > 0;
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failure deleting element from redis store", ex);
+            RedisStore.log.error("Failed to delete element from the redis store", ex);
+
+            if (null != jedis) {
+                this.pool.returnBrokenResource(jedis);
+                jedis = null;
+            }
+
             throw new PersistenceException(ex);
         }
         finally {
             if (null != jedis) {
-                jedis.disconnect();
+                this.pool.returnResource(jedis);
             }
         }
     }
@@ -340,12 +382,18 @@ final public class RedisStore implements AdvancedLoadWriteStore
             return jedis.exists(marshaledBuff.getBuf());
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failure discovering if element is in redis store", ex);
+            RedisStore.log.error("Failed to discover if element is in the redis store", ex);
+
+            if (null != jedis) {
+                this.pool.returnBrokenResource(jedis);
+                jedis = null;
+            }
+
             throw new PersistenceException(ex);
         }
         finally {
             if (null != jedis) {
-                jedis.disconnect();
+                this.pool.returnResource(jedis);
             }
         }
     }
