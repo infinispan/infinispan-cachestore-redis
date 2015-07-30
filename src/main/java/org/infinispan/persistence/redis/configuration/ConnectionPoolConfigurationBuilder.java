@@ -6,9 +6,9 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 public class ConnectionPoolConfigurationBuilder extends AbstractRedisStoreConfigurationChildBuilder<RedisStoreConfigurationBuilder>
     implements Builder<ConnectionPoolConfiguration>
 {
-    private int maxTotal = -1;
-    private int maxIdle = -1;
-    private int minIdle = 1;
+    private int maxTotal = 8;
+    private int maxIdle = 8;
+    private int minIdle = 0;
 
     protected ConnectionPoolConfigurationBuilder(RedisStoreConfigurationBuilder builder)
     {
