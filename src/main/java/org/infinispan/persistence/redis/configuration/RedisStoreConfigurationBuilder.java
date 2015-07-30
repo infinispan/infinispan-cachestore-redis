@@ -22,7 +22,8 @@ final public class RedisStoreConfigurationBuilder
     @Override
     public RedisStoreConfiguration create()
     {
-        return new RedisStoreConfiguration(attributes.protect(), async.create(), singletonStore.create(), connectionPool.create());
+        return new RedisStoreConfiguration(this.attributes.protect(), this.async.create(),
+            this.singletonStore.create(), this.connectionPool.create());
     }
 
     @Override
@@ -34,21 +35,21 @@ final public class RedisStoreConfigurationBuilder
     @Override
     public RedisStoreConfigurationBuilder connectionTimeout(int connectionTimeout)
     {
-        attributes.attribute(RedisStoreConfiguration.CONNECTION_TIMEOUT).set(connectionTimeout);
+        this.attributes.attribute(RedisStoreConfiguration.CONNECTION_TIMEOUT).set(connectionTimeout);
         return this;
     }
 
     @Override
     public RedisStoreConfigurationBuilder socketTimeout(int socketTimeout)
     {
-        attributes.attribute(RedisStoreConfiguration.SOCKET_TIMEOUT).set(socketTimeout);
+        this.attributes.attribute(RedisStoreConfiguration.SOCKET_TIMEOUT).set(socketTimeout);
         return this;
     }
 
     @Override
     public RedisStoreConfigurationBuilder maxRedirections(int maxRedirections)
     {
-        attributes.attribute(RedisStoreConfiguration.MAX_REDIRECTIONS).set(maxRedirections);
+        this.attributes.attribute(RedisStoreConfiguration.MAX_REDIRECTIONS).set(maxRedirections);
         return this;
     }
 
@@ -63,6 +64,6 @@ final public class RedisStoreConfigurationBuilder
     @Override
     public ConnectionPoolConfigurationBuilder connectionPool()
     {
-        return connectionPool;
+        return this.connectionPool;
     }
 }

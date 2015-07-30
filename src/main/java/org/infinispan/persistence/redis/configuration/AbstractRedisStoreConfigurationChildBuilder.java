@@ -38,4 +38,10 @@ public abstract class AbstractRedisStoreConfigurationChildBuilder<S> extends Abs
     {
         return builder.connectionTimeout(socketTimeout);
     }
+
+    @Override
+    public RedisStoreConfigurationBuilder maxRedirections(int maxRedirections)
+    {
+        return builder.maxRedirections(maxRedirections);
+    }
 }
