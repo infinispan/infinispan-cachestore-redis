@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<infinispan
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
+                          urn:infinispan:config:store:redis:8.0 http://www.infinispan.org/schemas/infinispan-cachestore-redis-config-8.0.xsd"
+    xmlns="urn:infinispan:config:8.0"
+    xmlns:remote="urn:infinispan:config:store:redis:8.0" >
+
+    <!-- Default cache named to preserve old default cache name -->
+    <cache-container default-cache="___defaultcache">
+        <local-cache name="___defaultcache">
+            <persistence passivation="false">
+                <redis-store xmlns="urn:infinispan:config:store:redis:8.0"
+                    cache="___defaultcache" socket-timeout="60000">
+                    <redis-server host="127.0.0.1" port="6380" />
+                    <connection-pool max-active="99" max-idle="97" max-total="98"/>
+                </redis-store>
+            </persistence>
+        </local-cache>
+    </cache-container>
+
+</infinispan>
