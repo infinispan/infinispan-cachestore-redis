@@ -48,6 +48,16 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
         while (reader.hasNext() && (reader.nextTag() != XMLStreamConstants.END_ELEMENT)) {
             Element element = Element.forName(reader.getLocalName());
             switch (element) {
+                case CONNECTION_POOL: {
+                    this.parseConnectionPool(reader, builder.connectionPool());
+                    break;
+                }
+
+                case SERVER: {
+                    this.parseServer(reader, builder.addServer());
+                    break;
+                }
+
                 default: {
                     Parser80.parseStoreElement(reader, builder);
                     break;
@@ -56,6 +66,63 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
         }
 
         persistenceBuilder.addStore(builder);
+    }
+
+    private void parseConnectionPool(XMLExtendedStreamReader reader, ConnectionPoolConfigurationBuilder builder) throws XMLStreamException
+    {
+        for (int i = 0; i < reader.getAttributeCount(); i++) {
+            ParseUtils.requireNoNamespaceAttribute(reader, i);
+            String value = replaceProperties(reader.getAttributeValue(i));
+            Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case MAX_IDLE: {
+                    builder.maxIdle(Integer.parseInt(value));
+                    break;
+                }
+
+                case MAX_TOTAL: {
+                    builder.maxTotal(Integer.parseInt(value));
+                    break;
+                }
+
+                case MIN_IDLE: {
+                    builder.minIdle(Integer.parseInt(value));
+                    break;
+                }
+
+                default: {
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        ParseUtils.requireNoContent(reader);
+    }
+
+    private void parseServer(XMLExtendedStreamReader reader, RedisServerConfigurationBuilder builder)
+        throws XMLStreamException
+    {
+        for (int i = 0; i < reader.getAttributeCount(); i++) {
+            ParseUtils.requireNoNamespaceAttribute(reader, i);
+            String value = replaceProperties(reader.getAttributeValue(i));
+            Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case HOST:
+                    builder.host(value);
+                    break;
+
+                case PORT:
+                    builder.port(Integer.parseInt(value));
+                    break;
+
+                // todo: outbound socket?
+
+                default:
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+            }
+        }
+
+        ParseUtils.requireNoContent(reader);
     }
 
     private void parseRedisStoreAttributes(XMLExtendedStreamReader reader, RedisStoreConfigurationBuilder builder)
@@ -67,15 +134,17 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
             Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
             switch (attribute) {
                 case CONNECT_TIMEOUT: {
-                    builder.connectionTimeout(Long.parseLong(value));
+                    builder.connectionTimeout(Integer.parseInt(value));
                     break;
                 }
-                case REMOTE_CACHE_NAME: {
-                    builder.remoteCacheName(value);
-                    break;
-                }
+
                 case SOCKET_TIMEOUT: {
-                    builder.socketTimeout(Long.parseLong(value));
+                    builder.socketTimeout(Integer.parseInt(value));
+                    break;
+                }
+
+                case MAX_REDIRECTIONS: {
+                    builder.socketTimeout(Integer.parseInt(value));
                     break;
                 }
             }
@@ -83,7 +152,8 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
     }
 
     @Override
-    public Namespace[] getNamespaces() {
+    public Namespace[] getNamespaces()
+    {
         return ParseUtils.getNamespaceAnnotations(getClass());
     }
 }

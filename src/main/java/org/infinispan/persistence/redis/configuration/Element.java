@@ -8,7 +8,9 @@ public enum Element
     // must be first
     UNKNOWN(null),
 
-    REDIS_STORE("redis-store")
+    REDIS_STORE("redis-store"),
+    CONNECTION_POOL("connection-pool"),
+    SERVER("redis-server")
     ;
 
     private final String name;

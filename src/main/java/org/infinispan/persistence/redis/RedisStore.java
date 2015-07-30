@@ -1,5 +1,7 @@
 package org.infinispan.persistence.redis;
 
+import org.infinispan.persistence.redis.configuration.ConnectionPoolConfiguration;
+import org.infinispan.persistence.redis.configuration.RedisServerConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
 import org.infinispan.commons.configuration.ConfiguredBy;
 import org.infinispan.commons.io.ByteBuffer;
@@ -9,10 +11,10 @@ import org.infinispan.persistence.TaskContextImpl;
 import org.infinispan.persistence.spi.*;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.*;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import net.jcip.annotations.ThreadSafe;
 
@@ -27,6 +29,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
 
     private JedisPool pool;
     private JedisPoolConfig poolConfig;
+    private JedisCluster cluster;
 
     /**
      * Used to initialize a cache loader.  Typically invoked by the {@link org.infinispan.persistence.manager.PersistenceManager}
@@ -42,10 +45,19 @@ final public class RedisStore implements AdvancedLoadWriteStore
         this.ctx = ctx;
         this.configuration = this.ctx.getConfiguration();
 
-        // todo: apply configuration
-
+        // Configure pool
         this.poolConfig = new JedisPoolConfig();
-        this.pool = new JedisPool(this.poolConfig, "localhost");
+        this.poolConfig.setMaxIdle(this.configuration.connectionPool().maxIdle());
+        this.poolConfig.setMaxTotal(this.configuration.connectionPool().maxTotal());
+        this.poolConfig.setMinIdle(this.configuration.connectionPool().minIdle());
+
+        Set<HostAndPort> clusterNodes = new HashSet<HostAndPort>();
+        for (RedisServerConfiguration redisServerConfiguration : this.configuration.servers()) {
+            clusterNodes.add(new HostAndPort(redisServerConfiguration.host(), redisServerConfiguration.port()));
+        }
+
+        JedisCluster cluster = new JedisCluster(clusterNodes, this.configuration.connectionTimeout(),
+            this.configuration.socketTimeout(), this.configuration.maxRedirections(), this.poolConfig);
     }
 
     /**

@@ -11,7 +11,7 @@
         <local-cache name="___defaultcache">
             <persistence passivation="false">
                 <redis-store xmlns="urn:infinispan:config:store:redis:8.0"
-                    cache="___defaultcache" socket-timeout="60000">
+                    cache="___defaultcache" socket-timeout="60000" max-redirections="5">
                     <redis-server host="127.0.0.1" port="6380" />
                     <connection-pool max-active="99" max-idle="97" max-total="98"/>
                 </redis-store>

@@ -8,14 +8,20 @@ public enum Attribute
     // must be first
     UNKNOWN(null),
 
+    MAX_REDIRECTIONS("max-redirections"),
     CONNECT_TIMEOUT("connect-timeout"),
-    REMOTE_CACHE_NAME("cache"),
-    SOCKET_TIMEOUT("socket-timeout")
+    SOCKET_TIMEOUT("socket-timeout"),
+    HOST("host"),
+    PORT("port"),
+    MIN_IDLE("min-idle"),
+    MAX_IDLE("max-idle"),
+    MAX_TOTAL("max-total")
     ;
 
     private final String name;
 
-    private Attribute(final String name) {
+    private Attribute(final String name)
+    {
         this.name = name;
     }
 
@@ -24,24 +30,29 @@ public enum Attribute
      *
      * @return the local name
      */
-    public String getLocalName() {
+    public String getLocalName()
+    {
         return name;
     }
 
     private static final Map<String, Attribute> attributes;
 
-    static {
+    static
+    {
         final Map<String, Attribute> map = new HashMap<String, Attribute>(64);
+
         for (Attribute attribute : values()) {
             final String name = attribute.getLocalName();
             if (name != null) {
                 map.put(name, attribute);
             }
         }
+
         attributes = map;
     }
 
-    public static Attribute forName(final String localName) {
+    public static Attribute forName(final String localName)
+    {
         final Attribute attribute = attributes.get(localName);
         return attribute == null ? UNKNOWN : attribute;
     }
