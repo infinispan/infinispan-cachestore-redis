@@ -10,7 +10,8 @@ public enum Element
 
     REDIS_STORE("redis-store"),
     CONNECTION_POOL("connection-pool"),
-    SERVER("redis-server")
+    SERVER("redis-server"),
+    LOAD_BALANCER("load-balancer")
     ;
 
     private final String name;

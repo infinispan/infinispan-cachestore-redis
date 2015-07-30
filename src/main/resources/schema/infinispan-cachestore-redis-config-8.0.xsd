@@ -80,7 +80,7 @@
                 <xs:documentation>
                     Sets a global limit on the number persistent connections that can be in circulation within the
                     combined set of servers. When non-positive, there is no limit to the total number of persistent
-                    connections in circulation. When maxTotal is exceeded, all connections pools are exhausted.
+                    connections in circulation. When maxMasterTotal is exceeded, all connections pools are exhausted.
                     The default setting for this parameter is -1 (no limit).
                 </xs:documentation>
             </xs:annotation>

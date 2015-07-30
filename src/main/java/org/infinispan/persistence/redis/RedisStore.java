@@ -1,6 +1,5 @@
 package org.infinispan.persistence.redis;
 
-import org.infinispan.persistence.redis.configuration.RedisServerConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
 import org.infinispan.commons.configuration.ConfiguredBy;
 import org.infinispan.commons.io.ByteBuffer;
@@ -10,12 +9,13 @@ import org.infinispan.persistence.TaskContextImpl;
 import org.infinispan.persistence.spi.*;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
-import redis.clients.jedis.*;
+import org.redisson.Config;
+import org.redisson.Redisson;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.nio.charset.Charset;
 import java.util.concurrent.Executor;
 import net.jcip.annotations.ThreadSafe;
+import org.redisson.core.RBucket;
 
 @ThreadSafe
 @ConfiguredBy(RedisStoreConfiguration.class)
@@ -26,9 +26,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     private InitializationContext ctx;
     private RedisStoreConfiguration configuration;
 
-    private JedisPool pool;
-    private JedisPoolConfig poolConfig;
-    private JedisCluster cluster;
+    private Redisson redisson;
 
     /**
      * Used to initialize a cache loader.  Typically invoked by the {@link org.infinispan.persistence.manager.PersistenceManager}
@@ -44,19 +42,58 @@ final public class RedisStore implements AdvancedLoadWriteStore
         this.ctx = ctx;
         this.configuration = this.ctx.getConfiguration();
 
-        // Configure pool
-        this.poolConfig = new JedisPoolConfig();
-        this.poolConfig.setMaxIdle(this.configuration.connectionPool().maxIdle());
-        this.poolConfig.setMaxTotal(this.configuration.connectionPool().maxTotal());
-        this.poolConfig.setMinIdle(this.configuration.connectionPool().minIdle());
+        Config config = new Config();
 
-        Set<HostAndPort> clusterNodes = new HashSet<HostAndPort>();
-        for (RedisServerConfiguration redisServerConfiguration : this.configuration.servers()) {
-            clusterNodes.add(new HostAndPort(redisServerConfiguration.host(), redisServerConfiguration.port()));
-        }
+        // todo: choose correct configuration strategy
+//        config.useClusterServers();
+//            .setClientName()
+//            .setDatabase()
+//            .setLoadBalancer()
+//            .setPassword()
+//            .setRetryAttempts()
+//            .setRetryInterval()
+//            .setTimeout()
+//
+//            .setMasterConnectionPoolSize()
+//            .setSlaveConnectionPoolSize()
+//
+//            .setScanInterval()
+//
+//            .addNodeAddress()
+//        ;
+//
+//        config.useSentinelConnection()
+//            .setClientName()
+//            .setDatabase()
+//            .setLoadBalancer()
+//            .setPassword()
+//            .setRetryAttempts()
+//            .setRetryInterval()
+//            .setTimeout()
+//
+//            .setMasterConnectionPoolSize()
+//            .setSlaveConnectionPoolSize()
+//
+//            .setMasterName()
+//            .addSentinelAddress()
+//        ;
+//
+//        config.useMasterSlaveConnection()
+//            .setClientName()
+//            .setDatabase()
+//            .setLoadBalancer()
+//            .setPassword()
+//            .setRetryAttempts()
+//            .setRetryInterval()
+//            .setTimeout()
+//
+//            .setMasterConnectionPoolSize()
+//            .setSlaveConnectionPoolSize()
+//
+//            .setMasterAddress("")
+//            .addSlaveAddress()
 
-        JedisCluster cluster = new JedisCluster(clusterNodes, this.configuration.connectionTimeout(),
-            this.configuration.socketTimeout(), this.configuration.maxRedirections(), this.poolConfig);
+        redisson = Redisson.create(config);
     }
 
     /**
@@ -74,8 +111,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void stop()
     {
-        if (null != this.pool) {
-            this.pool.destroy();
+        if (null != this.redisson) {
+            this.redisson.shutdown();
         }
     }
 
@@ -104,14 +141,11 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public void process(final KeyFilter filter, final CacheLoaderTask task, Executor executor, boolean fetchValue, boolean fetchMetadata)
     {
         final InitializationContext ctx = this.ctx;
-        final JedisPool pool = this.pool;
         final TaskContext taskContext = new TaskContextImpl();
-        Jedis jedis = null;
+        Redisson redisson = this.redisson;
 
         try {
-            jedis = this.pool.getResource();
-
-            for (final byte[] keyRaw : jedis.keys(new byte[] {'*'})) {
+            for (final String keyRaw : redisson.findKeysByPattern("*")) {
                 if (taskContext.isStopped()) {
                     break;
                 }
@@ -119,14 +153,10 @@ final public class RedisStore implements AdvancedLoadWriteStore
                 executor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        Jedis jedis = null;
-
                         try {
                             Object key = ctx.getMarshaller().objectFromByteBuffer(keyRaw);
 
                             if (filter.accept(key)) {
-                                jedis = pool.getResource();
-
                                 byte[] valueRaw = jedis.get(keyRaw);
                                 ByteBuffer keyBuf = ctx.getByteBufferFactory().newByteBuffer(keyRaw, 0, keyRaw.length);
                                 ByteBuffer valueBuf = ctx.getByteBufferFactory().newByteBuffer(valueRaw, 0, valueRaw.length);
@@ -139,18 +169,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
                         }
                         catch(Exception ex) {
                             RedisStore.log.error("Failed to process the redis store key", ex);
-
-                            if (null != jedis) {
-                                pool.returnBrokenResource(jedis);
-                                jedis = null;
-                            }
-
                             throw new PersistenceException(ex);
-                        }
-                        finally {
-                            if (null != jedis) {
-                                pool.returnResource(jedis);
-                            }
                         }
                     }
                 });
@@ -158,18 +177,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to process the redis store keys", ex);
-
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             throw new PersistenceException(ex);
-        }
-        finally {
-            if (null != jedis) {
-                pool.returnResource(jedis);
-            }
         }
     }
 
@@ -193,10 +201,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public int size()
     {
-        Jedis jedis = null;
-
         try {
-            jedis = this.pool.getResource();
             long dbSize = jedis.dbSize();
 
             // Can't return more than Integer.MAX_VALUE due to interface limitation
@@ -218,18 +223,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to fetch element count from the redis store", ex);
-
-            if (null != jedis) {
-                this.pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             throw new PersistenceException(ex);
-        }
-        finally {
-            if (null != jedis) {
-                this.pool.returnResource(jedis);
-            }
         }
     }
 
@@ -241,26 +235,12 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void clear()
     {
-        Jedis jedis = null;
-
         try {
-            jedis = this.pool.getResource();
-            jedis.flushDB();
+            this.redisson.flushdb();
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to clear all elements in the redis store", ex);
-
-            if (null != jedis) {
-                this.pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             throw new PersistenceException(ex);
-        }
-        finally {
-            if (null != jedis) {
-                this.pool.returnResource(jedis);
-            }
         }
     }
 
@@ -275,13 +255,10 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public MarshalledEntry load(Object key)
     {
-        Jedis jedis = null;
-
         try {
             ByteBuffer keyRaw = this.ctx.getMarshaller().objectToBuffer(key);
-
-            jedis = this.pool.getResource();
-            byte[] value = jedis.get(keyRaw.getBuf());
+            RBucket bucket = redisson.getBucket(new String(keyRaw.getBuf(), Charset.forName("UTF-8")));
+            byte[] value = bucket.get();
 
             if (null == value) {
                 return null;
@@ -292,18 +269,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to load element from the redis store", ex);
-
-            if (null != jedis) {
-                this.pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             throw new PersistenceException(ex);
-        }
-        finally {
-            if (null != jedis) {
-                this.pool.returnResource(jedis);
-            }
         }
     }
 
@@ -317,29 +283,16 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public void write(MarshalledEntry marshalledEntry)
     {
         ByteBuffer buf = marshalledEntry.getValueBytes();
-        Jedis jedis = null;
 
         try {
             byte[] key = marshalledEntry.getKeyBytes().getBuf();
-
-            jedis = this.pool.getResource();
-            jedis.set(key, buf.getBuf());
-            jedis.expire(key, 100); // todo: set based on configuration
+            RBucket bucket = redisson.getBucket(new String(key, Charset.forName("UTF-8")));
+            bucket.set(buf.getBuf());
+//            jedis.expire(key, 100); // todo: set based on configuration
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to write element to the redis store", ex);
-
-            if (null != jedis) {
-                this.pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             throw new PersistenceException(ex);
-        }
-        finally {
-            if (null != jedis) {
-                this.pool.returnResource(jedis);
-            }
         }
     }
 
@@ -352,27 +305,13 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public boolean delete(Object key)
     {
-        Jedis jedis = null;
-
         try {
-            jedis = this.pool.getResource();
             ByteBuffer marshaledBuff = this.ctx.getMarshaller().objectToBuffer(key);
-            return jedis.del(marshaledBuff.getBuf()) > 0;
+            return redisson.delete(new String(marshaledBuff.getBuf(), Charset.forName("UTF-8"))) > 0;
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to delete element from the redis store", ex);
-
-            if (null != jedis) {
-                this.pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             throw new PersistenceException(ex);
-        }
-        finally {
-            if (null != jedis) {
-                this.pool.returnResource(jedis);
-            }
         }
     }
 
@@ -385,27 +324,13 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public boolean contains(Object key)
     {
-        Jedis jedis = null;
-
         try {
-            jedis = this.pool.getResource();
             ByteBuffer marshaledBuff = this.ctx.getMarshaller().objectToBuffer(key);
-            return jedis.exists(marshaledBuff.getBuf());
+            return null != redisson.getBucket(new String(marshaledBuff.getBuf(), Charset.forName("UTF-8")));
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to discover if element is in the redis store", ex);
-
-            if (null != jedis) {
-                this.pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             throw new PersistenceException(ex);
-        }
-        finally {
-            if (null != jedis) {
-                this.pool.returnResource(jedis);
-            }
         }
     }
 }

@@ -6,30 +6,23 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 public class ConnectionPoolConfigurationBuilder extends AbstractRedisStoreConfigurationChildBuilder<RedisStoreConfigurationBuilder>
     implements Builder<ConnectionPoolConfiguration>
 {
-    private int maxTotal = 8;
-    private int maxIdle = 8;
-    private int minIdle = 0;
+    private int maxMasterTotal = 100;
+    private int maxSlaveTotal = 100;
 
     protected ConnectionPoolConfigurationBuilder(RedisStoreConfigurationBuilder builder)
     {
         super(builder);
     }
 
-    public ConnectionPoolConfigurationBuilder maxTotal(int maxTotal)
+    public ConnectionPoolConfigurationBuilder maxMasterTotal(int maxMasterTotal)
     {
-        this.maxTotal = maxTotal;
+        this.maxMasterTotal = maxMasterTotal;
         return this;
     }
 
-    public ConnectionPoolConfigurationBuilder maxIdle(int maxIdle)
+    public ConnectionPoolConfigurationBuilder maxSlaveTotal(int maxSlaveTotal)
     {
-        this.maxIdle = maxIdle;
-        return this;
-    }
-
-    public ConnectionPoolConfigurationBuilder minIdle(int minIdle)
-    {
-        this.minIdle = minIdle;
+        this.maxSlaveTotal = maxSlaveTotal;
         return this;
     }
 
@@ -47,15 +40,14 @@ public class ConnectionPoolConfigurationBuilder extends AbstractRedisStoreConfig
     @Override
     public ConnectionPoolConfiguration create()
     {
-        return new ConnectionPoolConfiguration(maxTotal, maxIdle, minIdle);
+        return new ConnectionPoolConfiguration(maxMasterTotal, maxSlaveTotal);
     }
 
     @Override
     public Builder<?> read(ConnectionPoolConfiguration template)
     {
-        maxTotal = template.maxTotal();
-        maxIdle = template.maxIdle();
-        minIdle = template.minIdle();
+        maxMasterTotal = template.maxMasterTotal();
+        maxSlaveTotal = template.maxSlaveTotal();
         return this;
     }
 }

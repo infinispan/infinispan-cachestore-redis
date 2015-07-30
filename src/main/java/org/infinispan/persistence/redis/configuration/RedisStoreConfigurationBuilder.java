@@ -11,12 +11,14 @@ final public class RedisStoreConfigurationBuilder
     implements RedisStoreConfigurationChildBuilder<RedisStoreConfigurationBuilder>
 {
     private final ConnectionPoolConfigurationBuilder connectionPool;
+    private final ExecutorFactoryConfigurationBuilder loadBalancerFactory;
     private List<RedisServerConfigurationBuilder> servers = new ArrayList<RedisServerConfigurationBuilder>();
 
     public RedisStoreConfigurationBuilder(PersistenceConfigurationBuilder builder)
     {
-        super(builder);
+        super(builder, RedisStoreConfiguration.attributeDefinitionSet());
         connectionPool = new ConnectionPoolConfigurationBuilder(this);
+        loadBalancerFactory = new ExecutorFactoryConfigurationBuilder(this);
     }
 
     @Override
@@ -47,9 +49,44 @@ final public class RedisStoreConfigurationBuilder
     }
 
     @Override
-    public RedisStoreConfigurationBuilder maxRedirections(int maxRedirections)
+    public RedisStoreConfigurationBuilder clientName(String clientName)
     {
-        this.attributes.attribute(RedisStoreConfiguration.MAX_REDIRECTIONS).set(maxRedirections);
+        this.attributes.attribute(RedisStoreConfiguration.CLIENT_NAME).set(clientName);
+        return this;
+    }
+
+    @Override
+    public RedisStoreConfigurationBuilder database(int database)
+    {
+        this.attributes.attribute(RedisStoreConfiguration.DATABASE).set(database);
+        return this;
+    }
+
+    @Override
+    public RedisStoreConfigurationBuilder password(String password)
+    {
+        this.attributes.attribute(RedisStoreConfiguration.PASSWORD).set(password);
+        return this;
+    }
+
+    @Override
+    public RedisStoreConfigurationBuilder retryAttempts(int retryAttempts)
+    {
+        this.attributes.attribute(RedisStoreConfiguration.RETRY_ATTEMPTS).set(retryAttempts);
+        return this;
+    }
+
+    @Override
+    public RedisStoreConfigurationBuilder retryInterval(int retryInterval)
+    {
+        this.attributes.attribute(RedisStoreConfiguration.RETRY_INTERVAL).set(retryInterval);
+        return this;
+    }
+
+    @Override
+    public RedisStoreConfigurationBuilder executionTimeout(int executionTimeout)
+    {
+        this.attributes.attribute(RedisStoreConfiguration.EXECUTION_TIMEOUT).set(executionTimeout);
         return this;
     }
 
@@ -65,5 +102,11 @@ final public class RedisStoreConfigurationBuilder
     public ConnectionPoolConfigurationBuilder connectionPool()
     {
         return this.connectionPool;
+    }
+
+    @Override
+    public ExecutorFactoryConfigurationBuilder loadBalancerFactory()
+    {
+        return this.loadBalancerFactory;
     }
 }

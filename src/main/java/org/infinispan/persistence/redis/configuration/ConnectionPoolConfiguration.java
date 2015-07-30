@@ -2,29 +2,22 @@ package org.infinispan.persistence.redis.configuration;
 
 final public class ConnectionPoolConfiguration
 {
-    private final int maxTotal;
-    private final int maxIdle;
-    private final int minIdle;
+    private final int maxMasterTotal;
+    private final int maxSlaveTotal;
 
-    ConnectionPoolConfiguration(int maxTotal, int maxIdle, int minIdle)
+    ConnectionPoolConfiguration(int maxMasterTotal, int maxSlaveTotal)
     {
-        this.maxTotal = maxTotal;
-        this.maxIdle = maxIdle;
-        this.minIdle = minIdle;
+        this.maxMasterTotal = maxMasterTotal;
+        this.maxSlaveTotal = maxSlaveTotal;
     }
 
-    public int maxTotal()
+    public int maxMasterTotal()
     {
-        return maxTotal;
+        return maxMasterTotal;
     }
 
-    public int maxIdle()
+    public int maxSlaveTotal()
     {
-        return maxIdle;
-    }
-
-    public int minIdle()
-    {
-        return minIdle;
+        return maxSlaveTotal;
     }
 }

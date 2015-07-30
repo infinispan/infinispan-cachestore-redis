@@ -1,5 +1,7 @@
 package org.infinispan.persistence.redis.configuration;
 
+import org.infinispan.commons.executors.ExecutorFactory;
+import org.infinispan.commons.util.Util;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.cache.PersistenceConfigurationBuilder;
 import org.infinispan.configuration.parsing.*;
@@ -58,6 +60,11 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
                     break;
                 }
 
+                case LOAD_BALANCER: {
+                    this.parseLoadBalancer(reader, builder.loadBalancerFactory(), classLoader);
+                    break;
+                }
+
                 default: {
                     Parser80.parseStoreElement(reader, builder);
                     break;
@@ -68,25 +75,21 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
         persistenceBuilder.addStore(builder);
     }
 
-    private void parseConnectionPool(XMLExtendedStreamReader reader, ConnectionPoolConfigurationBuilder builder) throws XMLStreamException
+    private void parseConnectionPool(XMLExtendedStreamReader reader, ConnectionPoolConfigurationBuilder builder)
+        throws XMLStreamException
     {
         for (int i = 0; i < reader.getAttributeCount(); i++) {
             ParseUtils.requireNoNamespaceAttribute(reader, i);
             String value = replaceProperties(reader.getAttributeValue(i));
             Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
             switch (attribute) {
-                case MAX_IDLE: {
-                    builder.maxIdle(Integer.parseInt(value));
+                case MAX_MASTER_TOTAL: {
+                    builder.maxMasterTotal(Integer.parseInt(value));
                     break;
                 }
 
-                case MAX_TOTAL: {
-                    builder.maxTotal(Integer.parseInt(value));
-                    break;
-                }
-
-                case MIN_IDLE: {
-                    builder.minIdle(Integer.parseInt(value));
+                case MAX_SLAVE_TOTAL: {
+                    builder.maxSlaveTotal(Integer.parseInt(value));
                     break;
                 }
 
@@ -107,6 +110,10 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
             String value = replaceProperties(reader.getAttributeValue(i));
             Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
             switch (attribute) {
+                case TYPE:
+                    builder.type(value);
+                    break;
+
                 case HOST:
                     builder.host(value);
                     break;
@@ -123,6 +130,32 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
         }
 
         ParseUtils.requireNoContent(reader);
+    }
+
+    private void parseLoadBalancer(
+        XMLExtendedStreamReader reader,
+        ExecutorFactoryConfigurationBuilder builder,
+        ClassLoader classLoader
+    )
+        throws XMLStreamException
+    {
+        for (int i = 0; i < reader.getAttributeCount(); i++) {
+            ParseUtils.requireNoNamespaceAttribute(reader, i);
+            String value = replaceProperties(reader.getAttributeValue(i));
+            Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case FACTORY: {
+                    builder.factory(Util.<ExecutorFactory> getInstance(value, classLoader));
+                    break;
+                }
+
+                default: {
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+                }
+            }
+        }
+
+        builder.withExecutorProperties(Parser80.parseProperties(reader));
     }
 
     private void parseRedisStoreAttributes(XMLExtendedStreamReader reader, RedisStoreConfigurationBuilder builder)
@@ -143,8 +176,33 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
                     break;
                 }
 
-                case MAX_REDIRECTIONS: {
-                    builder.socketTimeout(Integer.parseInt(value));
+                case CLIENT_NAME: {
+                    builder.clientName(value);
+                    break;
+                }
+
+                case DATABASE: {
+                    builder.database(Integer.parseInt(value));
+                    break;
+                }
+
+                case PASSWORD: {
+                    builder.password(value);
+                    break;
+                }
+
+                case RETRY_ATTEMPTS: {
+                    builder.retryAttempts(Integer.parseInt(value));
+                    break;
+                }
+
+                case RETRY_INTERVAL: {
+                    builder.retryInterval(Integer.parseInt(value));
+                    break;
+                }
+
+                case EXECUTION_TIMEOUT: {
+                    builder.executionTimeout(Integer.parseInt(value));
                     break;
                 }
             }

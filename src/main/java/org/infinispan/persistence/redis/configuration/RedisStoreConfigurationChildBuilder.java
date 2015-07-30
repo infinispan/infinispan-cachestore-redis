@@ -5,6 +5,11 @@ import org.infinispan.configuration.cache.StoreConfigurationChildBuilder;
 public interface RedisStoreConfigurationChildBuilder<S> extends StoreConfigurationChildBuilder<S>
 {
     /**
+     * Configures the load balancer
+     */
+    ExecutorFactoryConfigurationBuilder loadBalancerFactory();
+
+    /**
      * Adds a new remote server
      */
     RedisServerConfigurationBuilder addServer();
@@ -26,8 +31,10 @@ public interface RedisStoreConfigurationChildBuilder<S> extends StoreConfigurati
      */
     RedisStoreConfigurationBuilder socketTimeout(int socketTimeout);
 
-    /**
-     * Maximum number of redirections permitted when connecting to the cluster
-     */
-    RedisStoreConfigurationBuilder maxRedirections(int maxRedirections);
+    RedisStoreConfigurationBuilder clientName(String clientName);
+    RedisStoreConfigurationBuilder database(int database);
+    RedisStoreConfigurationBuilder password(String password);
+    RedisStoreConfigurationBuilder retryAttempts(int retryAttempts);
+    RedisStoreConfigurationBuilder retryInterval(int retryInterval);
+    RedisStoreConfigurationBuilder executionTimeout(int executionTimeout);
 }
