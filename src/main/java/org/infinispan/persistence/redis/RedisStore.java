@@ -1,5 +1,11 @@
 package org.infinispan.persistence.redis;
 
+import com.lambdaworks.redis.RedisClusterConnection;
+import com.lambdaworks.redis.RedisURI;
+import com.lambdaworks.redis.cluster.RedisClusterClient;
+import com.lambdaworks.redis.output.KeyStreamingChannel;
+import org.infinispan.metadata.InternalMetadata;
+import org.infinispan.persistence.redis.configuration.RedisServerConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
 import org.infinispan.commons.configuration.ConfiguredBy;
 import org.infinispan.commons.io.ByteBuffer;
@@ -12,7 +18,11 @@ import org.infinispan.util.logging.LogFactory;
 import org.redisson.Config;
 import org.redisson.Redisson;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 import net.jcip.annotations.ThreadSafe;
 import org.redisson.core.RBucket;
@@ -26,7 +36,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     private InitializationContext ctx;
     private RedisStoreConfiguration configuration;
 
-    private Redisson redisson;
+    private RedisClusterClient client;
+    private ObjectCodec codec;
 
     /**
      * Used to initialize a cache loader.  Typically invoked by the {@link org.infinispan.persistence.manager.PersistenceManager}
@@ -40,60 +51,31 @@ final public class RedisStore implements AdvancedLoadWriteStore
         RedisStore.log.info("Redis cache store initialising");
 
         this.ctx = ctx;
+        this.codec = new ObjectCodec(this.ctx.getMarshaller());
         this.configuration = this.ctx.getConfiguration();
 
-        Config config = new Config();
+        List<RedisURI> clusterNodes = new ArrayList<RedisURI>();
 
-        // todo: choose correct configuration strategy
-//        config.useClusterServers();
-//            .setClientName()
-//            .setDatabase()
-//            .setLoadBalancer()
-//            .setPassword()
-//            .setRetryAttempts()
-//            .setRetryInterval()
-//            .setTimeout()
-//
-//            .setMasterConnectionPoolSize()
-//            .setSlaveConnectionPoolSize()
-//
-//            .setScanInterval()
-//
-//            .addNodeAddress()
-//        ;
-//
-//        config.useSentinelConnection()
-//            .setClientName()
-//            .setDatabase()
-//            .setLoadBalancer()
-//            .setPassword()
-//            .setRetryAttempts()
-//            .setRetryInterval()
-//            .setTimeout()
-//
-//            .setMasterConnectionPoolSize()
-//            .setSlaveConnectionPoolSize()
-//
-//            .setMasterName()
-//            .addSentinelAddress()
-//        ;
-//
-//        config.useMasterSlaveConnection()
-//            .setClientName()
-//            .setDatabase()
-//            .setLoadBalancer()
-//            .setPassword()
-//            .setRetryAttempts()
-//            .setRetryInterval()
-//            .setTimeout()
-//
-//            .setMasterConnectionPoolSize()
-//            .setSlaveConnectionPoolSize()
-//
-//            .setMasterAddress("")
-//            .addSlaveAddress()
+        try {
+            for (RedisServerConfiguration server : this.configuration.servers()) {
+                clusterNodes.add(RedisURI.create(new URI(
+                    (server.ssl() ? "rediss" : "redis"),
+                    this.configuration.password(),
+                    server.host(),
+                    server.port(),
+                    String.valueOf(this.configuration.database()),
+                    null,
+                    null
+                )));
+            }
+        }
+        catch(URISyntaxException ex) {
+            throw new PersistenceException(ex);
+        }
 
-        redisson = Redisson.create(config);
+        // todo: configure
+
+        this.client = new RedisClusterClient(clusterNodes);
     }
 
     /**
@@ -111,8 +93,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void stop()
     {
-        if (null != this.redisson) {
-            this.redisson.shutdown();
+        if (null != this.client) {
+            this.client.shutdown();
         }
     }
 
@@ -138,42 +120,53 @@ final public class RedisStore implements AdvancedLoadWriteStore
      * @throws PersistenceException in case of an error, e.g. communicating with the external storage
      */
     @Override
-    public void process(final KeyFilter filter, final CacheLoaderTask task, Executor executor, boolean fetchValue, boolean fetchMetadata)
+    public void process(
+        final KeyFilter filter,
+        final CacheLoaderTask task,
+        Executor executor,
+        boolean fetchValue,
+        boolean fetchMetadata
+    )
     {
         final InitializationContext ctx = this.ctx;
         final TaskContext taskContext = new TaskContextImpl();
-        Redisson redisson = this.redisson;
 
         try {
-            for (final String keyRaw : redisson.findKeysByPattern("*")) {
-                if (taskContext.isStopped()) {
-                    break;
-                }
+            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
+            connection.keys(new KeyStreamingChannel<Object>()
+            {
+                @Override
+                public void onKey(final Object key)
+                {
+                    if (taskContext.isStopped()) {
+                        // todo: force stop
+                    }
 
-                executor.execute(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            Object key = ctx.getMarshaller().objectFromByteBuffer(keyRaw);
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                if (filter.accept(key)) {
+                                    Object value = null;
 
-                            if (filter.accept(key)) {
-                                byte[] valueRaw = jedis.get(keyRaw);
-                                ByteBuffer keyBuf = ctx.getByteBufferFactory().newByteBuffer(keyRaw, 0, keyRaw.length);
-                                ByteBuffer valueBuf = ctx.getByteBufferFactory().newByteBuffer(valueRaw, 0, valueRaw.length);
+                                    if (fetchValue) {
+                                        value = connection.get(key);
+                                    }
 
-                                task.processEntry(
-                                    ctx.getMarshalledEntryFactory().newMarshalledEntry(keyBuf, valueBuf, (ByteBuffer) null),
-                                    taskContext
-                                );
+                                    task.processEntry(
+                                        ctx.getMarshalledEntryFactory().newMarshalledEntry(key, value, null),
+                                        taskContext
+                                    );
+                                }
+                            }
+                            catch(Exception ex) {
+                                RedisStore.log.error("Failed to process the redis store key", ex);
+                                throw new PersistenceException(ex);
                             }
                         }
-                        catch(Exception ex) {
-                            RedisStore.log.error("Failed to process the redis store key", ex);
-                            throw new PersistenceException(ex);
-                        }
-                    }
-                });
-            }
+                    });
+                }
+            }, "*");
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to process the redis store keys", ex);
@@ -202,7 +195,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public int size()
     {
         try {
-            long dbSize = jedis.dbSize();
+            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
+            long dbSize = connection.dbsize();
 
             // Can't return more than Integer.MAX_VALUE due to interface limitation
             // If the number of elements in redis is more than the int max size,
@@ -236,7 +230,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public void clear()
     {
         try {
-            this.redisson.flushdb();
+            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
+            connection.flushdb();
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to clear all elements in the redis store", ex);
@@ -256,16 +251,15 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public MarshalledEntry load(Object key)
     {
         try {
-            ByteBuffer keyRaw = this.ctx.getMarshaller().objectToBuffer(key);
-            RBucket bucket = redisson.getBucket(new String(keyRaw.getBuf(), Charset.forName("UTF-8")));
-            byte[] value = bucket.get();
+            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
+            Object value = connection.get(key);
 
             if (null == value) {
                 return null;
             }
-
-            ByteBuffer valueBuf = this.ctx.getByteBufferFactory().newByteBuffer(value, 0, value.length);
-            return this.ctx.getMarshalledEntryFactory().newMarshalledEntry(keyRaw, valueBuf, (ByteBuffer) null);
+            else {
+                return this.ctx.getMarshalledEntryFactory().newMarshalledEntry(key, value, null);
+            }
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to load element from the redis store", ex);
@@ -282,13 +276,9 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void write(MarshalledEntry marshalledEntry)
     {
-        ByteBuffer buf = marshalledEntry.getValueBytes();
-
         try {
-            byte[] key = marshalledEntry.getKeyBytes().getBuf();
-            RBucket bucket = redisson.getBucket(new String(key, Charset.forName("UTF-8")));
-            bucket.set(buf.getBuf());
-//            jedis.expire(key, 100); // todo: set based on configuration
+            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
+            connection.set(marshalledEntry.getKey(), marshalledEntry.getValue());
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to write element to the redis store", ex);
@@ -306,8 +296,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public boolean delete(Object key)
     {
         try {
-            ByteBuffer marshaledBuff = this.ctx.getMarshaller().objectToBuffer(key);
-            return redisson.delete(new String(marshaledBuff.getBuf(), Charset.forName("UTF-8"))) > 0;
+            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
+            return connection.del(key) > 0;
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to delete element from the redis store", ex);
@@ -325,8 +315,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public boolean contains(Object key)
     {
         try {
-            ByteBuffer marshaledBuff = this.ctx.getMarshaller().objectToBuffer(key);
-            return null != redisson.getBucket(new String(marshaledBuff.getBuf(), Charset.forName("UTF-8")));
+            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
+            return connection.exists(key);
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to discover if element is in the redis store", ex);
