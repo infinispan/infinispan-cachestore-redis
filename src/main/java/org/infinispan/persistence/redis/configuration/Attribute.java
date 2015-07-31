@@ -8,18 +8,11 @@ public enum Attribute
     // must be first
     UNKNOWN(null),
 
-    CONNECT_TIMEOUT("connect-timeout"),
-    SOCKET_TIMEOUT("socket-timeout"),
     SSL("ssl"),
-    TYPE("type"),
     HOST("host"),
     PORT("port"),
-    CLIENT_NAME("client-name"),
     PASSWORD("password"),
-    DATABASE("database"),
-    RETRY_ATTEMPTS("retry-attempts"),
-    RETRY_INTERVAL("retry-interval"),
-    EXECUTION_TIMEOUT("execution-timeout")
+    DATABASE("database")
     ;
 
     private final String name;

@@ -73,10 +73,6 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
             String value = replaceProperties(reader.getAttributeValue(i));
             Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
             switch (attribute) {
-                case TYPE:
-                    builder.type(value);
-                    break;
-
                 case SSL:
                     builder.ssl(Boolean.parseBoolean(value));
                     break;
@@ -88,8 +84,6 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
                 case PORT:
                     builder.port(Integer.parseInt(value));
                     break;
-
-                // todo: outbound socket?
 
                 default:
                     throw ParseUtils.unexpectedAttribute(reader, i);
@@ -107,21 +101,6 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
             String value = replaceProperties(reader.getAttributeValue(i));
             Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
             switch (attribute) {
-                case CONNECT_TIMEOUT: {
-                    builder.connectionTimeout(Integer.parseInt(value));
-                    break;
-                }
-
-                case SOCKET_TIMEOUT: {
-                    builder.socketTimeout(Integer.parseInt(value));
-                    break;
-                }
-
-                case CLIENT_NAME: {
-                    builder.clientName(value);
-                    break;
-                }
-
                 case DATABASE: {
                     builder.database(Integer.parseInt(value));
                     break;
@@ -129,21 +108,6 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
 
                 case PASSWORD: {
                     builder.password(value);
-                    break;
-                }
-
-                case RETRY_ATTEMPTS: {
-                    builder.retryAttempts(Integer.parseInt(value));
-                    break;
-                }
-
-                case RETRY_INTERVAL: {
-                    builder.retryInterval(Integer.parseInt(value));
-                    break;
-                }
-
-                case EXECUTION_TIMEOUT: {
-                    builder.executionTimeout(Integer.parseInt(value));
                     break;
                 }
             }

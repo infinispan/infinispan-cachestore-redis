@@ -30,27 +30,6 @@ final public class RedisStoreConfigurationBuilder
     }
 
     @Override
-    public RedisStoreConfigurationBuilder connectionTimeout(int connectionTimeout)
-    {
-        this.attributes.attribute(RedisStoreConfiguration.CONNECTION_TIMEOUT).set(connectionTimeout);
-        return this;
-    }
-
-    @Override
-    public RedisStoreConfigurationBuilder socketTimeout(int socketTimeout)
-    {
-        this.attributes.attribute(RedisStoreConfiguration.SOCKET_TIMEOUT).set(socketTimeout);
-        return this;
-    }
-
-    @Override
-    public RedisStoreConfigurationBuilder clientName(String clientName)
-    {
-        this.attributes.attribute(RedisStoreConfiguration.CLIENT_NAME).set(clientName);
-        return this;
-    }
-
-    @Override
     public RedisStoreConfigurationBuilder database(int database)
     {
         this.attributes.attribute(RedisStoreConfiguration.DATABASE).set(database);
@@ -61,27 +40,6 @@ final public class RedisStoreConfigurationBuilder
     public RedisStoreConfigurationBuilder password(String password)
     {
         this.attributes.attribute(RedisStoreConfiguration.PASSWORD).set(password);
-        return this;
-    }
-
-    @Override
-    public RedisStoreConfigurationBuilder retryAttempts(int retryAttempts)
-    {
-        this.attributes.attribute(RedisStoreConfiguration.RETRY_ATTEMPTS).set(retryAttempts);
-        return this;
-    }
-
-    @Override
-    public RedisStoreConfigurationBuilder retryInterval(int retryInterval)
-    {
-        this.attributes.attribute(RedisStoreConfiguration.RETRY_INTERVAL).set(retryInterval);
-        return this;
-    }
-
-    @Override
-    public RedisStoreConfigurationBuilder executionTimeout(int executionTimeout)
-    {
-        this.attributes.attribute(RedisStoreConfiguration.EXECUTION_TIMEOUT).set(executionTimeout);
         return this;
     }
 

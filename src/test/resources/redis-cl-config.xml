@@ -10,22 +10,8 @@
     <cache-container default-cache="___defaultcache">
         <local-cache name="___defaultcache">
             <persistence passivation="false">
-                <redis-store
-                    xmlns="urn:infinispan:config:store:redis:8.0"
-                    cache="___defaultcache"
-                    client-name=""
-                    database=""
-                    password=""
-                    retry-attempts=""
-                    retry-interval=""
-                    execution-timeout="">
-
-                    <redis-server type="master" ssl="false" host="127.0.0.1" port="6380" />
-                    <redis-server type="sentinel" ssl="true" host="127.0.0.1" port="6380" />
-                    <redis-server type="slave" host="127.0.0.1" port="6380" />
-                    <redis-server host="127.0.0.1" port="6380" />
-
-                    <!-- todo: async executor?? -->
+                <redis-store xmlns="urn:infinispan:config:store:redis:8.0" database="0" password="">
+                    <redis-server ssl="false" host="127.0.0.1" port="6380" />
                 </redis-store>
             </persistence>
         </local-cache>
