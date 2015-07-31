@@ -255,13 +255,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         try {
             RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
             Object value = connection.get(key);
-
-            if (null == value) {
-                return null;
-            }
-            else {
-                return this.ctx.getMarshalledEntryFactory().newMarshalledEntry(key, value, null);
-            }
+            return (value != null ? this.ctx.getMarshalledEntryFactory().newMarshalledEntry(key, value, null) : null);
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to load element from the redis store", ex);
