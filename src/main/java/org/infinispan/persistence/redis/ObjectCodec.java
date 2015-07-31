@@ -5,7 +5,7 @@ import org.infinispan.commons.marshall.StreamingMarshaller;
 
 import java.nio.ByteBuffer;
 
-public class ObjectCodec extends RedisCodec<Object,Object>
+final public class ObjectCodec extends RedisCodec<Object,Object>
 {
     private StreamingMarshaller streamingMarshaller;
 

@@ -1,6 +1,6 @@
 package org.infinispan.persistence.redis.configuration;
 
-public class RedisServerConfiguration
+final public class RedisServerConfiguration
 {
     private final boolean ssl;
     private final String host;

@@ -12,6 +12,7 @@ import org.infinispan.commons.io.ByteBuffer;
 import org.infinispan.filter.KeyFilter;
 import org.infinispan.marshall.core.MarshalledEntry;
 import org.infinispan.persistence.TaskContextImpl;
+import org.infinispan.persistence.redis.exception.TaskContextStoppedStateException;
 import org.infinispan.persistence.spi.*;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
@@ -137,7 +138,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
                 public void onKey(final Object key)
                 {
                     if (taskContext.isStopped()) {
-                        throw new IllegalStateException();
+                        throw new TaskContextStoppedStateException();
                     }
 
                     if (null != key) {
@@ -167,7 +168,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
                 }
             }, "*");
         }
-        catch(IllegalStateException ex) {
+        catch(TaskContextStoppedStateException ex) {
             // Break out exception type for aborting processing
         }
         catch(Exception ex) {

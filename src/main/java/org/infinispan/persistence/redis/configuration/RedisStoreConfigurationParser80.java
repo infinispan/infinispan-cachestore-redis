@@ -17,7 +17,7 @@ import static org.infinispan.commons.util.StringPropertyReplacer.replaceProperti
     @Namespace(uri = "urn:infinispan:config:store:redis:8.0", root = "redis-store"),
     @Namespace(root = "redis-store")
 })
-public class RedisStoreConfigurationParser80 implements ConfigurationParser
+final public class RedisStoreConfigurationParser80 implements ConfigurationParser
 {
     @Override
     public void readElement(XMLExtendedStreamReader reader, ConfigurationBuilderHolder holder)
