@@ -34,8 +34,6 @@ final public class RedisStore implements AdvancedLoadWriteStore
     private static final Log log = LogFactory.getLog(RedisStore.class, Log.class);
 
     private InitializationContext ctx;
-    private RedisStoreConfiguration configuration;
-
     private RedisClusterClient client;
     private ObjectCodec codec;
 
@@ -52,18 +50,18 @@ final public class RedisStore implements AdvancedLoadWriteStore
 
         this.ctx = ctx;
         this.codec = new ObjectCodec(this.ctx.getMarshaller());
-        this.configuration = this.ctx.getConfiguration();
+        RedisStoreConfiguration configuration = this.ctx.getConfiguration();
 
         List<RedisURI> clusterNodes = new ArrayList<RedisURI>();
 
         try {
-            for (RedisServerConfiguration server : this.configuration.servers()) {
+            for (RedisServerConfiguration server : configuration.servers()) {
                 clusterNodes.add(RedisURI.create(new URI(
                     (server.ssl() ? "rediss" : "redis"),
-                    this.configuration.password(),
+                    configuration.password(),
                     server.host(),
                     server.port(),
-                    String.valueOf(this.configuration.database()),
+                    String.valueOf(configuration.database()),
                     null,
                     null
                 )));
@@ -72,8 +70,6 @@ final public class RedisStore implements AdvancedLoadWriteStore
         catch(URISyntaxException ex) {
             throw new PersistenceException(ex);
         }
-
-        // todo: configure
 
         this.client = new RedisClusterClient(clusterNodes);
     }
@@ -84,7 +80,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void start()
     {
-
+        RedisStore.log.info("Redis cache store starting");
     }
 
     /**
@@ -93,6 +89,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void stop()
     {
+        RedisStore.log.info("Redis cache store stopping");
+
         if (null != this.client) {
             this.client.shutdown();
         }
