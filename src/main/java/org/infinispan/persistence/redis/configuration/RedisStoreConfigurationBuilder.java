@@ -10,22 +10,17 @@ final public class RedisStoreConfigurationBuilder
     extends AbstractStoreConfigurationBuilder<RedisStoreConfiguration, RedisStoreConfigurationBuilder>
     implements RedisStoreConfigurationChildBuilder<RedisStoreConfigurationBuilder>
 {
-    private final ConnectionPoolConfigurationBuilder connectionPool;
-    private final ExecutorFactoryConfigurationBuilder loadBalancerFactory;
     private List<RedisServerConfigurationBuilder> servers = new ArrayList<RedisServerConfigurationBuilder>();
 
     public RedisStoreConfigurationBuilder(PersistenceConfigurationBuilder builder)
     {
         super(builder, RedisStoreConfiguration.attributeDefinitionSet());
-        connectionPool = new ConnectionPoolConfigurationBuilder(this);
-        loadBalancerFactory = new ExecutorFactoryConfigurationBuilder(this);
     }
 
     @Override
     public RedisStoreConfiguration create()
     {
-        return new RedisStoreConfiguration(this.attributes.protect(), this.async.create(),
-            this.singletonStore.create(), this.connectionPool.create());
+        return new RedisStoreConfiguration(this.attributes.protect(), this.async.create(), this.singletonStore.create());
     }
 
     @Override
@@ -96,17 +91,5 @@ final public class RedisStoreConfigurationBuilder
         RedisServerConfigurationBuilder builder = new RedisServerConfigurationBuilder(this);
         this.servers.add(builder);
         return builder;
-    }
-
-    @Override
-    public ConnectionPoolConfigurationBuilder connectionPool()
-    {
-        return this.connectionPool;
-    }
-
-    @Override
-    public ExecutorFactoryConfigurationBuilder loadBalancerFactory()
-    {
-        return this.loadBalancerFactory;
     }
 }

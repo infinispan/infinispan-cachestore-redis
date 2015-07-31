@@ -22,18 +22,6 @@ public abstract class AbstractRedisStoreConfigurationChildBuilder<S> extends Abs
     }
 
     @Override
-    public ConnectionPoolConfigurationBuilder connectionPool()
-    {
-        return builder.connectionPool();
-    }
-
-    @Override
-    public ExecutorFactoryConfigurationBuilder loadBalancerFactory()
-    {
-        return builder.loadBalancerFactory();
-    }
-
-    @Override
     public RedisStoreConfigurationBuilder connectionTimeout(int connectionTimeout)
     {
         return builder.connectionTimeout(connectionTimeout);

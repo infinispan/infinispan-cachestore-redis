@@ -10,12 +10,10 @@ public enum Attribute
 
     CONNECT_TIMEOUT("connect-timeout"),
     SOCKET_TIMEOUT("socket-timeout"),
+    SSL("ssl"),
     TYPE("type"),
     HOST("host"),
     PORT("port"),
-    FACTORY("factory"),
-    MAX_MASTER_TOTAL("max-master-total"),
-    MAX_SLAVE_TOTAL("max-slave-total"),
     CLIENT_NAME("client-name"),
     PASSWORD("password"),
     DATABASE("database"),

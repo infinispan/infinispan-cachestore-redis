@@ -20,17 +20,10 @@
                     retry-interval=""
                     execution-timeout="">
 
-                    <load-balancer factory="foo.bar.baz.LoadBalancerFactory">
-                        <property name="foo">bar</property>
-                        <property name="foo">bar</property>
-                    </load-balancer>
-
-                    <redis-server type="master" host="127.0.0.1" port="6380" />
-                    <redis-server type="sentinel" host="127.0.0.1" port="6380" />
+                    <redis-server type="master" ssl="false" host="127.0.0.1" port="6380" />
+                    <redis-server type="sentinel" ssl="true" host="127.0.0.1" port="6380" />
                     <redis-server type="slave" host="127.0.0.1" port="6380" />
                     <redis-server host="127.0.0.1" port="6380" />
-
-                    <connection-pool max-master-total="100" max-slave-total="100"/>
 
                     <!-- todo: async executor?? -->
                 </redis-store>

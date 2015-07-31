@@ -46,19 +46,16 @@ final public class RedisStoreConfiguration extends AbstractStoreConfiguration
     private final Attribute<Integer> retryAttempts;
     private final Attribute<Integer> retryInterval;
     private final Attribute<Integer> executionTimeout;
-    private final ConnectionPoolConfiguration connectionPool;
 
     public RedisStoreConfiguration(
         AttributeSet attributes,
         AsyncStoreConfiguration async,
-        SingletonStoreConfiguration singletonStore,
-        ConnectionPoolConfiguration connectionPool
+        SingletonStoreConfiguration singletonStore
     )
     {
         super(attributes, async, singletonStore);
         this.connectionTimeout = attributes.attribute(CONNECTION_TIMEOUT);
         this.socketTimeout = attributes.attribute(SOCKET_TIMEOUT);
-        this.connectionPool = connectionPool;
         this.servers = attributes.attribute(SERVERS);
         this.clientName = attributes.attribute(CLIENT_NAME);
         this.password = attributes.attribute(PASSWORD);
@@ -71,11 +68,6 @@ final public class RedisStoreConfiguration extends AbstractStoreConfiguration
     public List<RedisServerConfiguration> servers()
     {
         return this.servers.get();
-    }
-
-    public ConnectionPoolConfiguration connectionPool()
-    {
-        return this.connectionPool;
     }
 
     public int connectionTimeout()

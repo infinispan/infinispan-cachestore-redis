@@ -7,6 +7,7 @@ public class RedisServerConfigurationBuilder extends AbstractRedisStoreConfigura
     Builder<RedisServerConfiguration>
 {
     private String type = null;
+    private boolean ssl = false;
     private String host;
     private int port = 6380;
 
@@ -17,6 +18,11 @@ public class RedisServerConfigurationBuilder extends AbstractRedisStoreConfigura
 
     public RedisServerConfigurationBuilder type(String type) {
         this.type = type;
+        return this;
+    }
+
+    public RedisServerConfigurationBuilder ssl(boolean ssl) {
+        this.ssl = ssl;
         return this;
     }
 
@@ -45,7 +51,7 @@ public class RedisServerConfigurationBuilder extends AbstractRedisStoreConfigura
     @Override
     public RedisServerConfiguration create()
     {
-        return new RedisServerConfiguration(type, host, port);
+        return new RedisServerConfiguration(type, ssl, host, port);
     }
 
     @Override

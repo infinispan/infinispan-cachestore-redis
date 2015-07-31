@@ -5,19 +5,9 @@ import org.infinispan.configuration.cache.StoreConfigurationChildBuilder;
 public interface RedisStoreConfigurationChildBuilder<S> extends StoreConfigurationChildBuilder<S>
 {
     /**
-     * Configures the load balancer
-     */
-    ExecutorFactoryConfigurationBuilder loadBalancerFactory();
-
-    /**
      * Adds a new remote server
      */
     RedisServerConfigurationBuilder addServer();
-
-    /**
-     * Configures the connection pool
-     */
-    ConnectionPoolConfigurationBuilder connectionPool();
 
     /**
      * This property defines the maximum socket connect timeout before giving up connecting to the

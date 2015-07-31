@@ -139,34 +139,38 @@ final public class RedisStore implements AdvancedLoadWriteStore
                 public void onKey(final Object key)
                 {
                     if (taskContext.isStopped()) {
-                        // todo: force stop
+                        throw new IllegalStateException();
                     }
 
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                if (filter.accept(key)) {
-                                    Object value = null;
+                    if (null != key) {
+                        executor.execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    if (filter.accept(key)) {
+                                        Object value = null;
 
-                                    if (fetchValue) {
-                                        value = connection.get(key);
+                                        if (fetchValue) {
+                                            value = connection.get(key);
+                                        }
+
+                                        task.processEntry(
+                                            ctx.getMarshalledEntryFactory().newMarshalledEntry(key, value, null),
+                                            taskContext
+                                        );
                                     }
-
-                                    task.processEntry(
-                                        ctx.getMarshalledEntryFactory().newMarshalledEntry(key, value, null),
-                                        taskContext
-                                    );
+                                } catch (Exception ex) {
+                                    RedisStore.log.error("Failed to process the redis store key", ex);
+                                    throw new PersistenceException(ex);
                                 }
                             }
-                            catch(Exception ex) {
-                                RedisStore.log.error("Failed to process the redis store key", ex);
-                                throw new PersistenceException(ex);
-                            }
-                        }
-                    });
+                        });
+                    }
                 }
             }, "*");
+        }
+        catch(IllegalStateException ex) {
+            // Break out exception type for aborting processing
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to process the redis store keys", ex);

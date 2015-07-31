@@ -50,18 +50,8 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
         while (reader.hasNext() && (reader.nextTag() != XMLStreamConstants.END_ELEMENT)) {
             Element element = Element.forName(reader.getLocalName());
             switch (element) {
-                case CONNECTION_POOL: {
-                    this.parseConnectionPool(reader, builder.connectionPool());
-                    break;
-                }
-
                 case SERVER: {
                     this.parseServer(reader, builder.addServer());
-                    break;
-                }
-
-                case LOAD_BALANCER: {
-                    this.parseLoadBalancer(reader, builder.loadBalancerFactory(), classLoader);
                     break;
                 }
 
@@ -75,33 +65,6 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
         persistenceBuilder.addStore(builder);
     }
 
-    private void parseConnectionPool(XMLExtendedStreamReader reader, ConnectionPoolConfigurationBuilder builder)
-        throws XMLStreamException
-    {
-        for (int i = 0; i < reader.getAttributeCount(); i++) {
-            ParseUtils.requireNoNamespaceAttribute(reader, i);
-            String value = replaceProperties(reader.getAttributeValue(i));
-            Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
-            switch (attribute) {
-                case MAX_MASTER_TOTAL: {
-                    builder.maxMasterTotal(Integer.parseInt(value));
-                    break;
-                }
-
-                case MAX_SLAVE_TOTAL: {
-                    builder.maxSlaveTotal(Integer.parseInt(value));
-                    break;
-                }
-
-                default: {
-                    throw ParseUtils.unexpectedAttribute(reader, i);
-                }
-            }
-        }
-
-        ParseUtils.requireNoContent(reader);
-    }
-
     private void parseServer(XMLExtendedStreamReader reader, RedisServerConfigurationBuilder builder)
         throws XMLStreamException
     {
@@ -112,6 +75,10 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
             switch (attribute) {
                 case TYPE:
                     builder.type(value);
+                    break;
+
+                case SSL:
+                    builder.ssl(Boolean.parseBoolean(value));
                     break;
 
                 case HOST:
@@ -130,32 +97,6 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
         }
 
         ParseUtils.requireNoContent(reader);
-    }
-
-    private void parseLoadBalancer(
-        XMLExtendedStreamReader reader,
-        ExecutorFactoryConfigurationBuilder builder,
-        ClassLoader classLoader
-    )
-        throws XMLStreamException
-    {
-        for (int i = 0; i < reader.getAttributeCount(); i++) {
-            ParseUtils.requireNoNamespaceAttribute(reader, i);
-            String value = replaceProperties(reader.getAttributeValue(i));
-            Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
-            switch (attribute) {
-                case FACTORY: {
-                    builder.factory(Util.<ExecutorFactory> getInstance(value, classLoader));
-                    break;
-                }
-
-                default: {
-                    throw ParseUtils.unexpectedAttribute(reader, i);
-                }
-            }
-        }
-
-        builder.withExecutorProperties(Parser80.parseProperties(reader));
     }
 
     private void parseRedisStoreAttributes(XMLExtendedStreamReader reader, RedisStoreConfigurationBuilder builder)
