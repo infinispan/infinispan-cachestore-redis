@@ -18,12 +18,6 @@ final public class RedisStoreConfigurationBuilder
     }
 
     @Override
-    public RedisStoreConfiguration create()
-    {
-        return new RedisStoreConfiguration(this.attributes.protect(), this.async.create(), this.singletonStore.create());
-    }
-
-    @Override
     public RedisStoreConfigurationBuilder self()
     {
         return this;
@@ -49,5 +43,16 @@ final public class RedisStoreConfigurationBuilder
         RedisServerConfigurationBuilder builder = new RedisServerConfigurationBuilder(this);
         this.servers.add(builder);
         return builder;
+    }
+
+    @Override
+    public RedisStoreConfiguration create()
+    {
+        List<RedisServerConfiguration> redisServers = new ArrayList<RedisServerConfiguration>();
+        for (RedisServerConfigurationBuilder server : servers) {
+            redisServers.add(server.create());
+        }
+        attributes.attribute(RedisStoreConfiguration.SERVERS).set(redisServers);
+        return new RedisStoreConfiguration(this.attributes.protect(), this.async.create(), this.singletonStore.create());
     }
 }

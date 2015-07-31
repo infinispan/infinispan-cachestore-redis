@@ -17,7 +17,7 @@ import java.util.List;
 @ConfigurationFor(RedisStore.class)
 final public class RedisStoreConfiguration extends AbstractStoreConfiguration
 {
-    static final AttributeDefinition<String> PASSWORD = AttributeDefinition.builder("password", (String) null).build();
+    static final AttributeDefinition<String> PASSWORD = AttributeDefinition.builder("password", null, String.class).build();
     static final AttributeDefinition<Integer> DATABASE = AttributeDefinition.builder("database", 2000).build();
     static final AttributeDefinition<List<RedisServerConfiguration>> SERVERS = AttributeDefinition.builder("servers", null, (Class<List<RedisServerConfiguration>>)(Class<?>)List.class).initializer(new AttributeInitializer<List<RedisServerConfiguration>>() {
         @Override
