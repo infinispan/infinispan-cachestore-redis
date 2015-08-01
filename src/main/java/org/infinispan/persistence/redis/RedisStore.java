@@ -4,11 +4,9 @@ import com.lambdaworks.redis.RedisClusterConnection;
 import com.lambdaworks.redis.RedisURI;
 import com.lambdaworks.redis.cluster.RedisClusterClient;
 import com.lambdaworks.redis.output.KeyStreamingChannel;
-import org.infinispan.metadata.InternalMetadata;
 import org.infinispan.persistence.redis.configuration.RedisServerConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
 import org.infinispan.commons.configuration.ConfiguredBy;
-import org.infinispan.commons.io.ByteBuffer;
 import org.infinispan.filter.KeyFilter;
 import org.infinispan.marshall.core.MarshalledEntry;
 import org.infinispan.persistence.TaskContextImpl;
@@ -16,17 +14,13 @@ import org.infinispan.persistence.redis.exception.TaskContextStoppedStateExcepti
 import org.infinispan.persistence.spi.*;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
-import org.redisson.Config;
-import org.redisson.Redisson;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import net.jcip.annotations.ThreadSafe;
-import org.redisson.core.RBucket;
 
 @ThreadSafe
 @ConfiguredBy(RedisStoreConfiguration.class)
