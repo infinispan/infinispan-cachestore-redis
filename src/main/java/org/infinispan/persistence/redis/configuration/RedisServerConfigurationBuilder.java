@@ -51,6 +51,7 @@ final public class RedisServerConfigurationBuilder extends AbstractRedisStoreCon
     @Override
     public Builder<?> read(RedisServerConfiguration template)
     {
+        this.ssl = template.ssl();
         this.host = template.host();
         this.port = template.port();
 

@@ -46,6 +46,17 @@ final public class RedisStoreConfigurationBuilder
     }
 
     @Override
+    public RedisStoreConfigurationBuilder read(RedisStoreConfiguration template)
+    {
+        super.read(template);
+        for (RedisServerConfiguration server : template.servers()) {
+            this.addServer().ssl(server.ssl()).host(server.host()).port(server.port());
+        }
+
+        return this;
+    }
+
+    @Override
     public RedisStoreConfiguration create()
     {
         List<RedisServerConfiguration> redisServers = new ArrayList<RedisServerConfiguration>();
