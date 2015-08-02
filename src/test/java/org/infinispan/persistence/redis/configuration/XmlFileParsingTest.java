@@ -1,6 +1,8 @@
 package org.infinispan.persistence.redis.configuration;
 
 import org.infinispan.manager.EmbeddedCacheManager;
+import org.infinispan.test.TestingUtil;
+import org.infinispan.test.TestingUtil.InfinispanStartTag;
 import org.infinispan.test.fwk.TestCacheManagerFactory;
 import org.infinispan.configuration.cache.StoreConfiguration;
 import org.testng.annotations.Test;
@@ -16,24 +18,18 @@ public class XmlFileParsingTest
 
     public void testRedisCacheStore() throws Exception
     {
-        String start_tag = String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<infinispan\n" +
-            "      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" +
-            "      xsi:schemaLocation=\"urn:infinispan:config:%d.%d http://www.infinispan.org/schemas/infinispan-config-%d.%d.xsd\"\n" +
-            "      xmlns=\"urn:infinispan:config:%d.%d\">", 8, 0, 8, 0, 8, 0);
-        String end_tag = "</infinispan>";
-
-        String config = start_tag +
+        String config = InfinispanStartTag.LATEST +
             "<cache-container default-cache=\"default\">" +
             "   <local-cache name=\"default\">\n" +
             "     <persistence>\n" +
-            "       <redis-store xmlns=\"urn:infinispan:config:store:remote:8.0\" >\n" +
+            "       <redis-store xmlns=\"urn:infinispan:config:store:remote:"+ InfinispanStartTag.LATEST.majorMinor()+"\" >\n" +
             "         <redis-server host=\"one\" />\n" +
             "         <redis-server host=\"two\" />\n" +
             "       </remote-store>\n" +
             "     </persistence>\n" +
             "   </local-cache>\n" +
             "</cache-container>" +
-            end_tag;
+            TestingUtil.INFINISPAN_END_TAG;
 
         RedisStoreConfiguration store = (RedisStoreConfiguration) buildCacheManagerWithCacheStore(config);
         assert store.servers().size() == 2;
