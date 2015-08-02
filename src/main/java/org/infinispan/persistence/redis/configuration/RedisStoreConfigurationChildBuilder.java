@@ -10,24 +10,12 @@ public interface RedisStoreConfigurationChildBuilder<S> extends StoreConfigurati
     RedisServerConfigurationBuilder addServer();
 
     /**
-     * Configures the connection pool
+     * The property defines the database ID number
      */
-    ConnectionPoolConfigurationBuilder connectionPool();
+    RedisStoreConfigurationBuilder database(int database);
 
     /**
-     * This property defines the maximum socket connect timeout before giving up connecting to the
-     * server.
+     * The property defines the password for accessing Redis
      */
-    RedisStoreConfigurationBuilder connectionTimeout(int connectionTimeout);
-
-    /**
-     * This property defines the maximum socket read timeout in milliseconds before giving up waiting
-     * for bytes from the server. Defaults to 60000 (1 minute)
-     */
-    RedisStoreConfigurationBuilder socketTimeout(int socketTimeout);
-
-    /**
-     * Maximum number of redirections permitted when connecting to the cluster
-     */
-    RedisStoreConfigurationBuilder maxRedirections(int maxRedirections);
+    RedisStoreConfigurationBuilder password(String password);
 }

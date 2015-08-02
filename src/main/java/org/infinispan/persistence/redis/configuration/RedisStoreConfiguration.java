@@ -17,9 +17,8 @@ import java.util.List;
 @ConfigurationFor(RedisStore.class)
 final public class RedisStoreConfiguration extends AbstractStoreConfiguration
 {
-    static final AttributeDefinition<Integer> CONNECTION_TIMEOUT = AttributeDefinition.builder("connectionTimeout", 2000).build();
-    static final AttributeDefinition<Integer> SOCKET_TIMEOUT = AttributeDefinition.builder("socketTimeout", 2000).build();
-    static final AttributeDefinition<Integer> MAX_REDIRECTIONS = AttributeDefinition.builder("maxRedirections", 5).build();
+    static final AttributeDefinition<String> PASSWORD = AttributeDefinition.builder("password", null, String.class).build();
+    static final AttributeDefinition<Integer> DATABASE = AttributeDefinition.builder("database", 2000).build();
     static final AttributeDefinition<List<RedisServerConfiguration>> SERVERS = AttributeDefinition.builder("servers", null, (Class<List<RedisServerConfiguration>>)(Class<?>)List.class).initializer(new AttributeInitializer<List<RedisServerConfiguration>>() {
         @Override
         public List<RedisServerConfiguration> initialize() {
@@ -27,25 +26,25 @@ final public class RedisStoreConfiguration extends AbstractStoreConfiguration
         }
     }).build();
 
+    public static AttributeSet attributeDefinitionSet() {
+        return new AttributeSet(RedisStoreConfiguration.class, AbstractStoreConfiguration.attributeDefinitionSet(),
+            PASSWORD, DATABASE, SERVERS);
+    }
+
     private final Attribute<List<RedisServerConfiguration>> servers;
-    private final Attribute<Integer> connectionTimeout;
-    private final Attribute<Integer> socketTimeout;
-    private final Attribute<Integer> maxRedirections;
-    private final ConnectionPoolConfiguration connectionPool;
+    private final Attribute<Integer> database;
+    private final Attribute<String> password;
 
     public RedisStoreConfiguration(
         AttributeSet attributes,
         AsyncStoreConfiguration async,
-        SingletonStoreConfiguration singletonStore,
-        ConnectionPoolConfiguration connectionPool
+        SingletonStoreConfiguration singletonStore
     )
     {
         super(attributes, async, singletonStore);
-        this.connectionTimeout = attributes.attribute(CONNECTION_TIMEOUT);
-        this.socketTimeout = attributes.attribute(SOCKET_TIMEOUT);
-        this.maxRedirections = attributes.attribute(MAX_REDIRECTIONS);
-        this.connectionPool = connectionPool;
         this.servers = attributes.attribute(SERVERS);
+        this.password = attributes.attribute(PASSWORD);
+        this.database = attributes.attribute(DATABASE);
     }
 
     public List<RedisServerConfiguration> servers()
@@ -53,23 +52,13 @@ final public class RedisStoreConfiguration extends AbstractStoreConfiguration
         return this.servers.get();
     }
 
-    public ConnectionPoolConfiguration connectionPool()
+    public int database()
     {
-        return this.connectionPool;
+        return this.database.get();
     }
 
-    public int connectionTimeout()
+    public String password()
     {
-        return this.connectionTimeout.get();
-    }
-
-    public int socketTimeout()
-    {
-        return this.socketTimeout.get();
-    }
-
-    public int maxRedirections()
-    {
-        return this.maxRedirections.get();
+        return this.password.get();
     }
 }

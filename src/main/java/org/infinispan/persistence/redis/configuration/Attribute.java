@@ -8,14 +8,11 @@ public enum Attribute
     // must be first
     UNKNOWN(null),
 
-    MAX_REDIRECTIONS("max-redirections"),
-    CONNECT_TIMEOUT("connect-timeout"),
-    SOCKET_TIMEOUT("socket-timeout"),
+    SSL("ssl"),
     HOST("host"),
     PORT("port"),
-    MIN_IDLE("min-idle"),
-    MAX_IDLE("max-idle"),
-    MAX_TOTAL("max-total")
+    PASSWORD("password"),
+    DATABASE("database")
     ;
 
     private final String name;

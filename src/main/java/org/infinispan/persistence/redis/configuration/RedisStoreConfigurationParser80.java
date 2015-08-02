@@ -15,7 +15,7 @@ import static org.infinispan.commons.util.StringPropertyReplacer.replaceProperti
     @Namespace(uri = "urn:infinispan:config:store:redis:8.0", root = "redis-store"),
     @Namespace(root = "redis-store")
 })
-public class RedisStoreConfigurationParser80 implements ConfigurationParser
+final public class RedisStoreConfigurationParser80 implements ConfigurationParser
 {
     @Override
     public void readElement(XMLExtendedStreamReader reader, ConfigurationBuilderHolder holder)
@@ -48,11 +48,6 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
         while (reader.hasNext() && (reader.nextTag() != XMLStreamConstants.END_ELEMENT)) {
             Element element = Element.forName(reader.getLocalName());
             switch (element) {
-                case CONNECTION_POOL: {
-                    this.parseConnectionPool(reader, builder.connectionPool());
-                    break;
-                }
-
                 case SERVER: {
                     this.parseServer(reader, builder.addServer());
                     break;
@@ -68,37 +63,6 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
         persistenceBuilder.addStore(builder);
     }
 
-    private void parseConnectionPool(XMLExtendedStreamReader reader, ConnectionPoolConfigurationBuilder builder) throws XMLStreamException
-    {
-        for (int i = 0; i < reader.getAttributeCount(); i++) {
-            ParseUtils.requireNoNamespaceAttribute(reader, i);
-            String value = replaceProperties(reader.getAttributeValue(i));
-            Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
-            switch (attribute) {
-                case MAX_IDLE: {
-                    builder.maxIdle(Integer.parseInt(value));
-                    break;
-                }
-
-                case MAX_TOTAL: {
-                    builder.maxTotal(Integer.parseInt(value));
-                    break;
-                }
-
-                case MIN_IDLE: {
-                    builder.minIdle(Integer.parseInt(value));
-                    break;
-                }
-
-                default: {
-                    throw ParseUtils.unexpectedAttribute(reader, i);
-                }
-            }
-        }
-
-        ParseUtils.requireNoContent(reader);
-    }
-
     private void parseServer(XMLExtendedStreamReader reader, RedisServerConfigurationBuilder builder)
         throws XMLStreamException
     {
@@ -107,6 +71,10 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
             String value = replaceProperties(reader.getAttributeValue(i));
             Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
             switch (attribute) {
+                case SSL:
+                    builder.ssl(Boolean.parseBoolean(value));
+                    break;
+
                 case HOST:
                     builder.host(value);
                     break;
@@ -114,8 +82,6 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
                 case PORT:
                     builder.port(Integer.parseInt(value));
                     break;
-
-                // todo: outbound socket?
 
                 default:
                     throw ParseUtils.unexpectedAttribute(reader, i);
@@ -133,18 +99,13 @@ public class RedisStoreConfigurationParser80 implements ConfigurationParser
             String value = replaceProperties(reader.getAttributeValue(i));
             Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
             switch (attribute) {
-                case CONNECT_TIMEOUT: {
-                    builder.connectionTimeout(Integer.parseInt(value));
+                case DATABASE: {
+                    builder.database(Integer.parseInt(value));
                     break;
                 }
 
-                case SOCKET_TIMEOUT: {
-                    builder.socketTimeout(Integer.parseInt(value));
-                    break;
-                }
-
-                case MAX_REDIRECTIONS: {
-                    builder.socketTimeout(Integer.parseInt(value));
+                case PASSWORD: {
+                    builder.password(value);
                     break;
                 }
             }

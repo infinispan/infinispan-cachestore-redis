@@ -10,20 +10,11 @@ final public class RedisStoreConfigurationBuilder
     extends AbstractStoreConfigurationBuilder<RedisStoreConfiguration, RedisStoreConfigurationBuilder>
     implements RedisStoreConfigurationChildBuilder<RedisStoreConfigurationBuilder>
 {
-    private final ConnectionPoolConfigurationBuilder connectionPool;
     private List<RedisServerConfigurationBuilder> servers = new ArrayList<RedisServerConfigurationBuilder>();
 
     public RedisStoreConfigurationBuilder(PersistenceConfigurationBuilder builder)
     {
-        super(builder);
-        connectionPool = new ConnectionPoolConfigurationBuilder(this);
-    }
-
-    @Override
-    public RedisStoreConfiguration create()
-    {
-        return new RedisStoreConfiguration(this.attributes.protect(), this.async.create(),
-            this.singletonStore.create(), this.connectionPool.create());
+        super(builder, RedisStoreConfiguration.attributeDefinitionSet());
     }
 
     @Override
@@ -33,23 +24,16 @@ final public class RedisStoreConfigurationBuilder
     }
 
     @Override
-    public RedisStoreConfigurationBuilder connectionTimeout(int connectionTimeout)
+    public RedisStoreConfigurationBuilder database(int database)
     {
-        this.attributes.attribute(RedisStoreConfiguration.CONNECTION_TIMEOUT).set(connectionTimeout);
+        this.attributes.attribute(RedisStoreConfiguration.DATABASE).set(database);
         return this;
     }
 
     @Override
-    public RedisStoreConfigurationBuilder socketTimeout(int socketTimeout)
+    public RedisStoreConfigurationBuilder password(String password)
     {
-        this.attributes.attribute(RedisStoreConfiguration.SOCKET_TIMEOUT).set(socketTimeout);
-        return this;
-    }
-
-    @Override
-    public RedisStoreConfigurationBuilder maxRedirections(int maxRedirections)
-    {
-        this.attributes.attribute(RedisStoreConfiguration.MAX_REDIRECTIONS).set(maxRedirections);
+        this.attributes.attribute(RedisStoreConfiguration.PASSWORD).set(password);
         return this;
     }
 
@@ -62,8 +46,24 @@ final public class RedisStoreConfigurationBuilder
     }
 
     @Override
-    public ConnectionPoolConfigurationBuilder connectionPool()
+    public RedisStoreConfigurationBuilder read(RedisStoreConfiguration template)
     {
-        return this.connectionPool;
+        super.read(template);
+        for (RedisServerConfiguration server : template.servers()) {
+            this.addServer().ssl(server.ssl()).host(server.host()).port(server.port());
+        }
+
+        return this;
+    }
+
+    @Override
+    public RedisStoreConfiguration create()
+    {
+        List<RedisServerConfiguration> redisServers = new ArrayList<RedisServerConfiguration>();
+        for (RedisServerConfigurationBuilder server : servers) {
+            redisServers.add(server.create());
+        }
+        attributes.attribute(RedisStoreConfiguration.SERVERS).set(redisServers);
+        return new RedisStoreConfiguration(this.attributes.protect(), this.async.create(), this.singletonStore.create());
     }
 }

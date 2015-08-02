@@ -22,26 +22,14 @@ public abstract class AbstractRedisStoreConfigurationChildBuilder<S> extends Abs
     }
 
     @Override
-    public ConnectionPoolConfigurationBuilder connectionPool()
+    public RedisStoreConfigurationBuilder database(int database)
     {
-        return builder.connectionPool();
+        return builder.database(database);
     }
 
     @Override
-    public RedisStoreConfigurationBuilder connectionTimeout(int connectionTimeout)
+    public RedisStoreConfigurationBuilder password(String password)
     {
-        return builder.connectionTimeout(connectionTimeout);
-    }
-
-    @Override
-    public RedisStoreConfigurationBuilder socketTimeout(int socketTimeout)
-    {
-        return builder.connectionTimeout(socketTimeout);
-    }
-
-    @Override
-    public RedisStoreConfigurationBuilder maxRedirections(int maxRedirections)
-    {
-        return builder.maxRedirections(maxRedirections);
+        return builder.password(password);
     }
 }

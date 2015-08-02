@@ -9,7 +9,6 @@ public enum Element
     UNKNOWN(null),
 
     REDIS_STORE("redis-store"),
-    CONNECTION_POOL("connection-pool"),
     SERVER("redis-server")
     ;
 
