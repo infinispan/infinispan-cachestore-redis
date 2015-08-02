@@ -1,7 +1,5 @@
 package org.infinispan.persistence.redis.configuration;
 
-import org.infinispan.commons.executors.ExecutorFactory;
-import org.infinispan.commons.util.Util;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.configuration.cache.PersistenceConfigurationBuilder;
 import org.infinispan.configuration.parsing.*;
