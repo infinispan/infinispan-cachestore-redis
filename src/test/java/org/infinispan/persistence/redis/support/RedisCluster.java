@@ -15,8 +15,9 @@ public class RedisCluster extends AbstractRedisServer
         String testPath = System.getProperty("project.build.testOutputDirectory");
 
         for (int serverNum : new int[] {1,2,3}) {
+            String workingDir = String.format("%s/redis/server%d", testPath, serverNum);
             String configurationFile = String.format("%s/redis/server%d/redis.conf", testPath, serverNum);
-            Process p = this.startServer(configurationFile);
+            Process p = this.startServer(workingDir, configurationFile);
 
             pipe(p.getInputStream(), System.out);
             pipe(p.getErrorStream(), System.err);
