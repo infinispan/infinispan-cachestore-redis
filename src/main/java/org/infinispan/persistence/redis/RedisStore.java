@@ -56,7 +56,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
                     configuration.password(),
                     server.host(),
                     server.port(),
-                    String.valueOf(configuration.database()),
+                    "/" + String.valueOf(configuration.database()),
                     null,
                     null
                 )));
