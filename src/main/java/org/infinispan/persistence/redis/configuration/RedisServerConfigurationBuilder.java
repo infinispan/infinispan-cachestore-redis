@@ -8,7 +8,7 @@ final public class RedisServerConfigurationBuilder extends AbstractRedisStoreCon
 {
     private boolean ssl = false;
     private String host;
-    private int port = 6380;
+    private int port = 6379;
 
     protected RedisServerConfigurationBuilder(RedisStoreConfigurationBuilder builder)
     {

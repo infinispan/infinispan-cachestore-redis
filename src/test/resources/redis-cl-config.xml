@@ -11,7 +11,7 @@
         <local-cache name="___defaultcache">
             <persistence passivation="false">
                 <redis-store xmlns="urn:infinispan:config:store:redis:8.0" database="0" password="">
-                    <redis-server ssl="false" host="127.0.0.1" port="6380" />
+                    <redis-server ssl="false" host="127.0.0.1" port="6379" />
                 </redis-store>
             </persistence>
         </local-cache>

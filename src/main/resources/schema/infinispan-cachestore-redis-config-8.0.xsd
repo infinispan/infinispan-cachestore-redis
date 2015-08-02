@@ -46,10 +46,10 @@
                 </xs:annotation>
             </xs:attribute>
 
-            <xs:attribute name="port" type="xs:int" default="6380">
+            <xs:attribute name="port" type="xs:int" default="6379">
                 <xs:annotation>
                     <xs:documentation>
-                        The port on which the server is listening (default 6380)
+                        The port on which the server is listening (default 6379)
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>

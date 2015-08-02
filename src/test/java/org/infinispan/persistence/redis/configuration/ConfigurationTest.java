@@ -12,7 +12,7 @@ public class ConfigurationTest
         ConfigurationBuilder b = new ConfigurationBuilder();
         b.persistence().addStore(RedisStoreConfigurationBuilder.class)
             .addServer()
-                .host("one").port(6380)
+                .host("one").port(6379)
             .addServer()
                 .host("two")
         ;
