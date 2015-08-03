@@ -128,7 +128,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
 
         try {
             RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
-            connection.keys(new KeyStreamingChannel<Object>()
+            connection.scan(new KeyStreamingChannel<Object>()
             {
                 @Override
                 public void onKey(final Object key)
@@ -142,7 +142,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
                             @Override
                             public void run() {
                                 try {
-                                    if (filter.accept(key)) {
+                                    if (null == filter || filter.accept(key)) {
                                         Object value = null;
 
                                         if (fetchValue) {
@@ -154,7 +154,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
                                             taskContext
                                         );
                                     }
-                                } catch (Exception ex) {
+                                }
+                                catch (Exception ex) {
                                     RedisStore.log.error("Failed to process the redis store key", ex);
                                     throw new PersistenceException(ex);
                                 }
@@ -162,7 +163,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
                         });
                     }
                 }
-            }, "*");
+            });
         }
         catch(TaskContextStoppedStateException ex) {
             // Break out exception type for aborting processing
