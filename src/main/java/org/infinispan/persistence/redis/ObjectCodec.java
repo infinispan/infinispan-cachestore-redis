@@ -40,7 +40,7 @@ final public class ObjectCodec extends RedisCodec<Object,Object>
     public byte[] encodeKey(Object key)
     {
         try {
-            return this.streamingMarshaller.objectToBuffer(key).getBuf();
+            return this.streamingMarshaller.objectToByteBuffer(key);
         }
         catch(Exception ex) {
             throw new IllegalStateException(ex);
@@ -51,7 +51,7 @@ final public class ObjectCodec extends RedisCodec<Object,Object>
     public byte[] encodeValue(Object value)
     {
         try {
-            return this.streamingMarshaller.objectToBuffer(value).getBuf();
+            return this.streamingMarshaller.objectToByteBuffer(value);
         }
         catch(Exception ex) {
             throw new IllegalStateException(ex);

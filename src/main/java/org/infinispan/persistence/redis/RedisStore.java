@@ -67,6 +67,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         }
 
         this.client = new RedisClusterClient(clusterNodes);
+        this.client.reloadPartitions();
     }
 
     /**
@@ -285,6 +286,14 @@ final public class RedisStore implements AdvancedLoadWriteStore
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to write element to the redis store", ex);
+
+            try {
+                Thread.sleep(10000);
+            }
+            catch(Exception ex2) {
+                // ignore
+            }
+
             throw new PersistenceException(ex);
         }
     }
