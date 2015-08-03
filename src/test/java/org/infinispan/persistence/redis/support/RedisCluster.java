@@ -1,81 +1,90 @@
 package org.infinispan.persistence.redis.support;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RedisCluster extends AbstractRedisServer
 {
+    private final int SLOTS_PER_CLUSTER_NODE = 5461;
+    private final int START_PORT = 6379;
     List<Process> serverList = new ArrayList<Process>();
+
+    private final String testPath;
+
+    public RedisCluster()
+    {
+        this.testPath = System.getProperty("project.build.testOutputDirectory");
+    }
 
     public void start() throws IOException
     {
-        String testPath = System.getProperty("project.build.testOutputDirectory");
+        int startSlot = 0;
+        int portPosition = START_PORT;
 
         for (int serverNum : new int[] {1,2,3}) {
-            String workingDir = String.format("%s/redis/server%d", testPath, serverNum);
-            String configurationFile = String.format("%s/redis/server%d/redis.conf", testPath, serverNum);
-            Process p = this.startServer(workingDir, configurationFile);
+            String workingDir = String.format("%s/redis/server%d", this.testPath, serverNum);
+            String configurationFile = String.format("%s/redis/server%d/redis.conf", this.testPath, serverNum);
+            Process p = this.startServer(configurationFile, workingDir, portPosition, "--cluster-enabled yes");
 
-            pipe(p.getInputStream(), System.out);
-            pipe(p.getErrorStream(), System.err);
+            this.addSlots(portPosition, startSlot, startSlot + SLOTS_PER_CLUSTER_NODE);
+
+            if (portPosition != START_PORT) {
+                this.meetServer(START_PORT, portPosition);
+            }
+
+            startSlot += SLOTS_PER_CLUSTER_NODE + 1;
+            portPosition++;
 
             this.serverList.add(p);
         }
 
-        try {
-            // Give some time for Redis servers to start
-            Thread.sleep(50);
-        }
-        catch (InterruptedException ex) {
-            // ignore
-        }
-
-        // todo: allocate slots
-        // todo: meet servers
+        System.out.println("All servers started...");
     }
 
     public void kill()
     {
         for (Process p : this.serverList) {
-            System.out.println("Terminating redis server");
-            p.destroy();
+            super.kill(p);
         }
 
-        try {
-            // Give some time for Redis to close
-            Thread.sleep(50);
-        }
-        catch (InterruptedException ex) {
-            // ignore
-        }
+        for (int serverNum : new int[] {1,2,3}) {
+            String dumpFileName = String.format("%s/redis/server%d/dump.rdb", this.testPath, serverNum);
+            File dumpFile = new File(dumpFileName);
 
-        // todo: cleanup Redis data files
+            if ( ! dumpFile.delete()) {
+                System.out.println(String.format("Failed to delete Redis dump file %s", dumpFileName));
+            }
+
+            String nodeFileName = String.format("%s/redis/server%d/nodes.conf", this.testPath, serverNum);
+            File nodeFile = new File(nodeFileName);
+
+            if ( ! nodeFile.delete()) {
+                System.out.println(String.format("Failed to delete Redis node file %s", dumpFileName));
+            }
+        }
     }
 
-    /**
-     * Links source and destination pipes
-     *
-     * @param src Source
-     * @param dst Destination
-     */
-    private static void pipe(final InputStream src, final PrintStream dst)
+    private void addSlots(int port, int start, int end)
+        throws IOException
     {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    byte[] buffer = new byte[1024];
-                    for (int n  = 0; n != -1; n = src.read(buffer, 0, 1024)) {
-                        dst.write(buffer, 0, n);
-                    }
-                }
-                catch(IOException ex) {
-                    // exit on error
-                }
-            }
-        }).start();
+        String slots = "";
+
+        if (end > 16383) {
+            end = 16383;
+        }
+
+        for (int slot = start; slot <= end; slot++) {
+            slots += " " + slot;
+        }
+
+        this.runCommand(String.format("redis-cli -p %d cluster addslots %s", port, slots));
+    }
+
+    private void meetServer(int server1Port, int server2Port)
+        throws IOException
+    {
+        this.runCommand(String.format("redis-cli -p %d cluster meet 127.0.0.1 %d", server2Port, server1Port));
     }
 }

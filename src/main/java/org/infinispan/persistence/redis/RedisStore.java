@@ -121,6 +121,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
         boolean fetchMetadata
     )
     {
+        RedisStore.log.debug("Iterating Redis store entries");
+
         final InitializationContext ctx = this.ctx;
         final TaskContext taskContext = new TaskContextImpl();
 
@@ -180,6 +182,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void purge(Executor executor, final PurgeListener purgeListener)
     {
+        RedisStore.log.debug("Purging expired entries from Redis store");
         // Nothing to purge, redis is set to expire data itself
     }
 
@@ -191,6 +194,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public int size()
     {
+        RedisStore.log.debug("Calculating Redis store size");
+
         try {
             RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
             long dbSize = connection.dbsize();
@@ -226,6 +231,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void clear()
     {
+        RedisStore.log.debug("Clearing Redis store");
+
         try {
             RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
             connection.flushdb();
@@ -247,6 +254,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public MarshalledEntry load(Object key)
     {
+        RedisStore.log.debug("Loading entry from Redis store");
+
         try {
             RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
             Object value = connection.get(key);
@@ -267,6 +276,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void write(MarshalledEntry marshalledEntry)
     {
+        RedisStore.log.debug("Writing entry to Redis store");
+
         try {
             RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
             connection.set(marshalledEntry.getKey(), marshalledEntry.getValue());
@@ -286,6 +297,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public boolean delete(Object key)
     {
+        RedisStore.log.debug("Deleting entry from Redis store");
+
         try {
             RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
             return connection.del(key) > 0;
@@ -305,6 +318,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public boolean contains(Object key)
     {
+        RedisStore.log.debug("Checking store for Redis entry");
+
         try {
             RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
             return connection.exists(key);

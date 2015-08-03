@@ -6,7 +6,7 @@ import org.infinispan.persistence.redis.configuration.RedisStoreConfigurationBui
 import org.infinispan.persistence.redis.support.RedisCluster;
 import org.infinispan.persistence.spi.AdvancedLoadWriteStore;
 import org.infinispan.test.fwk.TestCacheManagerFactory;
-import org.testng.annotations.AfterTest;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -17,17 +17,20 @@ public class RedisStoreRawValuesTest extends BaseStoreTest
 {
     RedisCluster redisCluster;
 
-    @BeforeTest
+    @BeforeTest(alwaysRun = true)
     public void startUp()
         throws IOException
     {
+        System.out.println("RedisStoreRawValuesTest:Setting up");
         redisCluster = new RedisCluster();
         redisCluster.start();
     }
 
-    @AfterTest
+    @AfterClass
     public void tearDown()
     {
+        System.out.println("RedisStoreRawValuesTest:Tearing down");
+
         try {
             super.tearDown();
         }
@@ -44,7 +47,7 @@ public class RedisStoreRawValuesTest extends BaseStoreTest
         storeConfigurationBuilder
             .addServer()
             .host("localhost")
-            .port(16379)
+            .port(6379)
         ;
 
         RedisStore store = new RedisStore();
