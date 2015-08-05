@@ -1,6 +1,5 @@
 package org.infinispan.persistence.redis.client;
 
-import org.infinispan.commons.marshall.StreamingMarshaller;
 import org.infinispan.persistence.redis.configuration.RedisServerConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
 import redis.clients.jedis.HostAndPort;
@@ -12,10 +11,10 @@ import java.util.Set;
 
 public class RedisClusterConnectionPool implements RedisConnectionPool
 {
-    private StreamingMarshaller marshaller;
+    private RedisMarshaller<String> marshaller;
     private JedisCluster cluster;
 
-    public RedisClusterConnectionPool(RedisStoreConfiguration configuration, StreamingMarshaller marshaller)
+    public RedisClusterConnectionPool(RedisStoreConfiguration configuration, RedisMarshaller<String> marshaller)
     {
         Set<HostAndPort> clusterNodes = new HashSet<HostAndPort>();
         for (RedisServerConfiguration server : configuration.servers()) {

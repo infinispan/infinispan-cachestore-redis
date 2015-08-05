@@ -1,17 +1,15 @@
 package org.infinispan.persistence.redis.client;
 
-import org.infinispan.commons.marshall.StreamingMarshaller;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 
 public class RedisServerConnection implements RedisConnection
 {
     private Jedis client;
-    private StreamingMarshaller marshaller;
+    private RedisMarshaller<String> marshaller;
 
-    RedisServerConnection(Jedis client, StreamingMarshaller marshaller)
+    RedisServerConnection(Jedis client, RedisMarshaller<String> marshaller)
     {
         this.client = client;
         this.marshaller = marshaller;
@@ -33,25 +31,23 @@ public class RedisServerConnection implements RedisConnection
     public Object get(Object key)
         throws IOException, InterruptedException, ClassNotFoundException
     {
-        byte[] keyBuf = this.marshaller.objectToByteBuffer(key);
-        String keyByteString = new String(keyBuf, Charset.forName("UTF-8"));
-
+        String keyByteString = this.marshaller.marshall(key);
         String valueByteString = this.client.get(keyByteString);
 
-        byte[] valueBuf = valueByteString.getBytes(Charset.forName("UTF-8"));
-        return this.marshaller.objectFromByteBuffer(valueBuf);
+        if (null != valueByteString) {
+            return this.marshaller.unmarshall(valueByteString);
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
     public void set(Object key, Object value)
         throws IOException, InterruptedException
     {
-        byte[] keyBuf = this.marshaller.objectToByteBuffer(key);
-        String keyByteString = new String(keyBuf, Charset.forName("UTF-8"));
-
-        byte[] valueBuf = this.marshaller.objectToByteBuffer(value);
-        String valueByteString = new String(valueBuf, Charset.forName("UTF-8"));
-
+        String keyByteString = this.marshaller.marshall(key);
+        String valueByteString = this.marshaller.marshall(value);
         this.client.set(keyByteString, valueByteString);
     }
 
@@ -59,9 +55,7 @@ public class RedisServerConnection implements RedisConnection
     public boolean delete(Object key)
         throws IOException, InterruptedException
     {
-        byte[] keyBuf = this.marshaller.objectToByteBuffer(key);
-        String keyByteString = new String(keyBuf, Charset.forName("UTF-8"));
-
+        String keyByteString = this.marshaller.marshall(key);
         return this.client.del(keyByteString) > 0;
     }
 
@@ -69,9 +63,7 @@ public class RedisServerConnection implements RedisConnection
     public boolean exists(Object key)
         throws IOException, InterruptedException
     {
-        byte[] keyBuf = this.marshaller.objectToByteBuffer(key);
-        String keyByteString = new String(keyBuf, Charset.forName("UTF-8"));
-
+        String keyByteString = this.marshaller.marshall(key);
         return this.client.exists(keyByteString);
     }
 

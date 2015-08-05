@@ -1,6 +1,5 @@
 package org.infinispan.persistence.redis.client;
 
-import org.infinispan.commons.marshall.StreamingMarshaller;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
@@ -10,7 +9,7 @@ import java.util.Map;
 
 public class RedisClusterNodeIterator implements Iterator<Object>
 {
-    private StreamingMarshaller marshaller;
+    private RedisMarshaller<String> marshaller;
 
     Map<String, JedisPool> clusterNodes;
     Iterator<String> clusterNodeIt;
@@ -18,7 +17,7 @@ public class RedisClusterNodeIterator implements Iterator<Object>
     Jedis client = null;
     Iterator<Object> keyIterator = null;
 
-    public RedisClusterNodeIterator(JedisCluster cluster, StreamingMarshaller marshaller)
+    public RedisClusterNodeIterator(JedisCluster cluster, RedisMarshaller<String> marshaller)
     {
         this.marshaller = marshaller;
 

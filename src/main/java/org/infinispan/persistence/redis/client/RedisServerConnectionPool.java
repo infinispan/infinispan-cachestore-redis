@@ -1,14 +1,13 @@
 package org.infinispan.persistence.redis.client;
 
-import org.infinispan.commons.marshall.StreamingMarshaller;
 import redis.clients.jedis.JedisPool;
 
 public class RedisServerConnectionPool implements RedisConnectionPool
 {
     private JedisPool connectionPool;
-    private StreamingMarshaller marshaller;
+    private RedisMarshaller<String> marshaller;
 
-    public RedisServerConnectionPool(StreamingMarshaller marshaller)
+    public RedisServerConnectionPool(RedisMarshaller<String> marshaller)
     {
 //        final GenericObjectPoolConfig poolConfig,
 //        final String host,

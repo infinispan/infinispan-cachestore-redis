@@ -1,16 +1,15 @@
 package org.infinispan.persistence.redis.client;
 
-import org.infinispan.commons.marshall.StreamingMarshaller;
 import redis.clients.jedis.JedisCluster;
 
 import java.util.Iterator;
 
 public class RedisClusterNodeIterable implements Iterable<Object>
 {
-    private StreamingMarshaller marshaller;
+    private RedisMarshaller<String> marshaller;
     private JedisCluster client;
 
-    public RedisClusterNodeIterable(JedisCluster client, StreamingMarshaller marshaller)
+    public RedisClusterNodeIterable(JedisCluster client, RedisMarshaller<String> marshaller)
     {
         this.client = client;
         this.marshaller = marshaller;

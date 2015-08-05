@@ -1,23 +1,20 @@
 package org.infinispan.persistence.redis.client;
 
-import org.infinispan.commons.marshall.StreamingMarshaller;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.ScanResult;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
 
 public class RedisServerKeyIterator implements Iterator<Object>
 {
     private Jedis client;
-    private StreamingMarshaller marshaller;
+    private RedisMarshaller<String> marshaller;
     private ScanResult<String> scanCursor;
     private List<String> keyResults;
     private int position = 0;
 
-    public RedisServerKeyIterator(Jedis client, StreamingMarshaller marshaller)
+    public RedisServerKeyIterator(Jedis client, RedisMarshaller<String> marshaller)
     {
         this.client = client;
         this.marshaller = marshaller;
@@ -47,14 +44,7 @@ public class RedisServerKeyIterator implements Iterator<Object>
     public Object next()
     {
         String keyByteString = this.keyResults.get(this.position++);
-
-        try {
-            byte[] valueBuf = keyByteString.getBytes(Charset.forName("UTF-8"));
-            return this.marshaller.objectFromByteBuffer(valueBuf);
-        }
-        catch(IOException | ClassNotFoundException ex) {
-            throw new IllegalStateException(ex);
-        }
+        return this.marshaller.unmarshall(keyByteString);
     }
 
     @Override

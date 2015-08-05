@@ -9,13 +9,15 @@ public class RedisConnectionPoolFactory
 {
     public static RedisConnectionPool factory(RedisStoreConfiguration configuration, StreamingMarshaller marshaller)
     {
+        RedisMarshaller<String> redisMarshaller = new StringRedisMarshaller(marshaller);
+
         switch (configuration.topology()) {
             case CLUSTER: {
-                return new RedisClusterConnectionPool(configuration, marshaller);
+                return new RedisClusterConnectionPool(configuration, redisMarshaller);
             }
 
             case SERVER: {
-                return new RedisServerConnectionPool(marshaller);
+                return new RedisServerConnectionPool(redisMarshaller);
             }
         }
 
