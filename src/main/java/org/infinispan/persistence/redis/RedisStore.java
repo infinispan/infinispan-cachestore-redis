@@ -8,12 +8,10 @@ import org.infinispan.commons.configuration.ConfiguredBy;
 import org.infinispan.filter.KeyFilter;
 import org.infinispan.marshall.core.MarshalledEntry;
 import org.infinispan.persistence.TaskContextImpl;
-import org.infinispan.persistence.redis.exception.TaskContextStoppedStateException;
 import org.infinispan.persistence.spi.*;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
-import java.util.Iterator;
 import java.util.concurrent.Executor;
 import net.jcip.annotations.ThreadSafe;
 
@@ -102,7 +100,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         try {
             for (Object key : connection.scan()) {
                 if (taskContext.isStopped()) {
-                    throw new TaskContextStoppedStateException();
+                    break;
                 }
 
                 if (null != key) {
@@ -131,9 +129,6 @@ final public class RedisStore implements AdvancedLoadWriteStore
                     });
                 }
             }
-        }
-        catch(TaskContextStoppedStateException ex) {
-            // Break out exception type for aborting processing
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to process the redis store keys", ex);
