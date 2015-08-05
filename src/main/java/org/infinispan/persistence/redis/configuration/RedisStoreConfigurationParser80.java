@@ -9,6 +9,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
 import static org.infinispan.commons.util.StringPropertyReplacer.replaceProperties;
+import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration.Topology;
 
 @MetaInfServices
 @Namespaces({
@@ -107,6 +108,10 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
                 case PASSWORD: {
                     builder.password(value);
                     break;
+                }
+
+                case TOPOLOGY: {
+                    builder.topology(Topology.valueOf(value));
                 }
             }
         }

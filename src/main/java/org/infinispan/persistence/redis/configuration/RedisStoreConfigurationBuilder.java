@@ -2,7 +2,7 @@ package org.infinispan.persistence.redis.configuration;
 
 import org.infinispan.configuration.cache.AbstractStoreConfigurationBuilder;
 import org.infinispan.configuration.cache.PersistenceConfigurationBuilder;
-
+import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration.Topology;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +34,13 @@ final public class RedisStoreConfigurationBuilder
     public RedisStoreConfigurationBuilder password(String password)
     {
         this.attributes.attribute(RedisStoreConfiguration.PASSWORD).set(password);
+        return this;
+    }
+
+    @Override
+    public RedisStoreConfigurationBuilder topology(Topology topology)
+    {
+        this.attributes.attribute(RedisStoreConfiguration.TOPOLOGY).set(topology);
         return this;
     }
 

@@ -12,7 +12,8 @@ public enum Attribute
     HOST("host"),
     PORT("port"),
     PASSWORD("password"),
-    DATABASE("database")
+    DATABASE("database"),
+    TOPOLOGY("topology")
     ;
 
     private final String name;

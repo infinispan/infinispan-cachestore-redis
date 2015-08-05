@@ -1,10 +1,8 @@
 package org.infinispan.persistence.redis;
 
-import com.lambdaworks.redis.RedisClusterConnection;
-import com.lambdaworks.redis.RedisURI;
-import com.lambdaworks.redis.cluster.RedisClusterClient;
-import com.lambdaworks.redis.output.KeyStreamingChannel;
-import org.infinispan.persistence.redis.configuration.RedisServerConfiguration;
+import org.infinispan.persistence.redis.client.RedisConnection;
+import org.infinispan.persistence.redis.client.RedisConnectionPool;
+import org.infinispan.persistence.redis.client.RedisConnectionPoolFactory;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
 import org.infinispan.commons.configuration.ConfiguredBy;
 import org.infinispan.filter.KeyFilter;
@@ -15,10 +13,7 @@ import org.infinispan.persistence.spi.*;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Iterator;
 import java.util.concurrent.Executor;
 import net.jcip.annotations.ThreadSafe;
 
@@ -29,8 +24,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     private static final Log log = LogFactory.getLog(RedisStore.class, Log.class);
 
     private InitializationContext ctx;
-    private RedisClusterClient client;
-    private ObjectCodec codec;
+    private RedisConnectionPool connectionPool;
 
     /**
      * Used to initialize a cache loader.  Typically invoked by the {@link org.infinispan.persistence.manager.PersistenceManager}
@@ -44,30 +38,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         RedisStore.log.info("Redis cache store initialising");
 
         this.ctx = ctx;
-        this.codec = new ObjectCodec(this.ctx.getMarshaller());
-        RedisStoreConfiguration configuration = this.ctx.getConfiguration();
-
-        List<RedisURI> clusterNodes = new ArrayList<RedisURI>();
-
-        try {
-            for (RedisServerConfiguration server : configuration.servers()) {
-                clusterNodes.add(RedisURI.create(new URI(
-                    (server.ssl() ? "rediss" : "redis"),
-                    configuration.password(),
-                    server.host(),
-                    server.port(),
-                    "/" + String.valueOf(configuration.database()),
-                    null,
-                    null
-                )));
-            }
-        }
-        catch(URISyntaxException ex) {
-            throw new PersistenceException(ex);
-        }
-
-        this.client = new RedisClusterClient(clusterNodes);
-        this.client.reloadPartitions();
+        this.connectionPool = RedisConnectionPoolFactory.factory(this.ctx.getConfiguration(), this.ctx.getMarshaller());
     }
 
     /**
@@ -87,8 +58,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
     {
         RedisStore.log.info("Redis cache store stopping");
 
-        if (null != this.client) {
-            this.client.shutdown();
+        if (null != this.connectionPool) {
+            this.connectionPool.shutdown();
         }
     }
 
@@ -126,45 +97,40 @@ final public class RedisStore implements AdvancedLoadWriteStore
 
         final InitializationContext ctx = this.ctx;
         final TaskContext taskContext = new TaskContextImpl();
+        final RedisConnection connection = this.connectionPool.getConnection();
 
         try {
-            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
-            connection.scan(new KeyStreamingChannel<Object>()
-            {
-                @Override
-                public void onKey(final Object key)
-                {
-                    if (taskContext.isStopped()) {
-                        throw new TaskContextStoppedStateException();
-                    }
+            for (Object key : connection.scan()) {
+                if (taskContext.isStopped()) {
+                    throw new TaskContextStoppedStateException();
+                }
 
-                    if (null != key) {
-                        executor.execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    if (null == filter || filter.accept(key)) {
-                                        Object value = null;
+                if (null != key) {
+                    executor.execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                if (null == filter || filter.accept(key)) {
+                                    Object value = null;
 
-                                        if (fetchValue) {
-                                            value = connection.get(key);
-                                        }
-
-                                        task.processEntry(
-                                            ctx.getMarshalledEntryFactory().newMarshalledEntry(key, value, null),
-                                            taskContext
-                                        );
+                                    if (fetchValue) {
+                                        value = connection.get(key);
                                     }
-                                }
-                                catch (Exception ex) {
-                                    RedisStore.log.error("Failed to process the redis store key", ex);
-                                    throw new PersistenceException(ex);
+
+                                    task.processEntry(
+                                        ctx.getMarshalledEntryFactory().newMarshalledEntry(key, value, null),
+                                        taskContext
+                                    );
                                 }
                             }
-                        });
-                    }
+                            catch (Exception ex) {
+                                RedisStore.log.error("Failed to process the redis store key", ex);
+                                throw new PersistenceException(ex);
+                            }
+                        }
+                    });
                 }
-            });
+            }
         }
         catch(TaskContextStoppedStateException ex) {
             // Break out exception type for aborting processing
@@ -172,6 +138,11 @@ final public class RedisStore implements AdvancedLoadWriteStore
         catch(Exception ex) {
             RedisStore.log.error("Failed to process the redis store keys", ex);
             throw new PersistenceException(ex);
+        }
+        finally {
+            if (null != connection) {
+                connection.release();
+            }
         }
     }
 
@@ -197,10 +168,11 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public int size()
     {
         RedisStore.log.debug("Calculating Redis store size");
+        RedisConnection connection = null;
 
         try {
-            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
-            long dbSize = connection.dbsize();
+            connection = this.connectionPool.getConnection();
+            long dbSize = connection.dbSize();
 
             // Can't return more than Integer.MAX_VALUE due to interface limitation
             // If the number of elements in redis is more than the int max size,
@@ -223,6 +195,11 @@ final public class RedisStore implements AdvancedLoadWriteStore
             RedisStore.log.error("Failed to fetch element count from the redis store", ex);
             throw new PersistenceException(ex);
         }
+        finally {
+            if (null != connection) {
+                connection.release();
+            }
+        }
     }
 
     /**
@@ -234,14 +211,20 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public void clear()
     {
         RedisStore.log.debug("Clearing Redis store");
+        RedisConnection connection = null;
 
         try {
-            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
-            connection.flushdb();
+            connection = this.connectionPool.getConnection();
+            connection.flushDb();
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to clear all elements in the redis store", ex);
             throw new PersistenceException(ex);
+        }
+        finally {
+            if (null != connection) {
+                connection.release();
+            }
         }
     }
 
@@ -257,15 +240,21 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public MarshalledEntry load(Object key)
     {
         RedisStore.log.debug("Loading entry from Redis store");
+        RedisConnection connection = null;
 
         try {
-            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
+            connection = this.connectionPool.getConnection();
             Object value = connection.get(key);
             return (value != null ? this.ctx.getMarshalledEntryFactory().newMarshalledEntry(key, value, null) : null);
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to load element from the redis store", ex);
             throw new PersistenceException(ex);
+        }
+        finally {
+            if (null != connection) {
+                connection.release();
+            }
         }
     }
 
@@ -279,22 +268,20 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public void write(MarshalledEntry marshalledEntry)
     {
         RedisStore.log.debug("Writing entry to Redis store");
+        RedisConnection connection = null;
 
         try {
-            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
+            connection = this.connectionPool.getConnection();
             connection.set(marshalledEntry.getKey(), marshalledEntry.getValue());
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to write element to the redis store", ex);
-
-            try {
-                Thread.sleep(10000);
-            }
-            catch(Exception ex2) {
-                // ignore
-            }
-
             throw new PersistenceException(ex);
+        }
+        finally {
+            if (null != connection) {
+                connection.release();
+            }
         }
     }
 
@@ -308,14 +295,20 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public boolean delete(Object key)
     {
         RedisStore.log.debug("Deleting entry from Redis store");
+        RedisConnection connection = null;
 
         try {
-            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
-            return connection.del(key) > 0;
+            connection = this.connectionPool.getConnection();
+            return connection.delete(key);
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to delete element from the redis store", ex);
             throw new PersistenceException(ex);
+        }
+        finally {
+            if (null != connection) {
+                connection.release();
+            }
         }
     }
 
@@ -329,14 +322,20 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public boolean contains(Object key)
     {
         RedisStore.log.debug("Checking store for Redis entry");
+        RedisConnection connection = null;
 
         try {
-            RedisClusterConnection<Object,Object> connection = this.client.connectCluster(this.codec);
+            connection = this.connectionPool.getConnection();
             return connection.exists(key);
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to discover if element is in the redis store", ex);
             throw new PersistenceException(ex);
+        }
+        finally {
+            if (null != connection) {
+                connection.release();
+            }
         }
     }
 }
