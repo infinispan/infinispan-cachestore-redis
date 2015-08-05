@@ -41,8 +41,13 @@ public class RedisClusterConnection implements RedisConnection
 
         String valueByteString = this.cluster.get(keyByteString);
 
-        byte[] valueBuf = valueByteString.getBytes(Charset.forName("UTF-8"));
-        return this.marshaller.objectFromByteBuffer(valueBuf);
+        if (null != valueByteString) {
+            byte[] valueBuf = valueByteString.getBytes(Charset.forName("UTF-8"));
+            return this.marshaller.objectFromByteBuffer(valueBuf);
+        }
+        else {
+            return null;
+        }
     }
 
     @Override
@@ -90,6 +95,7 @@ public class RedisClusterConnection implements RedisConnection
                 client = clusterNodes.get(nodeKey).getResource();
                 totalSize += client.dbSize();
                 client.close();
+                client = null;
             }
         }
         finally {
@@ -113,6 +119,7 @@ public class RedisClusterConnection implements RedisConnection
                 client = clusterNodes.get(nodeKey).getResource();
                 client.flushDB();
                 client.close();
+                client = null;
             }
         }
         finally {
