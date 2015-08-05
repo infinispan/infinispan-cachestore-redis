@@ -38,10 +38,12 @@ public class RedisClusterNodeIterator implements Iterator<Object>
                 this.keyIterator = new RedisServerKeyIterator(client, this.marshaller);
                 return this.keyIterator.hasNext();
             }
-            finally {
+            catch(Exception ex) {
                 if (null != client) {
                     client.close();
                 }
+
+                throw ex;
             }
         }
         else {
