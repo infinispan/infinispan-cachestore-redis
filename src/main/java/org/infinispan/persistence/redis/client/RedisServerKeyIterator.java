@@ -33,18 +33,19 @@ public class RedisServerKeyIterator implements Iterator<Object>
             this.keyResults = this.scanCursor.getResult();
             this.position = 0;
 
-            return this.keyResults.size() > 0;
+            if (this.keyResults.size() > 0) {
+                return true;
+            }
         }
-        else {
-            return false;
-        }
+
+        client.close();
+        return false;
     }
 
     @Override
     public Object next()
     {
-        String keyByteString = this.keyResults.get(this.position++);
-        return this.marshaller.unmarshall(keyByteString);
+        return this.marshaller.unmarshall(this.keyResults.get(this.position++));
     }
 
     @Override

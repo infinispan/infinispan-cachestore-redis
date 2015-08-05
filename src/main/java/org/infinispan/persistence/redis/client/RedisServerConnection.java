@@ -31,40 +31,29 @@ public class RedisServerConnection implements RedisConnection
     public Object get(Object key)
         throws IOException, InterruptedException, ClassNotFoundException
     {
-        String keyByteString = this.marshaller.marshall(key);
-        String valueByteString = this.client.get(keyByteString);
-
-        if (null != valueByteString) {
-            return this.marshaller.unmarshall(valueByteString);
-        }
-        else {
-            return null;
-        }
+        String valueByteString = this.client.get(this.marshaller.marshall(key));
+        return (valueByteString != null ? this.marshaller.unmarshall(valueByteString) : null);
     }
 
     @Override
     public void set(Object key, Object value)
         throws IOException, InterruptedException
     {
-        String keyByteString = this.marshaller.marshall(key);
-        String valueByteString = this.marshaller.marshall(value);
-        this.client.set(keyByteString, valueByteString);
+        this.client.set(this.marshaller.marshall(key), this.marshaller.marshall(value));
     }
 
     @Override
     public boolean delete(Object key)
         throws IOException, InterruptedException
     {
-        String keyByteString = this.marshaller.marshall(key);
-        return this.client.del(keyByteString) > 0;
+        return this.client.del(this.marshaller.marshall(key)) > 0;
     }
 
     @Override
     public boolean exists(Object key)
         throws IOException, InterruptedException
     {
-        String keyByteString = this.marshaller.marshall(key);
-        return this.client.exists(keyByteString);
+        return this.client.exists(this.marshaller.marshall(key));
     }
 
     @Override

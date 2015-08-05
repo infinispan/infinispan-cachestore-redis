@@ -4,8 +4,6 @@ public interface RedisConnectionPool
 {
     /**
      * Get a connection from the pool
-     *
-     * @return Connection
      */
     RedisConnection getConnection();
 

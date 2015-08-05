@@ -21,7 +21,7 @@ public class RedisClusterConnection implements RedisConnection
     @Override
     public void release()
     {
-        // do nothing
+        // Nothing to do. Connection pools are managed internally by the cluster client.
     }
 
     @Override
@@ -34,40 +34,29 @@ public class RedisClusterConnection implements RedisConnection
     public Object get(Object key)
         throws IOException, InterruptedException, ClassNotFoundException
     {
-        String keyByteString = this.marshaller.marshall(key);
-        String valueByteString = this.cluster.get(keyByteString);
-
-        if (null != valueByteString) {
-            return this.marshaller.unmarshall(valueByteString);
-        }
-        else {
-            return null;
-        }
+        String valueByteString = this.cluster.get(this.marshaller.marshall(key));
+        return (valueByteString != null ? this.marshaller.unmarshall(valueByteString) : null);
     }
 
     @Override
     public void set(Object key, Object value)
         throws IOException, InterruptedException
     {
-        String keyByteString = this.marshaller.marshall(key);
-        String valueByteString = this.marshaller.marshall(value);
-        this.cluster.set(keyByteString, valueByteString);
+        this.cluster.set(this.marshaller.marshall(key), this.marshaller.marshall(value));
     }
 
     @Override
     public boolean delete(Object key)
         throws IOException, InterruptedException
     {
-        String keyByteString = this.marshaller.marshall(key);
-        return this.cluster.del(keyByteString) > 0;
+        return this.cluster.del(this.marshaller.marshall(key)) > 0;
     }
 
     @Override
     public boolean exists(Object key)
         throws IOException, InterruptedException
     {
-        String keyByteString = this.marshaller.marshall(key);
-        return this.cluster.exists(keyByteString);
+        return this.cluster.exists(this.marshaller.marshall(key));
     }
 
     @Override
@@ -76,18 +65,17 @@ public class RedisClusterConnection implements RedisConnection
         long totalSize = 0;
         Jedis client = null;
 
-        try {
-            Map<String, JedisPool> clusterNodes = this.cluster.getClusterNodes();
-            for (String nodeKey : clusterNodes.keySet()) {
+        Map<String, JedisPool> clusterNodes = this.cluster.getClusterNodes();
+        for (String nodeKey : clusterNodes.keySet()) {
+            try {
                 client = clusterNodes.get(nodeKey).getResource();
                 totalSize += client.dbSize();
-                client.close();
-                client = null;
             }
-        }
-        finally {
-            if (null != client) {
-                client.close();
+            finally {
+                if (null != client) {
+                    client.close();
+                    client = null;
+                }
             }
         }
 
@@ -100,18 +88,17 @@ public class RedisClusterConnection implements RedisConnection
     {
         Jedis client = null;
 
-        try {
-            Map<String, JedisPool> clusterNodes = this.cluster.getClusterNodes();
-            for (String nodeKey : clusterNodes.keySet()) {
+        Map<String, JedisPool> clusterNodes = this.cluster.getClusterNodes();
+        for (String nodeKey : clusterNodes.keySet()) {
+            try {
                 client = clusterNodes.get(nodeKey).getResource();
                 client.flushDB();
-                client.close();
-                client = null;
             }
-        }
-        finally {
-            if (null != client) {
-                client.close();
+            finally {
+                if (null != client) {
+                    client.close();
+                    client = null;
+                }
             }
         }
     }
