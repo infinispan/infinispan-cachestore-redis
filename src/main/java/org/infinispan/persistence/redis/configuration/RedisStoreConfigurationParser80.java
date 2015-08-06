@@ -111,7 +111,7 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
                 }
 
                 case TOPOLOGY: {
-                    builder.topology(Topology.valueOf(value));
+                    builder.topology(Topology.valueOf(value.toUpperCase()));
                 }
             }
         }

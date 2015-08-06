@@ -95,7 +95,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
 
         final InitializationContext ctx = this.ctx;
         final TaskContext taskContext = new TaskContextImpl();
-        final RedisConnection connection = this.connectionPool.getConnection();
+        final RedisConnectionPool connectionPool = this.connectionPool;
+        RedisConnection connection = connectionPool.getConnection();
 
         try {
             for (Object key : connection.scan()) {
@@ -107,7 +108,11 @@ final public class RedisStore implements AdvancedLoadWriteStore
                     executor.execute(new Runnable() {
                         @Override
                         public void run() {
+                            RedisConnection connection = null;
+
                             try {
+                                connection = connectionPool.getConnection();
+
                                 if (null == filter || filter.accept(key)) {
                                     Object value = null;
 
@@ -124,6 +129,11 @@ final public class RedisStore implements AdvancedLoadWriteStore
                             catch (Exception ex) {
                                 RedisStore.log.error("Failed to process the redis store key", ex);
                                 throw new PersistenceException(ex);
+                            }
+                            finally {
+                                if (null != connection) {
+                                    connection.release();
+                                }
                             }
                         }
                     });
