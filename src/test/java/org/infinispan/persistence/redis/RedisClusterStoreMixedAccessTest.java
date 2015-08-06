@@ -8,8 +8,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 
-@Test(testName = "persistence.redis.RedisStoreWrapperTest", groups="functional")
-public class RedisStoreWrapperTest extends AbstractInfinispanTest
+@Test(testName = "persistence.redi.RedisStoreMixedAccessTest", groups="functional")
+public class RedisClusterStoreMixedAccessTest extends AbstractInfinispanTest
 {
     RedisCluster redisCluster;
 
@@ -17,7 +17,7 @@ public class RedisStoreWrapperTest extends AbstractInfinispanTest
     public void startUp()
         throws IOException
     {
-        System.out.println("RedisStoreWrapperTest:Setting up");
+        System.out.println("RedisStoreMixedAccessTest:Setting up");
         redisCluster = new RedisCluster();
         redisCluster.start();
     }
@@ -25,11 +25,21 @@ public class RedisStoreWrapperTest extends AbstractInfinispanTest
     @AfterClass
     public void tearDown()
     {
-        System.out.println("RedisStoreWrapperTest:Tearing down");
+        System.out.println("RedisStoreMixedAccessTest:Tearing down");
         redisCluster.kill();
     }
 
-    public void testEntryWrapping() throws Exception
+    public void testMixedAccess()
+    {
+
+    }
+
+    public void testMixedAccessWithLifespan()
+    {
+
+    }
+
+    public void testMixedAccessWithLifespanAndMaxIdle()
     {
 
     }

@@ -2,6 +2,7 @@ package org.infinispan.persistence.redis;
 
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.persistence.BaseStoreTest;
+import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfigurationBuilder;
 import org.infinispan.persistence.redis.support.RedisCluster;
 import org.infinispan.persistence.spi.AdvancedLoadWriteStore;
@@ -11,9 +12,10 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration.Topology;
 
-@Test(testName = "persistence.redis.RedisStoreRawValuesTest", groups = "functional")
-public class RedisStoreRawValuesTest extends BaseStoreTest
+@Test(testName = "persistence.redis.RedisStoreTest", groups = "functional")
+public class RedisClusterStoreTest extends BaseStoreTest
 {
     RedisCluster redisCluster;
 
@@ -21,7 +23,7 @@ public class RedisStoreRawValuesTest extends BaseStoreTest
     public void startUp()
         throws IOException
     {
-        System.out.println("RedisStoreRawValuesTest:Setting up");
+        System.out.println("RedisStoreTest:Setting up");
         redisCluster = new RedisCluster();
         redisCluster.start();
     }
@@ -29,7 +31,7 @@ public class RedisStoreRawValuesTest extends BaseStoreTest
     @AfterClass
     public void tearDown()
     {
-        System.out.println("RedisStoreRawValuesTest:Tearing down");
+        System.out.println("RedisStoreTest:Tearing down");
 
         try {
             super.tearDown();
@@ -45,9 +47,16 @@ public class RedisStoreRawValuesTest extends BaseStoreTest
         ConfigurationBuilder builder = TestCacheManagerFactory.getDefaultCacheConfiguration(false);
         RedisStoreConfigurationBuilder storeConfigurationBuilder = builder.persistence().addStore(RedisStoreConfigurationBuilder.class);
         storeConfigurationBuilder
+            .topology(Topology.CLUSTER)
             .addServer()
-            .host("localhost")
-            .port(6379)
+                .host("localhost")
+                .port(6379)
+            .addServer()
+                .host("localhost")
+                .port(6380)
+            .addServer()
+                .host("localhost")
+                .port(6381)
         ;
 
         RedisStore store = new RedisStore();

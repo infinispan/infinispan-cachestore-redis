@@ -8,7 +8,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 
 @Test(testName = "persistence.redis.RemoteStoreConfigTest", groups = "functional")
-public class RedisStoreConfigTest
+public class RedisClusterStoreConfigTest
 {
     public static final String CACHE_LOADER_CONFIG = "redis-cl-config.xml";
     RedisCluster redisCluster;

@@ -12,8 +12,8 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 
-@Test(testName = "persistence.redis.RedisStoreTest", groups = "functional")
-public class RedisStoreTest extends BaseStoreTest
+@Test(testName = "persistence.redis.RedisStoreRawValuesTest", groups = "functional")
+public class RedisClusterStoreRawValuesTest extends BaseStoreTest
 {
     RedisCluster redisCluster;
 
@@ -21,7 +21,7 @@ public class RedisStoreTest extends BaseStoreTest
     public void startUp()
         throws IOException
     {
-        System.out.println("RedisStoreTest:Setting up");
+        System.out.println("RedisStoreRawValuesTest:Setting up");
         redisCluster = new RedisCluster();
         redisCluster.start();
     }
@@ -29,7 +29,7 @@ public class RedisStoreTest extends BaseStoreTest
     @AfterClass
     public void tearDown()
     {
-        System.out.println("RedisStoreTest:Tearing down");
+        System.out.println("RedisStoreRawValuesTest:Tearing down");
 
         try {
             super.tearDown();
@@ -46,14 +46,8 @@ public class RedisStoreTest extends BaseStoreTest
         RedisStoreConfigurationBuilder storeConfigurationBuilder = builder.persistence().addStore(RedisStoreConfigurationBuilder.class);
         storeConfigurationBuilder
             .addServer()
-                .host("localhost")
-                .port(6379)
-            .addServer()
-                .host("localhost")
-                .port(6380)
-            .addServer()
-                .host("localhost")
-                .port(6381)
+            .host("localhost")
+            .port(6379)
         ;
 
         RedisStore store = new RedisStore();
