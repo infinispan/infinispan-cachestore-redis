@@ -34,11 +34,11 @@ public interface RedisStoreConfigurationChildBuilder<S> extends StoreConfigurati
      * This property defines the maximum socket connect timeout before giving up connecting to the
      * server.
      */
-    RedisStoreConfigurationBuilder connectionTimeout(long connectionTimeout);
+    RedisStoreConfigurationBuilder connectionTimeout(int connectionTimeout);
 
     /**
      * This property defines the maximum socket read timeout in milliseconds before giving up waiting
      * for bytes from the server. Defaults to 60000 (1 minute)
      */
-    RedisStoreConfigurationBuilder socketTimeout(long socketTimeout);
+    RedisStoreConfigurationBuilder socketTimeout(int socketTimeout);
 }

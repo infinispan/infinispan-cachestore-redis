@@ -156,11 +156,11 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
                 }
 
                 case SOCKET_TIMEOUT: {
-                    builder.socketTimeout(Long.parseLong(value));
+                    builder.socketTimeout(Integer.parseInt(value));
                 }
 
                 case CONNECTION_TIMEOUT: {
-                    builder.connectionTimeout(Long.parseLong(value));
+                    builder.connectionTimeout(Integer.parseInt(value));
                 }
             }
         }

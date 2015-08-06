@@ -47,14 +47,14 @@ final public class RedisStoreConfigurationBuilder
     }
 
     @Override
-    public RedisStoreConfigurationBuilder connectionTimeout(long connectionTimeout)
+    public RedisStoreConfigurationBuilder connectionTimeout(int connectionTimeout)
     {
         attributes.attribute(RedisStoreConfiguration.CONNECTION_TIMEOUT).set(connectionTimeout);
         return this;
     }
 
     @Override
-    public RedisStoreConfigurationBuilder socketTimeout(long socketTimeout)
+    public RedisStoreConfigurationBuilder socketTimeout(int socketTimeout)
     {
         attributes.attribute(RedisStoreConfiguration.SOCKET_TIMEOUT).set(socketTimeout);
         return this;
@@ -93,6 +93,6 @@ final public class RedisStoreConfigurationBuilder
             redisServers.add(server.create());
         }
         attributes.attribute(RedisStoreConfiguration.SERVERS).set(redisServers);
-        return new RedisStoreConfiguration(this.attributes.protect(), this.async.create(), this.singletonStore.create());
+        return new RedisStoreConfiguration(this.attributes.protect(), this.async.create(), this.singletonStore.create(), this.connectionPool.create());
     }
 }

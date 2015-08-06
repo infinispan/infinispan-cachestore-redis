@@ -1,5 +1,6 @@
 package org.infinispan.persistence.redis.client;
 
+import org.infinispan.persistence.redis.configuration.ConnectionPoolConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisServerConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
 import redis.clients.jedis.HostAndPort;
@@ -21,19 +22,26 @@ public class RedisClusterConnectionPool implements RedisConnectionPool
             clusterNodes.add(new HostAndPort(server.host(), server.port()));
         }
 
-        // todo: obtain from configuration file
-        int connectionTimeout = 2000;
-        int soTimeout = 2000;
+        // todo: move to configuration
         int maxRedirections = 5;
 
-        JedisPoolConfig poolConfig = new JedisPoolConfig();
-        poolConfig.setMaxTotal(5);
-        poolConfig.setMinIdle(2);
-        poolConfig.setMaxIdle(5);
-        poolConfig.setMinEvictableIdleTimeMillis(100);
-        poolConfig.setTimeBetweenEvictionRunsMillis(100);
+        ConnectionPoolConfiguration connectionPoolConfiguration = configuration.connectionPool();
 
-        this.cluster = new JedisCluster(clusterNodes, connectionTimeout, soTimeout, maxRedirections, poolConfig);
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxTotal(connectionPoolConfiguration.maxTotal());
+        poolConfig.setMinIdle(connectionPoolConfiguration.minIdle());
+        poolConfig.setMaxIdle(connectionPoolConfiguration.maxIdle());
+        poolConfig.setMinEvictableIdleTimeMillis(connectionPoolConfiguration.minEvictableIdleTime());
+        poolConfig.setTimeBetweenEvictionRunsMillis(connectionPoolConfiguration.timeBetweenEvictionRuns());
+
+        this.cluster = new JedisCluster(
+            clusterNodes,
+            configuration.connectionTimeout(),
+            configuration.socketTimeout(),
+            maxRedirections,
+            poolConfig
+        );
+
         this.marshaller = marshaller;
     }
 

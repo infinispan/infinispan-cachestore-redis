@@ -47,13 +47,13 @@ public abstract class AbstractRedisStoreConfigurationChildBuilder<S> extends Abs
     }
 
     @Override
-    public RedisStoreConfigurationBuilder socketTimeout(long socketTimeout)
+    public RedisStoreConfigurationBuilder socketTimeout(int socketTimeout)
     {
         return builder.socketTimeout(socketTimeout);
     }
 
     @Override
-    public RedisStoreConfigurationBuilder connectionTimeout(long connectionTimeout)
+    public RedisStoreConfigurationBuilder connectionTimeout(int connectionTimeout)
     {
         return builder.connectionTimeout(connectionTimeout);
     }
