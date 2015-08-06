@@ -13,13 +13,21 @@
             <xs:extension base="config:store">
                 <xs:sequence>
                     <xs:element name="redis-server" type="tns:redis-server" minOccurs="1" maxOccurs="unbounded"/>
+
+                    <xs:element name="connection-pool" type="tns:connectionPool" minOccurs="0">
+                        <xs:annotation>
+                            <xs:documentation>
+                                Configuration of the connection pool
+                            </xs:documentation>
+                        </xs:annotation>
+                    </xs:element>
                 </xs:sequence>
 
                 <xs:attribute name="database" type="xs:int">
                     <xs:annotation>
                         <xs:documentation>
-                            The name of the remote cache in the remote infinispan cluster, to which to connect to.
-                            If unspecified, the default cache will be used
+                            The database index on the remote Redis server that data should be stored within.
+                            If unspecified, 0 will be used. Not applicable to Redis clusters.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
@@ -27,8 +35,27 @@
                 <xs:attribute name="password" type="xs:string">
                     <xs:annotation>
                         <xs:documentation>
-                            The name of the remote cache in the remote infinispan cluster, to which to connect to.
-                            If unspecified, the default cache will be used
+                            The password used to connect to the Redis server. The default is null.
+                            Not applicable to Redis clusters.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="socket-timeout" type="xs:long" default="60000">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Enable/disable SO_TIMEOUT on socket connections to Redis servers with the
+                            specified timeout, in milliseconds.
+                            A timeout of zero is interpreted as an infinite timeout.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="connection-timeout" type="xs:int" default="60000">
+                    <xs:annotation>
+                        <xs:documentation>
+                            This property defines the maximum socket connect timeout before giving
+                            up connecting to the server.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
@@ -53,14 +80,64 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
-
-            <xs:attribute name="ssl" type="xs:boolean" default="false">
-                <xs:annotation>
-                    <xs:documentation>
-                        Whether the server requires SSL to establish a connection (default false).
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
         </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="connectionPool">
+        <xs:attribute name="min-idle" type="xs:int" default="1">
+            <xs:annotation>
+                <xs:documentation>
+                    Sets a target value for the minimum number of idle connections (per server)
+                    that should always be available. If this parameter is set to a positive number and
+                    timeBetweenEvictionRunsMillis > 0, each time the idle connection eviction thread
+                    runs, it will try to create enough idle instances so that there will be minIdle
+                    idle instances available for each server. The default setting for this parameter
+                    is 1.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="max-idle" type="xs:int" default="-1">
+            <xs:annotation>
+                <xs:documentation>
+                    Controls the maximum number of idle persistent connections, per server, at any time.
+                    When negative, there is no limit to the number of connections that may be idle per server.
+                    The default setting for this parameter is -1.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="max-total" type="xs:int" default="-1">
+            <xs:annotation>
+                <xs:documentation>
+                    Sets a global limit on the number persistent connections that can be in circulation
+                    within the combined set of servers. When non-positive, there is no limit to the total
+                    number of persistent connections in circulation. When maxTotal is exceeded, all
+                    connections pools are exhausted. The default setting for this parameter is -1 (no limit).
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="min-evictable-idle-time" type="xs:long" default="1800000">
+            <xs:annotation>
+                <xs:documentation>
+                    Specifies the minimum amount of time that an connection may sit idle in the pool before
+                    it is eligible for eviction due to idle time. When non-positive, no connection will be
+                    ropped from the pool due to idle time alone. This setting has no effect unless
+                    timeBetweenEvictionRunsMillis > 0. The default setting for this parameter is
+                    1800000(30 minutes).
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="time-between-eviction-runs" type="xs:long" default="120000">
+            <xs:annotation>
+                <xs:documentation>
+                    Indicates how long the eviction thread should sleep before "runs" of examining idle
+                    connections. When non-positive, no eviction thread will be launched. The default
+                    setting for this parameter is 2 minutes.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 </xs:schema>

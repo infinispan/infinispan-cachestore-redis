@@ -30,6 +30,8 @@ public class RedisClusterConnectionPool implements RedisConnectionPool
         poolConfig.setMaxTotal(5);
         poolConfig.setMinIdle(2);
         poolConfig.setMaxIdle(5);
+        poolConfig.setMinEvictableIdleTimeMillis(100);
+        poolConfig.setTimeBetweenEvictionRunsMillis(100);
 
         this.cluster = new JedisCluster(clusterNodes, connectionTimeout, soTimeout, maxRedirections, poolConfig);
         this.marshaller = marshaller;

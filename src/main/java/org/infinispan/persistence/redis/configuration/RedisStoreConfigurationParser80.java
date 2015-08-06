@@ -54,6 +54,10 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
                     break;
                 }
 
+                case CONNECTION_POOL: {
+                    this.parseConnectionPool(reader, builder.connectionPool());
+                }
+
                 default: {
                     Parser80.parseStoreElement(reader, builder);
                     break;
@@ -72,10 +76,6 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
             String value = replaceProperties(reader.getAttributeValue(i));
             Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
             switch (attribute) {
-                case SSL:
-                    builder.ssl(Boolean.parseBoolean(value));
-                    break;
-
                 case HOST:
                     builder.host(value);
                     break;
@@ -83,6 +83,47 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
                 case PORT:
                     builder.port(Integer.parseInt(value));
                     break;
+
+                default:
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+            }
+        }
+
+        ParseUtils.requireNoContent(reader);
+    }
+
+    private void parseConnectionPool(XMLExtendedStreamReader reader, ConnectionPoolConfigurationBuilder builder)
+        throws XMLStreamException
+    {
+        for (int i = 0; i < reader.getAttributeCount(); i++) {
+            ParseUtils.requireNoNamespaceAttribute(reader, i);
+            String value = replaceProperties(reader.getAttributeValue(i));
+            Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case TIME_BETWEEN_EVICTION_RUNS: {
+                    builder.timeBetweenEvictionRuns(Long.parseLong(value));
+                    break;
+                }
+
+                case MIN_EVICTABLE_IDLE_TIME: {
+                    builder.minEvictableIdleTime(Long.parseLong(value));
+                    break;
+                }
+
+                case MAX_TOTAL: {
+                    builder.maxTotal(Integer.parseInt(value));
+                    break;
+                }
+
+                case MAX_IDLE: {
+                    builder.maxIdle(Integer.parseInt(value));
+                    break;
+                }
+
+                case MIN_IDLE: {
+                    builder.minIdle(Integer.parseInt(value));
+                    break;
+                }
 
                 default:
                     throw ParseUtils.unexpectedAttribute(reader, i);
@@ -112,6 +153,14 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
 
                 case TOPOLOGY: {
                     builder.topology(Topology.valueOf(value.toUpperCase()));
+                }
+
+                case SOCKET_TIMEOUT: {
+                    builder.socketTimeout(Long.parseLong(value));
+                }
+
+                case CONNECTION_TIMEOUT: {
+                    builder.connectionTimeout(Long.parseLong(value));
                 }
             }
         }

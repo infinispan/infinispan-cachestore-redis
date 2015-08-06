@@ -8,12 +8,18 @@ public enum Attribute
     // must be first
     UNKNOWN(null),
 
-    SSL("ssl"),
     HOST("host"),
     PORT("port"),
     PASSWORD("password"),
     DATABASE("database"),
-    TOPOLOGY("topology")
+    TOPOLOGY("topology"),
+    TIME_BETWEEN_EVICTION_RUNS("time-between-eviction-runs"),
+    MIN_EVICTABLE_IDLE_TIME("min-evictable-idle-time"),
+    MAX_TOTAL("max-total"),
+    MAX_IDLE("max-idle"),
+    MIN_IDLE("min-idle"),
+    SOCKET_TIMEOUT("socket-timeout"),
+    CONNECTION_TIMEOUT("connection-timeout")
     ;
 
     private final String name;

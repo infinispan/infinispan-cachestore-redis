@@ -23,6 +23,12 @@ public abstract class AbstractRedisStoreConfigurationChildBuilder<S> extends Abs
     }
 
     @Override
+    public ConnectionPoolConfigurationBuilder connectionPool()
+    {
+        return builder.connectionPool();
+    }
+
+    @Override
     public RedisStoreConfigurationBuilder database(int database)
     {
         return builder.database(database);
@@ -38,5 +44,17 @@ public abstract class AbstractRedisStoreConfigurationChildBuilder<S> extends Abs
     public RedisStoreConfigurationBuilder topology(Topology topology)
     {
         return builder.topology(topology);
+    }
+
+    @Override
+    public RedisStoreConfigurationBuilder socketTimeout(long socketTimeout)
+    {
+        return builder.socketTimeout(socketTimeout);
+    }
+
+    @Override
+    public RedisStoreConfigurationBuilder connectionTimeout(long connectionTimeout)
+    {
+        return builder.connectionTimeout(connectionTimeout);
     }
 }

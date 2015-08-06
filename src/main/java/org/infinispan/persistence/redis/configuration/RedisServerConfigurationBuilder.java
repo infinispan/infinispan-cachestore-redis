@@ -6,18 +6,12 @@ import org.infinispan.configuration.global.GlobalConfiguration;
 final public class RedisServerConfigurationBuilder extends AbstractRedisStoreConfigurationChildBuilder<RedisStoreConfigurationBuilder> implements
     Builder<RedisServerConfiguration>
 {
-    private boolean ssl = false;
     private String host;
     private int port = 6379;
 
     protected RedisServerConfigurationBuilder(RedisStoreConfigurationBuilder builder)
     {
         super(builder);
-    }
-
-    public RedisServerConfigurationBuilder ssl(boolean ssl) {
-        this.ssl = ssl;
-        return this;
     }
 
     public RedisServerConfigurationBuilder host(String host) {
@@ -45,13 +39,12 @@ final public class RedisServerConfigurationBuilder extends AbstractRedisStoreCon
     @Override
     public RedisServerConfiguration create()
     {
-        return new RedisServerConfiguration(ssl, host, port);
+        return new RedisServerConfiguration(host, port);
     }
 
     @Override
     public Builder<?> read(RedisServerConfiguration template)
     {
-        this.ssl = template.ssl();
         this.host = template.host();
         this.port = template.port();
 

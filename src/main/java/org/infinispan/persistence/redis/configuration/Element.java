@@ -9,7 +9,8 @@ public enum Element
     UNKNOWN(null),
 
     REDIS_STORE("redis-store"),
-    SERVER("redis-server")
+    SERVER("redis-server"),
+    CONNECTION_POOL("connection-pool")
     ;
 
     private final String name;

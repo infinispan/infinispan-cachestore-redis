@@ -11,10 +11,12 @@ final public class RedisStoreConfigurationBuilder
     implements RedisStoreConfigurationChildBuilder<RedisStoreConfigurationBuilder>
 {
     private List<RedisServerConfigurationBuilder> servers = new ArrayList<RedisServerConfigurationBuilder>();
+    private final ConnectionPoolConfigurationBuilder connectionPool;
 
     public RedisStoreConfigurationBuilder(PersistenceConfigurationBuilder builder)
     {
         super(builder, RedisStoreConfiguration.attributeDefinitionSet());
+        connectionPool = new ConnectionPoolConfigurationBuilder(this);
     }
 
     @Override
@@ -45,6 +47,20 @@ final public class RedisStoreConfigurationBuilder
     }
 
     @Override
+    public RedisStoreConfigurationBuilder connectionTimeout(long connectionTimeout)
+    {
+        attributes.attribute(RedisStoreConfiguration.CONNECTION_TIMEOUT).set(connectionTimeout);
+        return this;
+    }
+
+    @Override
+    public RedisStoreConfigurationBuilder socketTimeout(long socketTimeout)
+    {
+        attributes.attribute(RedisStoreConfiguration.SOCKET_TIMEOUT).set(socketTimeout);
+        return this;
+    }
+
+    @Override
     public RedisServerConfigurationBuilder addServer()
     {
         RedisServerConfigurationBuilder builder = new RedisServerConfigurationBuilder(this);
@@ -53,11 +69,17 @@ final public class RedisStoreConfigurationBuilder
     }
 
     @Override
+    public ConnectionPoolConfigurationBuilder connectionPool()
+    {
+        return this.connectionPool;
+    }
+
+    @Override
     public RedisStoreConfigurationBuilder read(RedisStoreConfiguration template)
     {
         super.read(template);
         for (RedisServerConfiguration server : template.servers()) {
-            this.addServer().ssl(server.ssl()).host(server.host()).port(server.port());
+            this.addServer().host(server.host()).port(server.port());
         }
 
         return this;
