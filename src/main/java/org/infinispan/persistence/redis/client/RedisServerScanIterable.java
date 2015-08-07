@@ -4,7 +4,7 @@ import redis.clients.jedis.Jedis;
 
 import java.util.Iterator;
 
-public class RedisServerScanIterable implements Iterable<Object>
+final public class RedisServerScanIterable implements Iterable<Object>
 {
     private RedisMarshaller<String> marshaller;
     private Jedis client;

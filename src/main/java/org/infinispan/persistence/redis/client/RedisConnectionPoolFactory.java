@@ -5,7 +5,7 @@ import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
 
 import java.security.InvalidParameterException;
 
-public class RedisConnectionPoolFactory
+final public class RedisConnectionPoolFactory
 {
     public static RedisConnectionPool factory(RedisStoreConfiguration configuration, StreamingMarshaller marshaller)
     {
@@ -17,7 +17,7 @@ public class RedisConnectionPoolFactory
             }
 
             case SERVER: {
-                return new RedisServerConnectionPool(redisMarshaller);
+                return new RedisServerConnectionPool(configuration, redisMarshaller);
             }
         }
 

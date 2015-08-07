@@ -7,7 +7,7 @@ import redis.clients.jedis.JedisPool;
 import java.io.IOException;
 import java.util.Map;
 
-public class RedisClusterConnection implements RedisConnection
+final public class RedisClusterConnection implements RedisConnection
 {
     private JedisCluster cluster;
     private RedisMarshaller<String> marshaller;

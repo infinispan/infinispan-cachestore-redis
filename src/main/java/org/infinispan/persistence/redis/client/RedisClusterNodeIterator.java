@@ -7,7 +7,7 @@ import redis.clients.jedis.JedisPool;
 import java.util.Iterator;
 import java.util.Map;
 
-public class RedisClusterNodeIterator implements Iterator<Object>
+final public class RedisClusterNodeIterator implements Iterator<Object>
 {
     private RedisMarshaller<String> marshaller;
     private Map<String, JedisPool> clusterNodes;

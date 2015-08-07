@@ -4,7 +4,7 @@ import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
 
-public class RedisServerConnection implements RedisConnection
+final public class RedisServerConnection implements RedisConnection
 {
     private Jedis client;
     private RedisMarshaller<String> marshaller;

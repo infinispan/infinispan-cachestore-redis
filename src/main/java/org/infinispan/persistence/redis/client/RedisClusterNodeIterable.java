@@ -4,7 +4,7 @@ import redis.clients.jedis.JedisCluster;
 
 import java.util.Iterator;
 
-public class RedisClusterNodeIterable implements Iterable<Object>
+final public class RedisClusterNodeIterable implements Iterable<Object>
 {
     private RedisMarshaller<String> marshaller;
     private JedisCluster client;

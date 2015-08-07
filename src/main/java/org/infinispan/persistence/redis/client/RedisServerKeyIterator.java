@@ -6,7 +6,7 @@ import redis.clients.jedis.ScanResult;
 import java.util.Iterator;
 import java.util.List;
 
-public class RedisServerKeyIterator implements Iterator<Object>
+final public class RedisServerKeyIterator implements Iterator<Object>
 {
     private Jedis client;
     private RedisMarshaller<String> marshaller;

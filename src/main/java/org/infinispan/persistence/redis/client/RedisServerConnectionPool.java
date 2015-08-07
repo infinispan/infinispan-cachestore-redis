@@ -1,24 +1,50 @@
 package org.infinispan.persistence.redis.client;
 
+import org.infinispan.persistence.redis.configuration.ConnectionPoolConfiguration;
+import org.infinispan.persistence.redis.configuration.RedisServerConfiguration;
+import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
-public class RedisServerConnectionPool implements RedisConnectionPool
+final public class RedisServerConnectionPool implements RedisConnectionPool
 {
     private JedisPool connectionPool;
     private RedisMarshaller<String> marshaller;
 
-    public RedisServerConnectionPool(RedisMarshaller<String> marshaller)
+    public RedisServerConnectionPool(RedisStoreConfiguration configuration, RedisMarshaller<String> marshaller)
     {
-//        final GenericObjectPoolConfig poolConfig,
-//        final String host,
-//        int port,
-//        final int connectionTimeout,
-//        final int soTimeout,
-//        final String password,
-//        final int database,
-//        final String clientName
+        String host = null;
+        int port = 6379;
 
-        this.connectionPool = new JedisPool();
+        for (RedisServerConfiguration server : configuration.servers()) {
+            host = server.host();
+            port = server.port();
+        }
+
+        if (null == host) {
+            // todo: handle error
+        }
+
+        ConnectionPoolConfiguration connectionPoolConfiguration = configuration.connectionPool();
+
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxTotal(connectionPoolConfiguration.maxTotal());
+        poolConfig.setMinIdle(connectionPoolConfiguration.minIdle());
+        poolConfig.setMaxIdle(connectionPoolConfiguration.maxIdle());
+        poolConfig.setMinEvictableIdleTimeMillis(connectionPoolConfiguration.minEvictableIdleTime());
+        poolConfig.setTimeBetweenEvictionRunsMillis(connectionPoolConfiguration.timeBetweenEvictionRuns());
+
+        this.connectionPool = new JedisPool(
+            poolConfig,
+            host,
+            port,
+            configuration.connectionTimeout(),
+            configuration.socketTimeout(),
+            configuration.password(),
+            configuration.database(),
+            null
+        );
+
         this.marshaller = marshaller;
     }
 

@@ -1,6 +1,6 @@
 package org.infinispan.persistence.redis.configuration;
 
-public class ConnectionPoolConfiguration
+final public class ConnectionPoolConfiguration
 {
     private final int maxTotal;
     private final int maxIdle;

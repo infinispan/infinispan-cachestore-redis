@@ -5,7 +5,7 @@ import org.infinispan.commons.marshall.StreamingMarshaller;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-public class StringRedisMarshaller implements RedisMarshaller<String>
+final public class StringRedisMarshaller implements RedisMarshaller<String>
 {
     private final String encoding = "ISO-8859-1";
     private StreamingMarshaller marshaller;

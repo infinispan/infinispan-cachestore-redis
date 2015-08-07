@@ -3,7 +3,7 @@ package org.infinispan.persistence.redis.configuration;
 import org.infinispan.commons.configuration.Builder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 
-public class ConnectionPoolConfigurationBuilder extends AbstractRedisStoreConfigurationChildBuilder<RedisStoreConfigurationBuilder> implements
+final public class ConnectionPoolConfigurationBuilder extends AbstractRedisStoreConfigurationChildBuilder<RedisStoreConfigurationBuilder> implements
     Builder<ConnectionPoolConfiguration>
 {
     private int maxTotal = -1;
