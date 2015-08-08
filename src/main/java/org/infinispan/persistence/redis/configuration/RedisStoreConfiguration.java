@@ -20,6 +20,7 @@ final public class RedisStoreConfiguration extends AbstractStoreConfiguration
     public enum Topology
     {
         CLUSTER,
+        SENTINEL,
         SERVER
     }
 

@@ -16,6 +16,10 @@ final public class RedisConnectionPoolFactory
                 return new RedisClusterConnectionPool(configuration, redisMarshaller);
             }
 
+            case SENTINEL: {
+                return new RedisSentinelConnectionPool(configuration, redisMarshaller);
+            }
+
             case SERVER: {
                 return new RedisServerConnectionPool(configuration, redisMarshaller);
             }

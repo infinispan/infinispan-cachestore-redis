@@ -3,29 +3,26 @@ package org.infinispan.persistence.redis.client;
 import org.infinispan.persistence.redis.configuration.ConnectionPoolConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisServerConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
-import redis.clients.jedis.HostAndPort;
-import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisSentinelPool;
 
 import java.util.HashSet;
 import java.util.Set;
 
-final public class RedisClusterConnectionPool implements RedisConnectionPool
+public class RedisSentinelConnectionPool implements RedisConnectionPool
 {
     private RedisMarshaller<String> marshaller;
-    private JedisCluster cluster;
+    private JedisSentinelPool sentinelPool;
 
-    public RedisClusterConnectionPool(RedisStoreConfiguration configuration, RedisMarshaller<String> marshaller)
+    public RedisSentinelConnectionPool(RedisStoreConfiguration configuration, RedisMarshaller<String> marshaller)
     {
-        Set<HostAndPort> clusterNodes = new HashSet<HostAndPort>();
+        Set<String> sentinels = new HashSet<String>();
         for (RedisServerConfiguration server : configuration.servers()) {
-            clusterNodes.add(new HostAndPort(server.host(), server.port()));
+            sentinels.add(String.format("%s:%s", server.host(), server.port()));
         }
 
-
         // todo: move to configuration
-        int maxRedirections = 5;
+        String masterName = "test";
 
         ConnectionPoolConfiguration connectionPoolConfiguration = configuration.connectionPool();
 
@@ -36,12 +33,15 @@ final public class RedisClusterConnectionPool implements RedisConnectionPool
         poolConfig.setMinEvictableIdleTimeMillis(connectionPoolConfiguration.minEvictableIdleTime());
         poolConfig.setTimeBetweenEvictionRunsMillis(connectionPoolConfiguration.timeBetweenEvictionRuns());
 
-        this.cluster = new JedisCluster(
-            clusterNodes,
+        sentinelPool = new JedisSentinelPool(
+            masterName,
+            sentinels,
+            poolConfig,
             configuration.connectionTimeout(),
             configuration.socketTimeout(),
-            maxRedirections,
-            poolConfig
+            configuration.password(),
+            configuration.database(),
+            null
         );
 
         this.marshaller = marshaller;
@@ -50,12 +50,12 @@ final public class RedisClusterConnectionPool implements RedisConnectionPool
     @Override
     public RedisConnection getConnection()
     {
-        return new RedisClusterConnection(this.cluster, this.marshaller);
+        return new RedisServerConnection(this.sentinelPool.getResource(), this.marshaller);
     }
 
     @Override
     public void shutdown()
     {
-        this.cluster.close();
+        this.sentinelPool.destroy();
     }
 }
