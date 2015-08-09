@@ -107,46 +107,33 @@ final public class RedisStore implements AdvancedLoadWriteStore
                     break;
                 }
 
-                if (null != key) {
-                    executor.execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            RedisConnection connection = null;
+                if (null != filter && ! filter.accept(key)) {
+                    continue;
+                }
 
-                            try {
-                                connection = connectionPool.getConnection();
-
-                                if (null == filter || filter.accept(key)) {
-                                    MarshalledEntry marshalledEntry;
-
-                                    if (fetchValue) {
-                                        marshalledEntry = cacheStore.load(key);
-                                    }
-                                    else {
-                                        marshalledEntry = ctx.getMarshalledEntryFactory().newMarshalledEntry(
-                                            key,
-                                            null,
-                                            (ByteBuffer) null
-                                        );
-                                    }
-
-                                    if (null != marshalledEntry) {
-                                        task.processEntry(marshalledEntry, taskContext);
-                                    }
-                                }
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            MarshalledEntry marshalledEntry;
+                            if (fetchValue) {
+                                marshalledEntry = cacheStore.load(key);
                             }
-                            catch (Exception ex) {
-                                RedisStore.log.error("Failed to process the redis store key", ex);
-                                throw new PersistenceException(ex);
+                            else {
+                                marshalledEntry = ctx.getMarshalledEntryFactory().newMarshalledEntry(
+                                    key, null, (ByteBuffer) null);
                             }
-                            finally {
-                                if (null != connection) {
-                                    connection.release();
-                                }
+
+                            if (null != marshalledEntry) {
+                                task.processEntry(marshalledEntry, taskContext);
                             }
                         }
-                    });
-                }
+                        catch (Exception ex) {
+                            RedisStore.log.error("Failed to process the redis store key", ex);
+                            throw new PersistenceException(ex);
+                        }
+                    }
+                });
             }
         }
         catch(Exception ex) {
@@ -169,7 +156,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void purge(Executor executor, final PurgeListener purgeListener)
     {
-        RedisStore.log.debug("Purging expired entries from Redis store");
+        // Nothing to do. All expired entries are purged by Redis itself
     }
 
     /**
@@ -265,12 +252,18 @@ final public class RedisStore implements AdvancedLoadWriteStore
 
             byte[] value = cacheEntry.getValueBytes();
             byte[] metadata = cacheEntry.getMetadataBytes();
+            ByteBuffer valueBuf = null;
+            ByteBuffer metadataBuf = null;
 
-            return this.ctx.getMarshalledEntryFactory().newMarshalledEntry(
-                key,
-                (null != value ? this.ctx.getByteBufferFactory().newByteBuffer(value, 0, value.length) : null),
-                (null != metadata ? this.ctx.getByteBufferFactory().newByteBuffer(metadata, 0, metadata.length) : null)
-            );
+            if (null != value) {
+                valueBuf = this.ctx.getByteBufferFactory().newByteBuffer(value, 0, value.length);
+            }
+
+            if (null != metadata) {
+                metadataBuf = this.ctx.getByteBufferFactory().newByteBuffer(metadata, 0, metadata.length);
+            }
+
+            return this.ctx.getMarshalledEntryFactory().newMarshalledEntry(key, valueBuf, metadataBuf);
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to load element from the redis store", ex);
@@ -296,11 +289,16 @@ final public class RedisStore implements AdvancedLoadWriteStore
         RedisConnection connection = null;
 
         try {
-            byte[] value = (null != marshalledEntry.getValueBytes() ?
-                marshalledEntry.getValueBytes().getBuf() : null);
+            byte[] value = null;
+            byte[] metadata = null;
 
-            byte[] metadata = (null != marshalledEntry.getMetadataBytes() ?
-                marshalledEntry.getMetadataBytes().getBuf() : null);
+            if (null != marshalledEntry.getValueBytes()) {
+                value = marshalledEntry.getValueBytes().getBuf();
+            }
+
+            if (null != marshalledEntry.getMetadataBytes()) {
+                metadata = marshalledEntry.getMetadataBytes().getBuf();
+            }
 
             connection = this.connectionPool.getConnection();
             connection.set(marshalledEntry.getKey(), new RedisCacheEntry(value, metadata));
