@@ -13,19 +13,19 @@ public class RedisClusterStoreWrapperTest extends AbstractInfinispanTest
 {
     RedisCluster redisCluster;
 
-    @BeforeTest(alwaysRun = true)
-    public void startUp()
-        throws IOException
-    {
-        System.out.println("RedisStoreWrapperTest:Setting up");
-        redisCluster = new RedisCluster();
-        redisCluster.start();
-    }
-
-    @AfterClass
-    public void tearDown()
-    {
-        System.out.println("RedisStoreWrapperTest:Tearing down");
-        redisCluster.kill();
-    }
+//    @BeforeTest
+//    public void startUp()
+//        throws IOException
+//    {
+//        System.out.println("RedisClusterStoreWrapperTest:Setting up");
+//        redisCluster = new RedisCluster();
+//        redisCluster.start();
+//    }
+//
+//    @AfterClass(alwaysRun = true)
+//    public void tearDown()
+//    {
+//        System.out.println("RedisClusterStoreWrapperTest:Tearing down");
+//        redisCluster.kill();
+//    }
 }

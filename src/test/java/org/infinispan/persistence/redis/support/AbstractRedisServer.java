@@ -14,13 +14,7 @@ public abstract class AbstractRedisServer
         this.pipe(p.getInputStream(), System.out);
         this.pipe(p.getErrorStream(), System.err);
 
-        try {
-            // Give some time for Redis servers to start
-            Thread.sleep(50);
-        }
-        catch (InterruptedException ex) {
-            // ignore
-        }
+        this.sleep(50);
 
         return p;
     }
@@ -69,12 +63,6 @@ public abstract class AbstractRedisServer
         }
     }
 
-    /**
-     * Links source and destination pipes
-     *
-     * @param src Source
-     * @param dst Destination
-     */
     protected void pipe(final InputStream src, final PrintStream dst)
     {
         new Thread(new Runnable() {
@@ -91,5 +79,16 @@ public abstract class AbstractRedisServer
                 }
             }
         }).start();
+    }
+
+    protected void sleep(long duration)
+    {
+        try {
+
+            Thread.sleep(duration);
+        }
+        catch(Exception ex){
+            System.out.println("Cut sleep early");
+        }
     }
 }

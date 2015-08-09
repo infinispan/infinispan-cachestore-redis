@@ -40,15 +40,9 @@ public class RedisCluster extends AbstractRedisServer
             this.serverList.add(p);
         }
 
-        System.out.println("All servers started...");
-
-        try {
-            System.out.println("Waiting for Redis cluster to settle");
-            Thread.sleep(5000);
-        }
-        catch(Exception ex){
-            System.out.println("Cut sleep early");
-        }
+        System.out.println("All servers started.");
+        System.out.println("Waiting for Redis cluster to settle...");
+        this.sleep(5000);
     }
 
     public void kill()
@@ -56,6 +50,9 @@ public class RedisCluster extends AbstractRedisServer
         for (Process p : this.serverList) {
             super.kill(p);
         }
+
+        System.out.println("Waiting for all servers to terminate and release file locks");
+        this.sleep(5000);
 
         for (int serverNum : new int[] {1,2,3}) {
             String dumpFileName = String.format("%s/redis/server%d/dump.rdb", this.testPath, serverNum);
@@ -69,7 +66,7 @@ public class RedisCluster extends AbstractRedisServer
             File nodeFile = new File(nodeFileName);
 
             if ( ! nodeFile.delete()) {
-                System.out.println(String.format("Failed to delete Redis node file %s", dumpFileName));
+                System.out.println(String.format("Failed to delete Redis node file %s", nodeFileName));
             }
         }
     }

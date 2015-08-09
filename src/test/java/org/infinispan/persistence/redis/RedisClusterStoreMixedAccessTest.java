@@ -13,19 +13,19 @@ public class RedisClusterStoreMixedAccessTest extends AbstractInfinispanTest
 {
     RedisCluster redisCluster;
 
-    @BeforeTest(alwaysRun = true)
-    public void startUp()
-        throws IOException
-    {
-        System.out.println("RedisStoreMixedAccessTest:Setting up");
-        redisCluster = new RedisCluster();
-        redisCluster.start();
-    }
-
-    @AfterClass
-    public void tearDown()
-    {
-        System.out.println("RedisStoreMixedAccessTest:Tearing down");
-        redisCluster.kill();
-    }
+//    @BeforeTest
+//    public void startUp()
+//        throws IOException
+//    {
+//        System.out.println("RedisClusterStoreMixedAccessTest:Setting up");
+//        redisCluster = new RedisCluster();
+//        redisCluster.start();
+//    }
+//
+//    @AfterClass(alwaysRun = true)
+//    public void tearDown()
+//    {
+//        System.out.println("RedisClusterStoreMixedAccessTest:Tearing down");
+//        redisCluster.kill();
+//    }
 }

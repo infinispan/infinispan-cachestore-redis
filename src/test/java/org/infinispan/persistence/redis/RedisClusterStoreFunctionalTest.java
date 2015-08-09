@@ -14,19 +14,19 @@ public class RedisClusterStoreFunctionalTest extends BaseStoreFunctionalTest
 {
     private RedisCluster redisCluster;
 
-    @BeforeTest(alwaysRun = true)
+    @BeforeTest
     public void startUp()
         throws Exception
     {
-        System.out.println("RedisStoreFunctionalTest:Setting up");
+        System.out.println("RedisClusterStoreFunctionalTest:Setting up");
         redisCluster = new RedisCluster();
         redisCluster.start();
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown()
     {
-        System.out.println("RedisStoreFunctionalTest:Tearing down");
+        System.out.println("RedisClusterStoreFunctionalTest:Tearing down");
         redisCluster.kill();
     }
 

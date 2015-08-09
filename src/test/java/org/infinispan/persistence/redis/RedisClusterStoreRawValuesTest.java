@@ -17,19 +17,19 @@ public class RedisClusterStoreRawValuesTest extends BaseStoreTest
 {
     RedisCluster redisCluster;
 
-    @BeforeTest(alwaysRun = true)
+    @BeforeTest
     public void startUp()
         throws IOException
     {
-        System.out.println("RedisStoreRawValuesTest:Setting up");
+        System.out.println("RedisClusterStoreRawValuesTest:Setting up");
         redisCluster = new RedisCluster();
         redisCluster.start();
     }
 
-    @AfterClass
+    @AfterClass(alwaysRun = true)
     public void tearDown()
     {
-        System.out.println("RedisStoreRawValuesTest:Tearing down");
+        System.out.println("RedisClusterStoreRawValuesTest:Tearing down");
 
         try {
             super.tearDown();
