@@ -291,6 +291,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         try {
             byte[] value = null;
             byte[] metadata = null;
+            long expiration = -1;
 
             if (null != marshalledEntry.getValueBytes()) {
                 value = marshalledEntry.getValueBytes().getBuf();
@@ -298,13 +299,14 @@ final public class RedisStore implements AdvancedLoadWriteStore
 
             if (null != marshalledEntry.getMetadataBytes()) {
                 metadata = marshalledEntry.getMetadataBytes().getBuf();
+                expiration = marshalledEntry.getMetadata().expiryTime();
             }
 
             connection = this.connectionPool.getConnection();
             connection.set(marshalledEntry.getKey(), new RedisCacheEntry(value, metadata));
 
-            if (null != metadata) {
-                connection.expireAt(marshalledEntry.getKey(), marshalledEntry.getMetadata().expiryTime());
+            if (-1 < expiration) {
+                connection.expireAt(marshalledEntry.getKey(), expiration);
             }
         }
         catch(Exception ex) {
