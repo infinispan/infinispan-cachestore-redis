@@ -26,6 +26,16 @@ public interface RedisStoreConfigurationChildBuilder<S> extends StoreConfigurati
     RedisStoreConfigurationBuilder password(String password);
 
     /**
+     * The property defines the master name for when using Redis Sentinel
+     */
+    RedisStoreConfigurationBuilder masterName(String masterName);
+
+    /**
+     * The property defines the max number of redirections for when using Redis Cluster
+     */
+    RedisStoreConfigurationBuilder maxRedirections(int maxRedirections);
+
+    /**
      * The property defines the topology of the Redis store
      */
     RedisStoreConfigurationBuilder topology(Topology topology);

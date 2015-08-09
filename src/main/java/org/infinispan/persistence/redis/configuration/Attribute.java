@@ -19,7 +19,9 @@ public enum Attribute
     MAX_IDLE("max-idle"),
     MIN_IDLE("min-idle"),
     SOCKET_TIMEOUT("socket-timeout"),
-    CONNECTION_TIMEOUT("connection-timeout")
+    CONNECTION_TIMEOUT("connection-timeout"),
+    MASTER_NAME("master-name"),
+    MAX_REDIRECTIONS("max-redirections")
     ;
 
     private final String name;

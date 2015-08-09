@@ -23,10 +23,6 @@ final public class RedisClusterConnectionPool implements RedisConnectionPool
             clusterNodes.add(new HostAndPort(server.host(), server.port()));
         }
 
-
-        // todo: move to configuration
-        int maxRedirections = 5;
-
         ConnectionPoolConfiguration connectionPoolConfiguration = configuration.connectionPool();
 
         JedisPoolConfig poolConfig = new JedisPoolConfig();
@@ -40,7 +36,7 @@ final public class RedisClusterConnectionPool implements RedisConnectionPool
             clusterNodes,
             configuration.connectionTimeout(),
             configuration.socketTimeout(),
-            maxRedirections,
+            configuration.maxRedirections(),
             poolConfig
         );
 

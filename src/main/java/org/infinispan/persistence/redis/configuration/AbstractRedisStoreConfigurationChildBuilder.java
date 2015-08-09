@@ -41,6 +41,18 @@ public abstract class AbstractRedisStoreConfigurationChildBuilder<S> extends Abs
     }
 
     @Override
+    public RedisStoreConfigurationBuilder masterName(String masterName)
+    {
+        return builder.masterName(masterName);
+    }
+
+    @Override
+    public RedisStoreConfigurationBuilder maxRedirections(int maxRedirections)
+    {
+        return builder.maxRedirections(maxRedirections);
+    }
+
+    @Override
     public RedisStoreConfigurationBuilder topology(Topology topology)
     {
         return builder.topology(topology);

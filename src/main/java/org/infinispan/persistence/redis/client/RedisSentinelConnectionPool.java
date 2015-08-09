@@ -21,9 +21,6 @@ public class RedisSentinelConnectionPool implements RedisConnectionPool
             sentinels.add(String.format("%s:%s", server.host(), server.port()));
         }
 
-        // todo: move to configuration
-        String masterName = "test";
-
         ConnectionPoolConfiguration connectionPoolConfiguration = configuration.connectionPool();
 
         JedisPoolConfig poolConfig = new JedisPoolConfig();
@@ -34,7 +31,7 @@ public class RedisSentinelConnectionPool implements RedisConnectionPool
         poolConfig.setTimeBetweenEvictionRunsMillis(connectionPoolConfiguration.timeBetweenEvictionRuns());
 
         sentinelPool = new JedisSentinelPool(
-            masterName,
+            configuration.masterName(),
             sentinels,
             poolConfig,
             configuration.connectionTimeout(),

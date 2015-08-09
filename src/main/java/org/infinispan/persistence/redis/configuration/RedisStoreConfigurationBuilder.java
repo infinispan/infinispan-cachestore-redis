@@ -61,6 +61,20 @@ final public class RedisStoreConfigurationBuilder
     }
 
     @Override
+    public RedisStoreConfigurationBuilder masterName(String masterName)
+    {
+        attributes.attribute(RedisStoreConfiguration.MASTER_NAME).set(masterName);
+        return this;
+    }
+
+    @Override
+    public RedisStoreConfigurationBuilder maxRedirections(int maxRedirections)
+    {
+        attributes.attribute(RedisStoreConfiguration.MAX_REDIRECTIONS).set(maxRedirections);
+        return this;
+    }
+
+    @Override
     public RedisServerConfigurationBuilder addServer()
     {
         RedisServerConfigurationBuilder builder = new RedisServerConfigurationBuilder(this);

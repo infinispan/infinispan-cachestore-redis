@@ -162,6 +162,14 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
                 case CONNECTION_TIMEOUT: {
                     builder.connectionTimeout(Integer.parseInt(value));
                 }
+
+                case MASTER_NAME: {
+                    builder.masterName(value);
+                }
+
+                case MAX_REDIRECTIONS: {
+                    builder.maxRedirections(Integer.parseInt(value));
+                }
             }
         }
     }

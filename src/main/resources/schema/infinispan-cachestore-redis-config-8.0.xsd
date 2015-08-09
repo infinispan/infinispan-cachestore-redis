@@ -23,6 +23,24 @@
                     </xs:element>
                 </xs:sequence>
 
+                <xs:attribute name="max-redirections" type="xs:int">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Maximum number of redirections when using a cluster topology.
+                            If unspecified, defaults to 5.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="master-name" type="xs:string">
+                    <xs:annotation>
+                        <xs:documentation>
+                            The master name when using a sentinel topology.
+                            If unspecified, defaults to null.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
                 <xs:attribute name="database" type="xs:int">
                     <xs:annotation>
                         <xs:documentation>
