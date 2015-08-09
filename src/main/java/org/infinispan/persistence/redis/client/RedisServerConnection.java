@@ -43,6 +43,12 @@ final public class RedisServerConnection implements RedisConnection
     }
 
     @Override
+    public void expireAt(Object key, long expireAt)
+    {
+        this.client.expireAt(this.marshaller.marshallKey(key), expireAt);
+    }
+
+    @Override
     public boolean delete(Object key)
         throws IOException, InterruptedException
     {

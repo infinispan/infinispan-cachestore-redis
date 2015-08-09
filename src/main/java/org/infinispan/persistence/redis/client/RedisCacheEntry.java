@@ -2,7 +2,7 @@ package org.infinispan.persistence.redis.client;
 
 import java.io.Serializable;
 
-public class RedisCacheEntry implements Serializable
+final public class RedisCacheEntry implements Serializable
 {
     private byte[] valueBuf;
     private byte[] metadataBuf;

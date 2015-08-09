@@ -170,7 +170,6 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public void purge(Executor executor, final PurgeListener purgeListener)
     {
         RedisStore.log.debug("Purging expired entries from Redis store");
-        // todo: use scan to iterate over each item and purge those that have expired
     }
 
     /**
@@ -304,10 +303,11 @@ final public class RedisStore implements AdvancedLoadWriteStore
                 marshalledEntry.getMetadataBytes().getBuf() : null);
 
             connection = this.connectionPool.getConnection();
-            connection.set(marshalledEntry.getKey(), new RedisCacheEntry(
-                value,
-                metadata
-            ));
+            connection.set(marshalledEntry.getKey(), new RedisCacheEntry(value, metadata));
+
+            if (null != metadata) {
+                connection.expireAt(marshalledEntry.getKey(), marshalledEntry.getMetadata().expiryTime());
+            }
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to write element to the redis store", ex);

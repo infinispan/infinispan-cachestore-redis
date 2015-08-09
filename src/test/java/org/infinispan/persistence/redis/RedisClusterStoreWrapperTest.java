@@ -28,9 +28,4 @@ public class RedisClusterStoreWrapperTest extends AbstractInfinispanTest
         System.out.println("RedisStoreWrapperTest:Tearing down");
         redisCluster.kill();
     }
-
-    public void testEntryWrapping() throws Exception
-    {
-
-    }
 }

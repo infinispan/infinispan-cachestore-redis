@@ -28,19 +28,4 @@ public class RedisClusterStoreMixedAccessTest extends AbstractInfinispanTest
         System.out.println("RedisStoreMixedAccessTest:Tearing down");
         redisCluster.kill();
     }
-
-    public void testMixedAccess()
-    {
-
-    }
-
-    public void testMixedAccessWithLifespan()
-    {
-
-    }
-
-    public void testMixedAccessWithLifespanAndMaxIdle()
-    {
-
-    }
 }

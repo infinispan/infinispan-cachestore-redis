@@ -21,6 +21,11 @@ public interface RedisConnection
     void set(Object key, RedisCacheEntry value) throws IOException, InterruptedException;
 
     /**
+     * Redis expireat command
+     */
+    void expireAt(Object key, long expireAt);
+
+    /**
      * Redis del command
      */
     boolean delete(Object key) throws IOException, InterruptedException;

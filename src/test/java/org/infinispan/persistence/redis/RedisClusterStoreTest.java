@@ -70,10 +70,4 @@ public class RedisClusterStoreTest extends BaseStoreTest
     {
         // No support for pre-load
     }
-
-    @Override
-    public void testReplaceExpiredEntry() throws Exception
-    {
-
-    }
 }

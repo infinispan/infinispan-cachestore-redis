@@ -46,6 +46,12 @@ final public class RedisClusterConnection implements RedisConnection
     }
 
     @Override
+    public void expireAt(Object key, long expireAt)
+    {
+        this.cluster.expireAt(this.marshaller.marshallKey(key), expireAt);
+    }
+
+    @Override
     public boolean delete(Object key)
         throws IOException, InterruptedException
     {
