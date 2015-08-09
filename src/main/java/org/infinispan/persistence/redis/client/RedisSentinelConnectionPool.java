@@ -9,7 +9,7 @@ import redis.clients.jedis.JedisSentinelPool;
 import java.util.HashSet;
 import java.util.Set;
 
-public class RedisSentinelConnectionPool implements RedisConnectionPool
+final public class RedisSentinelConnectionPool implements RedisConnectionPool
 {
     private RedisMarshaller<String> marshaller;
     private JedisSentinelPool sentinelPool;
