@@ -16,7 +16,7 @@ final public class StringRedisMarshaller implements RedisMarshaller<String>
     }
 
     @Override
-    public String marshall(Object data)
+    public String marshallKey(Object data)
     {
         try {
             byte[] buf = this.marshaller.objectToByteBuffer(data);
@@ -28,11 +28,35 @@ final public class StringRedisMarshaller implements RedisMarshaller<String>
     }
 
     @Override
-    public Object unmarshall(String buf)
+    public Object unmarshallKey(String buf)
     {
         try {
             byte[] data = buf.getBytes(Charset.forName(this.encoding));
             return this.marshaller.objectFromByteBuffer(data);
+        }
+        catch(IOException | ClassNotFoundException ex) {
+            throw new IllegalStateException(ex);
+        }
+    }
+
+    @Override
+    public String marshallValue(RedisCacheEntry data)
+    {
+        try {
+            byte[] buf = this.marshaller.objectToByteBuffer(data);
+            return new String(buf, Charset.forName(this.encoding));
+        }
+        catch(IOException | InterruptedException ex) {
+            throw new IllegalStateException(ex);
+        }
+    }
+
+    @Override
+    public RedisCacheEntry unmarshallValue(String buf)
+    {
+        try {
+            byte[] data = buf.getBytes(Charset.forName(this.encoding));
+            return (RedisCacheEntry) this.marshaller.objectFromByteBuffer(data);
         }
         catch(IOException | ClassNotFoundException ex) {
             throw new IllegalStateException(ex);

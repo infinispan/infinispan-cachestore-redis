@@ -7,7 +7,7 @@ import java.util.List;
 
 public class RedisCluster extends AbstractRedisServer
 {
-    private final int SLOTS_PER_CLUSTER_NODE = 5461;
+    private final int SLOTS_PER_CLUSTER_NODE = 5462;
     private final int START_PORT = 6379;
     List<Process> serverList = new ArrayList<Process>();
 
@@ -20,50 +20,58 @@ public class RedisCluster extends AbstractRedisServer
 
     public void start() throws IOException
     {
-//        int startSlot = 0;
-//        int portPosition = START_PORT;
-//
-//        for (int serverNum : new int[] {1,2,3}) {
-//            String workingDir = String.format("%s/redis/server%d", this.testPath, serverNum);
-//            String configurationFile = String.format("%s/redis/server%d/redis.conf", this.testPath, serverNum);
-//            Process p = this.startServer(configurationFile, workingDir, portPosition, "--cluster-enabled yes");
-//
-//            this.addSlots(portPosition, startSlot, startSlot + SLOTS_PER_CLUSTER_NODE);
-//
-//            if (portPosition != START_PORT) {
-//                this.meetServer(START_PORT, portPosition);
-//            }
-//
-//            startSlot += SLOTS_PER_CLUSTER_NODE + 1;
-//            portPosition++;
-//
-//            this.serverList.add(p);
-//        }
-//
-//        System.out.println("All servers started...");
+        int startSlot = 0;
+        int portPosition = START_PORT;
+
+        for (int serverNum : new int[] {1,2,3}) {
+            String workingDir = String.format("%s/redis/server%d", this.testPath, serverNum);
+            String configurationFile = String.format("%s/redis/server%d/redis.conf", this.testPath, serverNum);
+            Process p = this.startServer(configurationFile, workingDir, portPosition, "--cluster-enabled yes");
+
+            this.addSlots(portPosition, startSlot, startSlot + SLOTS_PER_CLUSTER_NODE);
+
+            if (portPosition != START_PORT) {
+                this.meetServer(START_PORT, portPosition);
+            }
+
+            startSlot += SLOTS_PER_CLUSTER_NODE + 1;
+            portPosition++;
+
+            this.serverList.add(p);
+        }
+
+        System.out.println("All servers started...");
+
+        try {
+            System.out.println("Waiting for Redis cluster to settle");
+            Thread.sleep(5000);
+        }
+        catch(Exception ex){
+            System.out.println("Cut sleep early");
+        }
     }
 
     public void kill()
     {
-//        for (Process p : this.serverList) {
-//            super.kill(p);
-//        }
-//
-//        for (int serverNum : new int[] {1,2,3}) {
-//            String dumpFileName = String.format("%s/redis/server%d/dump.rdb", this.testPath, serverNum);
-//            File dumpFile = new File(dumpFileName);
-//
-//            if ( ! dumpFile.delete()) {
-//                System.out.println(String.format("Failed to delete Redis dump file %s", dumpFileName));
-//            }
-//
-//            String nodeFileName = String.format("%s/redis/server%d/nodes.conf", this.testPath, serverNum);
-//            File nodeFile = new File(nodeFileName);
-//
-//            if ( ! nodeFile.delete()) {
-//                System.out.println(String.format("Failed to delete Redis node file %s", dumpFileName));
-//            }
-//        }
+        for (Process p : this.serverList) {
+            super.kill(p);
+        }
+
+        for (int serverNum : new int[] {1,2,3}) {
+            String dumpFileName = String.format("%s/redis/server%d/dump.rdb", this.testPath, serverNum);
+            File dumpFile = new File(dumpFileName);
+
+            if ( ! dumpFile.delete()) {
+                System.out.println(String.format("Failed to delete Redis dump file %s", dumpFileName));
+            }
+
+            String nodeFileName = String.format("%s/redis/server%d/nodes.conf", this.testPath, serverNum);
+            File nodeFile = new File(nodeFileName);
+
+            if ( ! nodeFile.delete()) {
+                System.out.println(String.format("Failed to delete Redis node file %s", dumpFileName));
+            }
+        }
     }
 
     private void addSlots(int port, int start, int end)

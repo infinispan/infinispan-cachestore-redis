@@ -5,10 +5,20 @@ public interface RedisMarshaller<T>
     /**
      * Marshall the value to the format needed by Redis
      */
-    T marshall(Object data);
+    T marshallKey(Object data);
 
     /**
      * Unmarshall the value back from the Redis type
      */
-    Object unmarshall(T buf);
+    Object unmarshallKey(T buf);
+
+    /**
+     * Marshall the value to the format needed by Redis
+     */
+    T marshallValue(RedisCacheEntry data);
+
+    /**
+     * Unmarshall the value back from the Redis type
+     */
+    RedisCacheEntry unmarshallValue(T buf);
 }

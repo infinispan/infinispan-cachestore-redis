@@ -45,7 +45,7 @@ final public class RedisServerKeyIterator implements Iterator<Object>
     @Override
     public Object next()
     {
-        return this.marshaller.unmarshall(this.keyResults.get(this.position++));
+        return this.marshaller.unmarshallKey(this.keyResults.get(this.position++));
     }
 
     @Override

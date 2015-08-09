@@ -57,6 +57,12 @@ public class RedisClusterStoreRawValuesTest extends BaseStoreTest
     }
 
     @Override
+    public void testPreload()
+    {
+        // No support for pre-load
+    }
+
+    @Override
     public void testReplaceExpiredEntry() throws Exception
     {
 

@@ -31,32 +31,32 @@ final public class RedisClusterConnection implements RedisConnection
     }
 
     @Override
-    public Object get(Object key)
+    public RedisCacheEntry get(Object key)
         throws IOException, InterruptedException, ClassNotFoundException
     {
-        String valueByteString = this.cluster.get(this.marshaller.marshall(key));
-        return (valueByteString != null ? this.marshaller.unmarshall(valueByteString) : null);
+        String valueByteString = this.cluster.get(this.marshaller.marshallKey(key));
+        return (valueByteString != null ? this.marshaller.unmarshallValue(valueByteString) : null);
     }
 
     @Override
-    public void set(Object key, Object value)
+    public void set(Object key, RedisCacheEntry value)
         throws IOException, InterruptedException
     {
-        this.cluster.set(this.marshaller.marshall(key), this.marshaller.marshall(value));
+        this.cluster.set(this.marshaller.marshallKey(key), this.marshaller.marshallValue(value));
     }
 
     @Override
     public boolean delete(Object key)
         throws IOException, InterruptedException
     {
-        return this.cluster.del(this.marshaller.marshall(key)) > 0;
+        return this.cluster.del(this.marshaller.marshallKey(key)) > 0;
     }
 
     @Override
     public boolean exists(Object key)
         throws IOException, InterruptedException
     {
-        return this.cluster.exists(this.marshaller.marshall(key));
+        return this.cluster.exists(this.marshaller.marshallKey(key));
     }
 
     @Override

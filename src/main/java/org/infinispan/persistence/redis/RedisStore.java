@@ -1,5 +1,7 @@
 package org.infinispan.persistence.redis;
 
+import org.infinispan.commons.io.ByteBuffer;
+import org.infinispan.persistence.redis.client.RedisCacheEntry;
 import org.infinispan.persistence.redis.client.RedisConnection;
 import org.infinispan.persistence.redis.client.RedisConnectionPool;
 import org.infinispan.persistence.redis.client.RedisConnectionPoolFactory;
@@ -96,6 +98,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         final InitializationContext ctx = this.ctx;
         final TaskContext taskContext = new TaskContextImpl();
         final RedisConnectionPool connectionPool = this.connectionPool;
+        final RedisStore cacheStore = this;
         RedisConnection connection = connectionPool.getConnection();
 
         try {
@@ -114,16 +117,22 @@ final public class RedisStore implements AdvancedLoadWriteStore
                                 connection = connectionPool.getConnection();
 
                                 if (null == filter || filter.accept(key)) {
-                                    Object value = null;
+                                    MarshalledEntry marshalledEntry;
 
                                     if (fetchValue) {
-                                        value = connection.get(key);
+                                        marshalledEntry = cacheStore.load(key);
+                                    }
+                                    else {
+                                        marshalledEntry = ctx.getMarshalledEntryFactory().newMarshalledEntry(
+                                            key,
+                                            null,
+                                            (ByteBuffer) null
+                                        );
                                     }
 
-                                    task.processEntry(
-                                        ctx.getMarshalledEntryFactory().newMarshalledEntry(key, value, null),
-                                        taskContext
-                                    );
+                                    if (null != marshalledEntry) {
+                                        task.processEntry(marshalledEntry, taskContext);
+                                    }
                                 }
                             }
                             catch (Exception ex) {
@@ -161,7 +170,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public void purge(Executor executor, final PurgeListener purgeListener)
     {
         RedisStore.log.debug("Purging expired entries from Redis store");
-        // Nothing to purge, redis is set to expire data itself
+        // todo: use scan to iterate over each item and purge those that have expired
     }
 
     /**
@@ -249,8 +258,20 @@ final public class RedisStore implements AdvancedLoadWriteStore
 
         try {
             connection = this.connectionPool.getConnection();
-            Object value = connection.get(key);
-            return (value != null ? this.ctx.getMarshalledEntryFactory().newMarshalledEntry(key, value, null) : null);
+            RedisCacheEntry cacheEntry = connection.get(key);
+
+            if (null == cacheEntry) {
+                return null;
+            }
+
+            byte[] value = cacheEntry.getValueBytes();
+            byte[] metadata = cacheEntry.getMetadataBytes();
+
+            return this.ctx.getMarshalledEntryFactory().newMarshalledEntry(
+                key,
+                (null != value ? this.ctx.getByteBufferFactory().newByteBuffer(value, 0, value.length) : null),
+                (null != metadata ? this.ctx.getByteBufferFactory().newByteBuffer(metadata, 0, metadata.length) : null)
+            );
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to load element from the redis store", ex);
@@ -276,8 +297,17 @@ final public class RedisStore implements AdvancedLoadWriteStore
         RedisConnection connection = null;
 
         try {
+            byte[] value = (null != marshalledEntry.getValueBytes() ?
+                marshalledEntry.getValueBytes().getBuf() : null);
+
+            byte[] metadata = (null != marshalledEntry.getMetadataBytes() ?
+                marshalledEntry.getMetadataBytes().getBuf() : null);
+
             connection = this.connectionPool.getConnection();
-            connection.set(marshalledEntry.getKey(), marshalledEntry.getValue());
+            connection.set(marshalledEntry.getKey(), new RedisCacheEntry(
+                value,
+                metadata
+            ));
         }
         catch(Exception ex) {
             RedisStore.log.error("Failed to write element to the redis store", ex);
