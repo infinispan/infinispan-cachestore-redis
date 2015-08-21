@@ -16,11 +16,15 @@ final public class StringRedisMarshaller implements RedisMarshaller<String>
     }
 
     @Override
-    public String marshallKey(Object data)
+    public String marshall(Object data)
     {
+        if (null == data) {
+            return null;
+        }
+
         try {
             byte[] buf = this.marshaller.objectToByteBuffer(data);
-            return new String(buf, Charset.forName(this.encoding));
+            return this.encode(buf);
         }
         catch(IOException | InterruptedException ex) {
             throw new IllegalStateException(ex);
@@ -28,10 +32,14 @@ final public class StringRedisMarshaller implements RedisMarshaller<String>
     }
 
     @Override
-    public Object unmarshallKey(String buf)
+    public Object unmarshall(String buf)
     {
+        if (null == buf) {
+            return null;
+        }
+
         try {
-            byte[] data = buf.getBytes(Charset.forName(this.encoding));
+            byte[] data = this.decode(buf);
             return this.marshaller.objectFromByteBuffer(data);
         }
         catch(IOException | ClassNotFoundException ex) {
@@ -40,26 +48,22 @@ final public class StringRedisMarshaller implements RedisMarshaller<String>
     }
 
     @Override
-    public String marshallValue(RedisCacheEntry data)
+    public String encode(byte[] data)
     {
-        try {
-            byte[] buf = this.marshaller.objectToByteBuffer(data);
-            return new String(buf, Charset.forName(this.encoding));
+        if (null == data) {
+            return null;
         }
-        catch(IOException | InterruptedException ex) {
-            throw new IllegalStateException(ex);
-        }
+
+        return new String(data, Charset.forName(this.encoding));
     }
 
     @Override
-    public RedisCacheEntry unmarshallValue(String buf)
+    public byte[] decode(String buf)
     {
-        try {
-            byte[] data = buf.getBytes(Charset.forName(this.encoding));
-            return (RedisCacheEntry) this.marshaller.objectFromByteBuffer(data);
+        if (null == buf) {
+            return null;
         }
-        catch(IOException | ClassNotFoundException ex) {
-            throw new IllegalStateException(ex);
-        }
+
+        return buf.getBytes(Charset.forName(this.encoding));
     }
 }

@@ -12,13 +12,13 @@ public interface RedisConnection
     /**
      * Redis get command
      */
-    RedisCacheEntry get(Object key) throws IOException, InterruptedException, ClassNotFoundException;
+    byte[] hget(Object key, String field) throws IOException, InterruptedException, ClassNotFoundException;
 
     /**
      * Redis set command
      */
 
-    void set(Object key, RedisCacheEntry value) throws IOException, InterruptedException;
+    void hset(Object key, String field, byte[] value) throws IOException, InterruptedException;
 
     /**
      * Redis expireat command

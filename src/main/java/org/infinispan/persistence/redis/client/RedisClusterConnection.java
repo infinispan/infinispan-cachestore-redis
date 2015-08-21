@@ -31,38 +31,37 @@ final public class RedisClusterConnection implements RedisConnection
     }
 
     @Override
-    public RedisCacheEntry get(Object key)
+    public byte[] hget(Object key, String field)
         throws IOException, InterruptedException, ClassNotFoundException
     {
-        String valueByteString = this.cluster.get(this.marshaller.marshallKey(key));
-        return (valueByteString != null ? this.marshaller.unmarshallValue(valueByteString) : null);
+        return this.marshaller.decode(this.cluster.hget(this.marshaller.marshall(key), field));
     }
 
     @Override
-    public void set(Object key, RedisCacheEntry value)
+    public void hset(Object key, String field, byte[] value)
         throws IOException, InterruptedException
     {
-        this.cluster.set(this.marshaller.marshallKey(key), this.marshaller.marshallValue(value));
+        this.cluster.hset(this.marshaller.marshall(key), field, this.marshaller.encode(value));
     }
 
     @Override
     public void expireAt(Object key, long expireAt)
     {
-        this.cluster.expireAt(this.marshaller.marshallKey(key), expireAt);
+        this.cluster.expireAt(this.marshaller.marshall(key), expireAt);
     }
 
     @Override
     public boolean delete(Object key)
         throws IOException, InterruptedException
     {
-        return this.cluster.del(this.marshaller.marshallKey(key)) > 0;
+        return this.cluster.del(this.marshaller.marshall(key)) > 0;
     }
 
     @Override
     public boolean exists(Object key)
         throws IOException, InterruptedException
     {
-        return this.cluster.exists(this.marshaller.marshallKey(key));
+        return this.cluster.exists(this.marshaller.marshall(key));
     }
 
     @Override

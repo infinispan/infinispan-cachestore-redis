@@ -1,7 +1,6 @@
 package org.infinispan.persistence.redis;
 
 import org.infinispan.commons.io.ByteBuffer;
-import org.infinispan.persistence.redis.client.RedisCacheEntry;
 import org.infinispan.persistence.redis.client.RedisConnection;
 import org.infinispan.persistence.redis.client.RedisConnectionPool;
 import org.infinispan.persistence.redis.client.RedisConnectionPoolFactory;
@@ -244,20 +243,15 @@ final public class RedisStore implements AdvancedLoadWriteStore
 
         try {
             connection = this.connectionPool.getConnection();
-            RedisCacheEntry cacheEntry = connection.get(key);
+            byte[] value = connection.hget(key, "value");
 
-            if (null == cacheEntry) {
+            if (null == value) {
                 return null;
             }
 
-            byte[] value = cacheEntry.getValueBytes();
-            byte[] metadata = cacheEntry.getMetadataBytes();
-            ByteBuffer valueBuf = null;
+            byte[] metadata = connection.hget(key, "metadata");
+            ByteBuffer valueBuf = this.ctx.getByteBufferFactory().newByteBuffer(value, 0, value.length);
             ByteBuffer metadataBuf = null;
-
-            if (null != value) {
-                valueBuf = this.ctx.getByteBufferFactory().newByteBuffer(value, 0, value.length);
-            }
 
             if (null != metadata) {
                 metadataBuf = this.ctx.getByteBufferFactory().newByteBuffer(metadata, 0, metadata.length);
@@ -303,7 +297,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
             }
 
             connection = this.connectionPool.getConnection();
-            connection.set(marshalledEntry.getKey(), new RedisCacheEntry(value, metadata));
+            connection.hset(marshalledEntry.getKey(), "value", value);
+            connection.hset(marshalledEntry.getKey(), "metadata", metadata);
 
             if (-1 < expiration) {
                 connection.expireAt(marshalledEntry.getKey(), expiration);

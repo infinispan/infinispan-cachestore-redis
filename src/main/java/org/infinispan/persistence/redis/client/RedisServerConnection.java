@@ -28,38 +28,37 @@ final public class RedisServerConnection implements RedisConnection
     }
 
     @Override
-    public RedisCacheEntry get(Object key)
+    public byte[] hget(Object key, String field)
         throws IOException, InterruptedException, ClassNotFoundException
     {
-        String valueByteString = this.client.get(this.marshaller.marshallKey(key));
-        return (valueByteString != null ? this.marshaller.unmarshallValue(valueByteString) : null);
+        return this.marshaller.decode(this.client.hget(this.marshaller.marshall(key), field));
     }
 
     @Override
-    public void set(Object key, RedisCacheEntry value)
+    public void hset(Object key, String field, byte[] value)
         throws IOException, InterruptedException
     {
-        this.client.set(this.marshaller.marshallKey(key), this.marshaller.marshallValue(value));
+        this.client.hset(this.marshaller.marshall(key), field, this.marshaller.encode(value));
     }
 
     @Override
     public void expireAt(Object key, long expireAt)
     {
-        this.client.expireAt(this.marshaller.marshallKey(key), expireAt);
+        this.client.expireAt(this.marshaller.marshall(key), expireAt);
     }
 
     @Override
     public boolean delete(Object key)
         throws IOException, InterruptedException
     {
-        return this.client.del(this.marshaller.marshallKey(key)) > 0;
+        return this.client.del(this.marshaller.marshall(key)) > 0;
     }
 
     @Override
     public boolean exists(Object key)
         throws IOException, InterruptedException
     {
-        return this.client.exists(this.marshaller.marshallKey(key));
+        return this.client.exists(this.marshaller.marshall(key));
     }
 
     @Override
