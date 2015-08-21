@@ -298,7 +298,10 @@ final public class RedisStore implements AdvancedLoadWriteStore
 
             connection = this.connectionPool.getConnection();
             connection.hset(marshalledEntry.getKey(), "value", value);
-            connection.hset(marshalledEntry.getKey(), "metadata", metadata);
+
+            if (null != metadata) {
+                connection.hset(marshalledEntry.getKey(), "metadata", metadata);
+            }
 
             if (-1 < expiration) {
                 connection.expireAt(marshalledEntry.getKey(), expiration);
