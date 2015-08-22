@@ -1,24 +1,29 @@
 package org.infinispan.persistence.redis;
 
 import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.container.entries.InternalCacheEntry;
 import org.infinispan.persistence.BaseStoreTest;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfigurationBuilder;
 import org.infinispan.persistence.redis.support.RedisCluster;
 import org.infinispan.persistence.spi.AdvancedLoadWriteStore;
+import org.infinispan.test.TestingUtil;
 import org.infinispan.test.fwk.TestCacheManagerFactory;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+
+import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.assertTrue;
 
 @Test(testName = "persistence.redis.RedisStoreRawValuesTest", groups = "functional")
 public class RedisClusterStoreRawValuesTest extends BaseStoreTest
 {
     RedisCluster redisCluster;
 
-    @BeforeTest
-    public void startUp()
+    @BeforeClass(alwaysRun = true)
+    public void beforeClass()
         throws IOException
     {
         System.out.println("RedisClusterStoreRawValuesTest:Setting up");
@@ -27,16 +32,10 @@ public class RedisClusterStoreRawValuesTest extends BaseStoreTest
     }
 
     @AfterClass(alwaysRun = true)
-    public void tearDown()
+    public void afterClass()
     {
         System.out.println("RedisClusterStoreRawValuesTest:Tearing down");
-
-        try {
-            super.tearDown();
-        }
-        finally {
-            redisCluster.kill();
-        }
+        redisCluster.kill();
     }
 
     @Override
@@ -60,5 +59,17 @@ public class RedisClusterStoreRawValuesTest extends BaseStoreTest
     public void testPreload()
     {
         // No support for pre-load
+    }
+
+    @Override
+    public void testReplaceExpiredEntry() throws Exception
+    {
+        // Redis expires entries for us, so load can't return expired entries
+        // Override the unit to prevent null pointer exception
+        cl.write(marshalledEntry(internalCacheEntry("k1", "v1", 3000L)));
+        assertNull(cl.load("k1"));
+        long start = System.currentTimeMillis() + 100L;
+        cl.write(marshalledEntry(internalCacheEntry("k1", "v2", start)));
+        assertTrue(cl.load("k1").getValue().equals("v2"));
     }
 }

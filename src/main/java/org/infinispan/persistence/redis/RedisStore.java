@@ -22,8 +22,8 @@ final public class RedisStore implements AdvancedLoadWriteStore
 {
     private static final Log log = LogFactory.getLog(RedisStore.class, Log.class);
 
-    private InitializationContext ctx;
-    private RedisConnectionPool connectionPool;
+    private InitializationContext ctx = null;
+    private RedisConnectionPool connectionPool = null;
 
     /**
      * Used to initialize a cache loader.  Typically invoked by the {@link org.infinispan.persistence.manager.PersistenceManager}
@@ -35,9 +35,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public void init(InitializationContext ctx)
     {
         RedisStore.log.info("Redis cache store initialising");
-
         this.ctx = ctx;
-        this.connectionPool = RedisConnectionPoolFactory.factory(this.ctx.getConfiguration(), this.ctx.getMarshaller());
     }
 
     /**
@@ -47,6 +45,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public void start()
     {
         RedisStore.log.info("Redis cache store starting");
+        this.connectionPool = RedisConnectionPoolFactory.factory(this.ctx.getConfiguration(), this.ctx.getMarshaller());
     }
 
     /**

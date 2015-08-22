@@ -13,8 +13,8 @@ public class RedisClusterStoreConfigTest
     public static final String CACHE_LOADER_CONFIG = "redis-cl-config.xml";
     RedisCluster redisCluster;
 
-    @BeforeTest
-    public void startUp()
+    @BeforeTest(alwaysRun = true)
+    public void beforeTest()
         throws IOException
     {
         System.out.println("RedisClusterStoreConfigTest:Setting up");
@@ -23,7 +23,7 @@ public class RedisClusterStoreConfigTest
     }
 
     @AfterTest(alwaysRun = true)
-    public void tearDown()
+    public void afterTest()
     {
         System.out.println("RedisClusterStoreConfigTest:Tearing down");
         redisCluster.kill();

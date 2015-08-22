@@ -5,7 +5,7 @@ import org.infinispan.persistence.BaseStoreFunctionalTest;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfigurationBuilder;
 import org.infinispan.persistence.redis.support.RedisCluster;
 import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration.Topology;
 
@@ -14,8 +14,8 @@ public class RedisClusterStoreFunctionalTest extends BaseStoreFunctionalTest
 {
     private RedisCluster redisCluster;
 
-    @BeforeTest
-    public void startUp()
+    @BeforeClass(alwaysRun = true)
+    public void beforeClass()
         throws Exception
     {
         System.out.println("RedisClusterStoreFunctionalTest:Setting up");
@@ -24,7 +24,7 @@ public class RedisClusterStoreFunctionalTest extends BaseStoreFunctionalTest
     }
 
     @AfterClass(alwaysRun = true)
-    public void tearDown()
+    public void afterClass()
     {
         System.out.println("RedisClusterStoreFunctionalTest:Tearing down");
         redisCluster.kill();
