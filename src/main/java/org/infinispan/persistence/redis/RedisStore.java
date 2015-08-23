@@ -1,9 +1,7 @@
 package org.infinispan.persistence.redis;
 
 import org.infinispan.commons.io.ByteBuffer;
-import org.infinispan.persistence.redis.client.RedisConnection;
-import org.infinispan.persistence.redis.client.RedisConnectionPool;
-import org.infinispan.persistence.redis.client.RedisConnectionPoolFactory;
+import org.infinispan.persistence.redis.client.*;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
 import org.infinispan.commons.configuration.ConfiguredBy;
 import org.infinispan.filter.KeyFilter;
@@ -17,6 +15,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+
 import net.jcip.annotations.ThreadSafe;
 
 @ThreadSafe
@@ -288,7 +288,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         try {
             byte[] value;
             byte[] metadata;
-            long expiration = -1;
+            long lifespan = -1;
             Map<String,byte[]> fields = new HashMap<>();
 
             if (null != marshalledEntry.getValueBytes()) {
@@ -299,14 +299,14 @@ final public class RedisStore implements AdvancedLoadWriteStore
             if (null != marshalledEntry.getMetadataBytes()) {
                 metadata = marshalledEntry.getMetadataBytes().getBuf();
                 fields.put("metadata", metadata);
-                expiration = marshalledEntry.getMetadata().expiryTime();
+                lifespan = marshalledEntry.getMetadata().lifespan();
             }
 
             connection = this.connectionPool.getConnection();
             connection.hmset(marshalledEntry.getKey(), fields);
 
-            if (-1 < expiration) {
-                connection.expireAt(marshalledEntry.getKey(), expiration);
+            if (-1 < lifespan) {
+                connection.expire(marshalledEntry.getKey(), this.toSeconds(lifespan, marshalledEntry.getKey(), "lifespan"));
             }
         }
         catch(Exception ex) {
@@ -372,5 +372,19 @@ final public class RedisStore implements AdvancedLoadWriteStore
                 connection.release();
             }
         }
+    }
+
+    private int toSeconds(long millis, Object key, String desc)
+    {
+        if (millis > 0 && millis < 1000) {
+            if (log.isTraceEnabled()) {
+                log.tracef("Adjusting %s time for (k,v): (%s, %s) from %d millis to 1 sec, as milliseconds are not supported by Redis",
+                    desc ,key, millis);
+            }
+
+            return 1;
+        }
+
+        return (int) TimeUnit.MILLISECONDS.toSeconds(millis);
     }
 }

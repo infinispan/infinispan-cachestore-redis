@@ -23,9 +23,9 @@ public interface RedisConnection
     void hmset(Object key, Map<String,byte[]> fields) throws IOException, InterruptedException;
 
     /**
-     * Redis expireat command
+     * Redis expire command
      */
-    void expireAt(Object key, long expireAt);
+    void expire(Object key, int expire);
 
     /**
      * Redis del command

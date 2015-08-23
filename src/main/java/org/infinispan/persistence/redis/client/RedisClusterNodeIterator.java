@@ -28,25 +28,29 @@ final public class RedisClusterNodeIterator implements Iterator<Object>
             // Further keys on the current cluster node to process
             return true;
         }
-        else if (clusterNodeIt.hasNext()) {
+        else {
             // Discover next cluster node
             Jedis client = null;
 
-            try {
-                JedisPool pool = this.clusterNodes.get(this.clusterNodeIt.next());
-                client = pool.getResource();
-                this.keyIterator = new RedisServerKeyIterator(client, this.marshaller);
-                return this.keyIterator.hasNext();
-            }
-            catch(Exception ex) {
-                if (null != client) {
-                    client.close();
-                }
+            while (clusterNodeIt.hasNext()) {
+                try {
+                    JedisPool pool = this.clusterNodes.get(this.clusterNodeIt.next());
+                    client = pool.getResource();
+                    this.keyIterator = new RedisServerKeyIterator(client, this.marshaller);
 
-                throw ex;
+                    if (this.keyIterator.hasNext()) {
+                        return true;
+                    }
+                }
+                catch (Exception ex) {
+                    if (null != client) {
+                        client.close();
+                    }
+
+                    throw ex;
+                }
             }
-        }
-        else {
+
             return false;
         }
     }

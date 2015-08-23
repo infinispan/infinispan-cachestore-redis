@@ -1,10 +1,12 @@
 package org.infinispan.persistence.redis;
 
 import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.container.entries.InternalCacheEntry;
 import org.infinispan.persistence.BaseStoreTest;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfigurationBuilder;
 import org.infinispan.persistence.redis.support.RedisCluster;
 import org.infinispan.persistence.spi.AdvancedLoadWriteStore;
+import org.infinispan.persistence.spi.PersistenceException;
 import org.infinispan.test.TestingUtil;
 import org.infinispan.test.fwk.TestCacheManagerFactory;
 import org.testng.annotations.AfterClass;
@@ -69,14 +71,44 @@ public class RedisClusterStoreTest extends BaseStoreTest
     }
 
     @Override
+    public void testLoadAndStoreWithIdle() throws Exception
+    {
+        // No support for idling
+    }
+
+    @Override
+    public void testLoadAndStoreWithLifespan() throws Exception
+    {
+        // No support for purge
+    }
+
+    @Override
+    public void testLoadAndStoreWithLifespanAndIdle() throws Exception
+    {
+        // No support for purge or idling
+    }
+
+    @Override
+    public void testLoadAndStoreWithLifespanAndIdle2() throws Exception
+    {
+        // No support for purge or idling
+    }
+
+    @Override
+    public void testPurgeExpired() throws Exception
+    {
+        // No support for purge
+    }
+
+    @Override
+    public void testStopStartDoesNotNukeValues() throws InterruptedException, PersistenceException
+    {
+        // No support for advancing time on Redis
+    }
+
+    @Override
     public void testReplaceExpiredEntry() throws Exception
     {
-        // Redis expires entries for us, so load can't return expired entries
-        // Override the unit to prevent null pointer exception
-        cl.write(marshalledEntry(internalCacheEntry("k1", "v1", 3000L)));
-        assertNull(cl.load("k1"));
-        long start = System.currentTimeMillis() + 100L;
-        cl.write(marshalledEntry(internalCacheEntry("k1", "v2", start)));
-        assertTrue(cl.load("k1").getValue().equals("v2"));
+        // No support for advancing time on Redis
     }
 }

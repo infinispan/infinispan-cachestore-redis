@@ -44,9 +44,9 @@ final public class RedisServerConnection implements RedisConnection
     }
 
     @Override
-    public void expireAt(Object key, long expireAt)
+    public void expire(Object key, int expire)
     {
-        this.client.expireAt(this.marshaller.marshall(key), expireAt);
+        this.client.expire(this.marshaller.marshall(key), expire);
     }
 
     @Override
