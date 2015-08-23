@@ -10,8 +10,11 @@
     <cache-container default-cache="___defaultcache">
         <local-cache name="___defaultcache">
             <persistence passivation="false">
-                <redis-store xmlns="urn:infinispan:config:store:redis:8.0" database="0" password="">
-                    <redis-server ssl="false" host="127.0.0.1" port="6379" />
+                <redis-store xmlns="urn:infinispan:config:store:redis:8.0"
+                    database="0" password="" socket-timeout="500" connection-timeout="10000">
+                    <redis-server host="127.0.0.1" port="6379" />
+                    <connection-pool min-idle="6" max-idle="10" max-total="20"
+                        min-evictable-idle-time="30000" time-between-eviction-runs="30000" />
                 </redis-store>
             </persistence>
         </local-cache>

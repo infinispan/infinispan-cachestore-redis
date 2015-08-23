@@ -9,7 +9,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration.Topology;
 
-@Test(testName = "persistence.redis.RedisStoreFunctionalTest", groups = "functional")
+@Test(testName = "persistence.redis.RedisClusterStoreFunctionalTest", groups = "functional")
 public class RedisClusterStoreFunctionalTest extends BaseStoreFunctionalTest
 {
     private RedisCluster redisCluster;

@@ -56,6 +56,7 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
 
                 case CONNECTION_POOL: {
                     this.parseConnectionPool(reader, builder.connectionPool());
+                    break;
                 }
 
                 default: {
@@ -153,22 +154,27 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
 
                 case TOPOLOGY: {
                     builder.topology(Topology.valueOf(value.toUpperCase()));
+                    break;
                 }
 
                 case SOCKET_TIMEOUT: {
                     builder.socketTimeout(Integer.parseInt(value));
+                    break;
                 }
 
                 case CONNECTION_TIMEOUT: {
                     builder.connectionTimeout(Integer.parseInt(value));
+                    break;
                 }
 
                 case MASTER_NAME: {
                     builder.masterName(value);
+                    break;
                 }
 
                 case MAX_REDIRECTIONS: {
                     builder.maxRedirections(Integer.parseInt(value));
+                    break;
                 }
             }
         }

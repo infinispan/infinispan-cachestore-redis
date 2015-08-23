@@ -19,7 +19,7 @@ import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration.To
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
-@Test(testName = "persistence.redis.RedisStoreTest", groups = "functional")
+@Test(testName = "persistence.redis.RedisClusterStoreTest", groups = "functional")
 public class RedisClusterStoreTest extends BaseStoreTest
 {
     RedisCluster redisCluster;
