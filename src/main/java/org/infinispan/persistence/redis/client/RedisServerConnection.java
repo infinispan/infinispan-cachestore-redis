@@ -3,6 +3,8 @@ package org.infinispan.persistence.redis.client;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 final public class RedisServerConnection implements RedisConnection
 {
@@ -28,17 +30,17 @@ final public class RedisServerConnection implements RedisConnection
     }
 
     @Override
-    public byte[] hget(Object key, String field)
+    public List<byte[]> hmget(Object key, String... fields)
         throws IOException, InterruptedException, ClassNotFoundException
     {
-        return this.marshaller.decode(this.client.hget(this.marshaller.marshall(key), field));
+        return this.marshaller.decode(this.client.hmget(this.marshaller.marshall(key), fields));
     }
 
     @Override
-    public void hset(Object key, String field, byte[] value)
+    public void hmset(Object key, Map<String,byte[]> fields)
         throws IOException, InterruptedException
     {
-        this.client.hset(this.marshaller.marshall(key), field, this.marshaller.encode(value));
+        this.client.hmset(this.marshaller.marshall(key), this.marshaller.encode(fields));
     }
 
     @Override

@@ -13,6 +13,9 @@ import org.infinispan.persistence.spi.*;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import net.jcip.annotations.ThreadSafe;
 
@@ -242,15 +245,16 @@ final public class RedisStore implements AdvancedLoadWriteStore
 
         try {
             connection = this.connectionPool.getConnection();
-            byte[] value = connection.hget(key, "value");
+            List<byte[]> data = connection.hmget(key, "value", "metadata");
+            byte[] value = data.get(0);
 
             if (null == value) {
                 return null;
             }
 
-            byte[] metadata = connection.hget(key, "metadata");
             ByteBuffer valueBuf = this.ctx.getByteBufferFactory().newByteBuffer(value, 0, value.length);
             ByteBuffer metadataBuf = null;
+            byte[] metadata = data.get(1);
 
             if (null != metadata) {
                 metadataBuf = this.ctx.getByteBufferFactory().newByteBuffer(metadata, 0, metadata.length);
@@ -282,25 +286,24 @@ final public class RedisStore implements AdvancedLoadWriteStore
         RedisConnection connection = null;
 
         try {
-            byte[] value = null;
-            byte[] metadata = null;
+            byte[] value;
+            byte[] metadata;
             long expiration = -1;
+            Map<String,byte[]> fields = new HashMap<>();
 
             if (null != marshalledEntry.getValueBytes()) {
                 value = marshalledEntry.getValueBytes().getBuf();
+                fields.put("value", value);
             }
 
             if (null != marshalledEntry.getMetadataBytes()) {
                 metadata = marshalledEntry.getMetadataBytes().getBuf();
+                fields.put("metadata", metadata);
                 expiration = marshalledEntry.getMetadata().expiryTime();
             }
 
             connection = this.connectionPool.getConnection();
-            connection.hset(marshalledEntry.getKey(), "value", value);
-
-            if (null != metadata) {
-                connection.hset(marshalledEntry.getKey(), "metadata", metadata);
-            }
+            connection.hmset(marshalledEntry.getKey(), fields);
 
             if (-1 < expiration) {
                 connection.expireAt(marshalledEntry.getKey(), expiration);

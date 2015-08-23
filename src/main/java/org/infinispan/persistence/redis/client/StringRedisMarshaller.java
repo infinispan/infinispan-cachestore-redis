@@ -4,6 +4,10 @@ import org.infinispan.commons.marshall.StreamingMarshaller;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 final public class StringRedisMarshaller implements RedisMarshaller<String>
 {
@@ -58,6 +62,18 @@ final public class StringRedisMarshaller implements RedisMarshaller<String>
     }
 
     @Override
+    public Map<String,String> encode(Map<String,byte[]> datums)
+    {
+        Map<String,String> encoded = new HashMap<>();
+
+        for (String key : datums.keySet()) {
+            encoded.put(key, this.encode(datums.get(key)));
+        }
+
+        return encoded;
+    }
+
+    @Override
     public byte[] decode(String buf)
     {
         if (null == buf) {
@@ -65,5 +81,17 @@ final public class StringRedisMarshaller implements RedisMarshaller<String>
         }
 
         return buf.getBytes(Charset.forName(this.encoding));
+    }
+
+    @Override
+    public List<byte[]> decode(List<String> bufs)
+    {
+        List<byte[]> decoded = new ArrayList<>();
+
+        for (String buf : bufs) {
+            decoded.add(this.decode(buf));
+        }
+
+        return decoded;
     }
 }

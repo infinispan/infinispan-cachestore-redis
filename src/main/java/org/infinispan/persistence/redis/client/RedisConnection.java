@@ -1,6 +1,8 @@
 package org.infinispan.persistence.redis.client;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 public interface RedisConnection
 {
@@ -12,13 +14,13 @@ public interface RedisConnection
     /**
      * Redis get command
      */
-    byte[] hget(Object key, String field) throws IOException, InterruptedException, ClassNotFoundException;
+    List<byte[]> hmget(Object key, String... field) throws IOException, InterruptedException, ClassNotFoundException;
 
     /**
      * Redis set command
      */
 
-    void hset(Object key, String field, byte[] value) throws IOException, InterruptedException;
+    void hmset(Object key, Map<String,byte[]> fields) throws IOException, InterruptedException;
 
     /**
      * Redis expireat command

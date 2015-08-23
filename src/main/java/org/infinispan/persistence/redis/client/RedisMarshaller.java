@@ -1,5 +1,8 @@
 package org.infinispan.persistence.redis.client;
 
+import java.util.List;
+import java.util.Map;
+
 public interface RedisMarshaller<T>
 {
     /**
@@ -18,7 +21,17 @@ public interface RedisMarshaller<T>
     T encode(byte[] data);
 
     /**
+     * Marshall multiple values to the format needed by Redis
+     */
+    Map<String,T> encode(Map<String,byte[]> datums);
+
+    /**
      * Unmarshall the value back from the Redis type
      */
     byte[] decode(T buf);
+
+    /**
+     * Unmarshall multiple values back from the Redis type
+     */
+    List<byte[]> decode(List<T> bufs);
 }

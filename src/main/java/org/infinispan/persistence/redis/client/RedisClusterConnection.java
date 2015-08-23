@@ -5,6 +5,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisPool;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 final public class RedisClusterConnection implements RedisConnection
@@ -31,17 +32,17 @@ final public class RedisClusterConnection implements RedisConnection
     }
 
     @Override
-    public byte[] hget(Object key, String field)
+    public List<byte[]> hmget(Object key, String... field)
         throws IOException, InterruptedException, ClassNotFoundException
     {
-        return this.marshaller.decode(this.cluster.hget(this.marshaller.marshall(key), field));
+        return this.marshaller.decode(this.cluster.hmget(this.marshaller.marshall(key), field));
     }
 
     @Override
-    public void hset(Object key, String field, byte[] value)
+    public void hmset(Object key, Map<String,byte[]> fields)
         throws IOException, InterruptedException
     {
-        this.cluster.hset(this.marshaller.marshall(key), field, this.marshaller.encode(value));
+        this.cluster.hmset(this.marshaller.marshall(key), this.marshaller.encode(fields));
     }
 
     @Override
