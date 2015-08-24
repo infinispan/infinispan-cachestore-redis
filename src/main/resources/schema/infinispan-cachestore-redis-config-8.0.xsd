@@ -12,8 +12,8 @@
         <xs:complexContent>
             <xs:extension base="config:store">
                 <xs:sequence>
-                    <xs:element name="redis-server" type="tns:redis-server" minOccurs="1" maxOccurs="unbounded"/>
-                    <xs:element name="sentinel-server" type="tns:sentinel-server" minOccurs="1" maxOccurs="unbounded"/>
+                    <xs:element name="redis-server" type="tns:redis-server" minOccurs="0" maxOccurs="unbounded"/>
+                    <xs:element name="sentinel-server" type="tns:sentinel-server" minOccurs="0" maxOccurs="unbounded"/>
                     <xs:element name="connection-pool" type="tns:connectionPool" minOccurs="0">
                         <xs:annotation>
                             <xs:documentation>
@@ -27,6 +27,8 @@
                     <xs:annotation>
                         <xs:documentation>
                             Redis deployment topology. Valid options are cluster, sentinel, or server.
+                            Selecting cluster or server requires the declaration of one or more redis servers.
+                            Selecting sentinel requires the declaration of one or more sentinel servers.
                             Defaults to cluster.
                         </xs:documentation>
                     </xs:annotation>
@@ -54,7 +56,8 @@
                     <xs:annotation>
                         <xs:documentation>
                             The database index on the remote Redis server that data should be stored within.
-                            If unspecified, 0 will be used. Not applicable to Redis clusters.
+                            If unspecified, 0 will be used. Not supported by and so ignored when used
+                            with cluster topology.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
@@ -63,7 +66,7 @@
                     <xs:annotation>
                         <xs:documentation>
                             The password used to connect to the Redis server. The default is null.
-                            Not applicable to Redis clusters.
+                            Not supported by and so ignored when used with cluster topology.
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
@@ -71,7 +74,7 @@
                 <xs:attribute name="socket-timeout" type="xs:long" default="60000">
                     <xs:annotation>
                         <xs:documentation>
-                            Enable/disable SO_TIMEOUT on socket connections to Redis servers with the
+                            Enable/disable SO_TIMEOUT on socket connections to servers with the
                             specified timeout, in milliseconds.
                             A timeout of zero is interpreted as an infinite timeout.
                         </xs:documentation>
@@ -123,7 +126,7 @@
             <xs:attribute name="host" type="xs:string">
                 <xs:annotation>
                     <xs:documentation>
-                        The hostname or ip address of a Redis sentinel server
+                        The hostname or ip address of a Sentinel server
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
@@ -178,7 +181,7 @@
                 <xs:documentation>
                     Specifies the minimum amount of time that an connection may sit idle in the pool before
                     it is eligible for eviction due to idle time. When non-positive, no connection will be
-                    ropped from the pool due to idle time alone. This setting has no effect unless
+                    dropped from the pool due to idle time alone. This setting has no effect unless
                     timeBetweenEvictionRunsMillis > 0. The default setting for this parameter is
                     1800000(30 minutes).
                 </xs:documentation>
