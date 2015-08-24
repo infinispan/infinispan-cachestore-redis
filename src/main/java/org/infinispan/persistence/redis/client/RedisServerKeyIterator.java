@@ -22,6 +22,11 @@ final public class RedisServerKeyIterator implements Iterator<Object>
         this.keyResults = this.scanCursor.getResult();
     }
 
+    public void release()
+    {
+        this.client.close();
+    }
+
     @Override
     public boolean hasNext()
     {
@@ -38,7 +43,6 @@ final public class RedisServerKeyIterator implements Iterator<Object>
             }
         }
 
-        client.close();
         return false;
     }
 

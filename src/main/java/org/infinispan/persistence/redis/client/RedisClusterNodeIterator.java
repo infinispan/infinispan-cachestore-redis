@@ -12,7 +12,7 @@ final public class RedisClusterNodeIterator implements Iterator<Object>
     private RedisMarshaller<String> marshaller;
     private Map<String, JedisPool> clusterNodes;
     private Iterator<String> clusterNodeIt;
-    private Iterator<Object> keyIterator = null;
+    private RedisServerKeyIterator keyIterator = null;
 
     public RedisClusterNodeIterator(JedisCluster cluster, RedisMarshaller<String> marshaller)
     {
@@ -34,6 +34,10 @@ final public class RedisClusterNodeIterator implements Iterator<Object>
 
             while (clusterNodeIt.hasNext()) {
                 try {
+                    if (null != this.keyIterator) {
+                        this.keyIterator.release();
+                    }
+
                     JedisPool pool = this.clusterNodes.get(this.clusterNodeIt.next());
                     client = pool.getResource();
                     this.keyIterator = new RedisServerKeyIterator(client, this.marshaller);
@@ -49,6 +53,10 @@ final public class RedisClusterNodeIterator implements Iterator<Object>
 
                     throw ex;
                 }
+            }
+
+            if (null != this.keyIterator) {
+                this.keyIterator.release();
             }
 
             return false;
