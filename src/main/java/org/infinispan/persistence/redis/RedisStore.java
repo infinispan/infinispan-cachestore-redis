@@ -48,7 +48,14 @@ final public class RedisStore implements AdvancedLoadWriteStore
     public void start()
     {
         RedisStore.log.info("Redis cache store starting");
-        this.connectionPool = RedisConnectionPoolFactory.factory(this.ctx.getConfiguration(), this.ctx.getMarshaller());
+
+        try {
+            this.connectionPool = RedisConnectionPoolFactory.factory(this.ctx.getConfiguration(), this.ctx.getMarshaller());
+        }
+        catch(Exception ex) {
+            RedisStore.log.error("Failed to initialise the redis store", ex);
+            throw new PersistenceException(ex);
+        }
     }
 
     /**

@@ -3,26 +3,35 @@ package org.infinispan.persistence.redis.client;
 import org.infinispan.persistence.redis.configuration.ConnectionPoolConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisServerConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
+import org.infinispan.util.logging.Log;
+import org.infinispan.util.logging.LogFactory;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+
+import java.util.List;
 
 final public class RedisServerConnectionPool implements RedisConnectionPool
 {
     private JedisPool connectionPool;
     private RedisMarshaller<String> marshaller;
+    private static final Log log = LogFactory.getLog(RedisServerConnectionPool.class, Log.class);
 
     public RedisServerConnectionPool(RedisStoreConfiguration configuration, RedisMarshaller<String> marshaller)
+        throws RedisClientException
     {
-        String host = null;
-        int port = 6379;
+        List<RedisServerConfiguration> servers = configuration.servers();
+        RedisServerConfiguration server;
 
-        for (RedisServerConfiguration server : configuration.servers()) {
-            host = server.host();
-            port = server.port();
+        if (servers.size() == 0) {
+            RedisServerConnectionPool.log.error("No redis servers defined");
+            throw new RedisClientException();
         }
 
-        if (null == host) {
-            // todo: handle error
+        server = servers.get(0);
+
+        if (servers.size() > 1) {
+            RedisServerConnectionPool.log.warn(String.format("Multiple redis servers defined. Using the first only (%s:%d)",
+                server.host(), server.port()));
         }
 
         ConnectionPoolConfiguration connectionPoolConfiguration = configuration.connectionPool();
@@ -36,8 +45,8 @@ final public class RedisServerConnectionPool implements RedisConnectionPool
 
         this.connectionPool = new JedisPool(
             poolConfig,
-            host,
-            port,
+            server.host(),
+            server.port(),
             configuration.connectionTimeout(),
             configuration.socketTimeout(),
             configuration.password(),

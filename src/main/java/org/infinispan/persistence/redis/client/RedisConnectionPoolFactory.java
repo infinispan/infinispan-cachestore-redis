@@ -8,6 +8,7 @@ import java.security.InvalidParameterException;
 final public class RedisConnectionPoolFactory
 {
     public static RedisConnectionPool factory(RedisStoreConfiguration configuration, StreamingMarshaller marshaller)
+        throws RedisClientException
     {
         RedisMarshaller<String> redisMarshaller = new StringRedisMarshaller(marshaller);
 
