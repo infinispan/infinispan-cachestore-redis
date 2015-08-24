@@ -23,6 +23,15 @@
                     </xs:element>
                 </xs:sequence>
 
+                <xs:attribute name="topology" type="tns:topology" default="cluster">
+                    <xs:annotation>
+                        <xs:documentation>
+                            Redis deployment topology. Valid options are cluster, sentinel, or server.
+                            Defaults to cluster.
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
                 <xs:attribute name="max-redirections" type="xs:int">
                     <xs:annotation>
                         <xs:documentation>
@@ -79,6 +88,14 @@
                 </xs:attribute>
             </xs:extension>
         </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="topology">
+        <xs:choice minOccurs="0" maxOccurs="1">
+            <xs:element name="cluster" type="xs:string"/>
+            <xs:element name="sentinel" type="xs:string"/>
+            <xs:element name="server" type="xs:string"/>
+        </xs:choice>
     </xs:complexType>
 
     <xs:complexType name="redis-server">

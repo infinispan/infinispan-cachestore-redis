@@ -1,5 +1,6 @@
 package org.infinispan.persistence.redis.support;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -89,6 +90,23 @@ public abstract class AbstractRedisServer
         }
         catch(Exception ex){
             System.out.println("Cut sleep early");
+        }
+    }
+
+    protected void cleanup(String path, int serverNum)
+    {
+        String dumpFileName = String.format("%s/redis/server%d/dump.rdb", path, serverNum);
+        File dumpFile = new File(dumpFileName);
+
+        if ( dumpFile.exists() && ! dumpFile.delete()) {
+            System.out.println(String.format("Failed to delete Redis dump file %s", dumpFileName));
+        }
+
+        String nodeFileName = String.format("%s/redis/server%d/nodes.conf", path, serverNum);
+        File nodeFile = new File(nodeFileName);
+
+        if ( nodeFile.exists() && ! nodeFile.delete()) {
+            System.out.println(String.format("Failed to delete Redis node file %s", nodeFileName));
         }
     }
 }

@@ -55,19 +55,7 @@ public class RedisCluster extends AbstractRedisServer
         this.sleep(5000);
 
         for (int serverNum : new int[] {1,2,3}) {
-            String dumpFileName = String.format("%s/redis/server%d/dump.rdb", this.testPath, serverNum);
-            File dumpFile = new File(dumpFileName);
-
-            if ( ! dumpFile.delete()) {
-                System.out.println(String.format("Failed to delete Redis dump file %s", dumpFileName));
-            }
-
-            String nodeFileName = String.format("%s/redis/server%d/nodes.conf", this.testPath, serverNum);
-            File nodeFile = new File(nodeFileName);
-
-            if ( ! nodeFile.delete()) {
-                System.out.println(String.format("Failed to delete Redis node file %s", nodeFileName));
-            }
+            this.cleanup(this.testPath, serverNum);
         }
     }
 
