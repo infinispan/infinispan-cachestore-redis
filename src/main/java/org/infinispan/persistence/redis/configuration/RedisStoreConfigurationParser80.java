@@ -54,6 +54,11 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
                     break;
                 }
 
+                case SENTINEL: {
+                    this.parseSentinel(reader, builder.addSentinel());
+                    break;
+                }
+
                 case CONNECTION_POOL: {
                     this.parseConnectionPool(reader, builder.connectionPool());
                     break;
@@ -70,6 +75,30 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
     }
 
     private void parseServer(XMLExtendedStreamReader reader, RedisServerConfigurationBuilder builder)
+        throws XMLStreamException
+    {
+        for (int i = 0; i < reader.getAttributeCount(); i++) {
+            ParseUtils.requireNoNamespaceAttribute(reader, i);
+            String value = replaceProperties(reader.getAttributeValue(i));
+            Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+            switch (attribute) {
+                case HOST:
+                    builder.host(value);
+                    break;
+
+                case PORT:
+                    builder.port(Integer.parseInt(value));
+                    break;
+
+                default:
+                    throw ParseUtils.unexpectedAttribute(reader, i);
+            }
+        }
+
+        ParseUtils.requireNoContent(reader);
+    }
+
+    private void parseSentinel(XMLExtendedStreamReader reader, RedisSentinelConfigurationBuilder builder)
         throws XMLStreamException
     {
         for (int i = 0; i < reader.getAttributeCount(); i++) {

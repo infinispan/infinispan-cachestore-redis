@@ -23,6 +23,12 @@ public abstract class AbstractRedisStoreConfigurationChildBuilder<S> extends Abs
     }
 
     @Override
+    public RedisSentinelConfigurationBuilder addSentinel()
+    {
+        return builder.addSentinel();
+    }
+
+    @Override
     public ConnectionPoolConfigurationBuilder connectionPool()
     {
         return builder.connectionPool();

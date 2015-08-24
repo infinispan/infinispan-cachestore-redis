@@ -10,6 +10,7 @@ public enum Element
 
     REDIS_STORE("redis-store"),
     SERVER("redis-server"),
+    SENTINEL("sentinel-server"),
     CONNECTION_POOL("connection-pool")
     ;
 

@@ -17,7 +17,7 @@ final public class RedisSentinelConnectionPool implements RedisConnectionPool
     public RedisSentinelConnectionPool(RedisStoreConfiguration configuration, RedisMarshaller<String> marshaller)
     {
         Set<String> sentinels = new HashSet<String>();
-        for (RedisServerConfiguration server : configuration.servers()) {
+        for (RedisServerConfiguration server : configuration.sentinels()) {
             sentinels.add(String.format("%s:%s", server.host(), server.port()));
         }
 

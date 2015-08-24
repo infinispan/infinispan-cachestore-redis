@@ -37,14 +37,21 @@ final public class RedisStoreConfiguration extends AbstractStoreConfiguration
             return new ArrayList<>();
         }
     }).build();
+    static final AttributeDefinition<List<RedisServerConfiguration>> SENTINELS = AttributeDefinition.builder("sentinels", null, (Class<List<RedisServerConfiguration>>)(Class<?>)List.class).initializer(new AttributeInitializer<List<RedisServerConfiguration>>() {
+        @Override
+        public List<RedisServerConfiguration> initialize() {
+            return new ArrayList<>();
+        }
+    }).build();
 
     public static AttributeSet attributeDefinitionSet() {
         return new AttributeSet(RedisStoreConfiguration.class, AbstractStoreConfiguration.attributeDefinitionSet(),
-            PASSWORD, DATABASE, SERVERS, TOPOLOGY, CONNECTION_TIMEOUT, SOCKET_TIMEOUT, MASTER_NAME, MAX_REDIRECTIONS);
+            PASSWORD, DATABASE, SERVERS, SENTINELS, TOPOLOGY, CONNECTION_TIMEOUT, SOCKET_TIMEOUT, MASTER_NAME, MAX_REDIRECTIONS);
     }
 
     private final ConnectionPoolConfiguration connectionPool;
     private final Attribute<List<RedisServerConfiguration>> servers;
+    private final Attribute<List<RedisServerConfiguration>> sentinels;
     private final Attribute<Integer> database;
     private final Attribute<String> password;
     private final Attribute<String> masterName;
@@ -63,6 +70,7 @@ final public class RedisStoreConfiguration extends AbstractStoreConfiguration
         super(attributes, async, singletonStore);
         this.connectionPool = connectionPool;
         this.servers = attributes.attribute(SERVERS);
+        this.sentinels = attributes.attribute(SENTINELS);
         this.password = attributes.attribute(PASSWORD);
         this.masterName = attributes.attribute(MASTER_NAME);
         this.database = attributes.attribute(DATABASE);
@@ -75,6 +83,11 @@ final public class RedisStoreConfiguration extends AbstractStoreConfiguration
     public List<RedisServerConfiguration> servers()
     {
         return this.servers.get();
+    }
+
+    public List<RedisServerConfiguration> sentinels()
+    {
+        return this.sentinels.get();
     }
 
     public int database()

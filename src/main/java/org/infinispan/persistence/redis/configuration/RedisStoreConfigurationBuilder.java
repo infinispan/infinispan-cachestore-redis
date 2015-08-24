@@ -11,6 +11,7 @@ final public class RedisStoreConfigurationBuilder
     implements RedisStoreConfigurationChildBuilder<RedisStoreConfigurationBuilder>
 {
     private List<RedisServerConfigurationBuilder> servers = new ArrayList<RedisServerConfigurationBuilder>();
+    private List<RedisSentinelConfigurationBuilder> sentinels = new ArrayList<RedisSentinelConfigurationBuilder>();
     private final ConnectionPoolConfigurationBuilder connectionPool;
 
     public RedisStoreConfigurationBuilder(PersistenceConfigurationBuilder builder)
@@ -83,6 +84,14 @@ final public class RedisStoreConfigurationBuilder
     }
 
     @Override
+    public RedisSentinelConfigurationBuilder addSentinel()
+    {
+        RedisSentinelConfigurationBuilder builder = new RedisSentinelConfigurationBuilder(this);
+        this.sentinels.add(builder);
+        return builder;
+    }
+
+    @Override
     public ConnectionPoolConfigurationBuilder connectionPool()
     {
         return this.connectionPool;
@@ -106,7 +115,15 @@ final public class RedisStoreConfigurationBuilder
         for (RedisServerConfigurationBuilder server : servers) {
             redisServers.add(server.create());
         }
+
+        List<RedisServerConfiguration> redisSentinels = new ArrayList<RedisServerConfiguration>();
+        for (RedisSentinelConfigurationBuilder server : sentinels) {
+            redisSentinels.add(server.create());
+        }
+
         attributes.attribute(RedisStoreConfiguration.SERVERS).set(redisServers);
+        attributes.attribute(RedisStoreConfiguration.SENTINELS).set(redisSentinels);
+
         return new RedisStoreConfiguration(this.attributes.protect(), this.async.create(), this.singletonStore.create(), this.connectionPool.create());
     }
 }

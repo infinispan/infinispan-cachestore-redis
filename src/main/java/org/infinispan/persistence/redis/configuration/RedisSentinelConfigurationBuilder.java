@@ -3,24 +3,24 @@ package org.infinispan.persistence.redis.configuration;
 import org.infinispan.commons.configuration.Builder;
 import org.infinispan.configuration.global.GlobalConfiguration;
 
-final public class RedisServerConfigurationBuilder extends AbstractRedisStoreConfigurationChildBuilder<RedisStoreConfigurationBuilder> implements
+public class RedisSentinelConfigurationBuilder extends AbstractRedisStoreConfigurationChildBuilder<RedisStoreConfigurationBuilder> implements
     Builder<RedisServerConfiguration>
 {
     private String host;
-    private int port = 6379;
+    private int port = 26379;
 
-    protected RedisServerConfigurationBuilder(RedisStoreConfigurationBuilder builder)
+    protected RedisSentinelConfigurationBuilder(RedisStoreConfigurationBuilder builder)
     {
         super(builder);
     }
 
-    public RedisServerConfigurationBuilder host(String host)
+    public RedisSentinelConfigurationBuilder host(String host)
     {
         this.host = host;
         return this;
     }
 
-    public RedisServerConfigurationBuilder port(int port)
+    public RedisSentinelConfigurationBuilder port(int port)
     {
         this.port = port;
         return this;

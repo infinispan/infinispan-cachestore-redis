@@ -6,9 +6,14 @@ import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration.To
 public interface RedisStoreConfigurationChildBuilder<S> extends StoreConfigurationChildBuilder<S>
 {
     /**
-     * Adds a new remote server
+     * Adds a new Redis server
      */
     RedisServerConfigurationBuilder addServer();
+
+    /**
+     * Adds a new sentinel server
+     */
+    RedisSentinelConfigurationBuilder addSentinel();
 
     /**
      * Configures the connection pool

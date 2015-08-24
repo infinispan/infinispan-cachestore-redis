@@ -13,7 +13,7 @@
             <xs:extension base="config:store">
                 <xs:sequence>
                     <xs:element name="redis-server" type="tns:redis-server" minOccurs="1" maxOccurs="unbounded"/>
-
+                    <xs:element name="sentinel-server" type="tns:sentinel-server" minOccurs="1" maxOccurs="unbounded"/>
                     <xs:element name="connection-pool" type="tns:connectionPool" minOccurs="0">
                         <xs:annotation>
                             <xs:documentation>
@@ -103,7 +103,7 @@
             <xs:attribute name="host" type="xs:string">
                 <xs:annotation>
                     <xs:documentation>
-                        The hostname or ip address of a Redis cluster server
+                        The hostname or ip address of a Redis server
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
@@ -112,6 +112,26 @@
                 <xs:annotation>
                     <xs:documentation>
                         The port on which the server is listening (default 6379)
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="sentinel-server">
+        <xs:complexContent>
+            <xs:attribute name="host" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        The hostname or ip address of a Redis sentinel server
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+
+            <xs:attribute name="port" type="xs:int" default="26379">
+                <xs:annotation>
+                    <xs:documentation>
+                        The port on which the server is listening (default 26379)
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
