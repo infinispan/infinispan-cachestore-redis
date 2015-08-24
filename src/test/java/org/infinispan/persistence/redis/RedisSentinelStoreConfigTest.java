@@ -1,7 +1,7 @@
 package org.infinispan.persistence.redis;
 
 import org.infinispan.Cache;
-import org.infinispan.persistence.redis.support.RedisServer;
+import org.infinispan.persistence.redis.support.RedisSentinel;
 import org.infinispan.persistence.spi.CacheLoader;
 import org.infinispan.test.AbstractInfinispanTest;
 import org.infinispan.test.CacheManagerCallable;
@@ -20,14 +20,14 @@ import static org.junit.Assert.assertEquals;
 public class RedisSentinelStoreConfigTest extends AbstractInfinispanTest
 {
     private static final String CACHE_LOADER_CONFIG = "redis-sentinel-cl-config.xml";
-    private RedisServer redisServer;
+    private RedisSentinel redisServer;
 
     @BeforeTest(alwaysRun = true)
     public void beforeTest()
         throws IOException
     {
         System.out.println("RedisSentinelStoreConfigTest:Setting up");
-        redisServer = new RedisServer();
+        redisServer = new RedisSentinel();
         redisServer.start();
     }
 

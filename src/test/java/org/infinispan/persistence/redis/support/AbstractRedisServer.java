@@ -7,10 +7,23 @@ import java.io.PrintStream;
 
 public abstract class AbstractRedisServer
 {
-    protected Process startServer(String configurationFile, String workingDir, int port, String extraParameters)
+    protected Process startRedisServer(String configurationFile, String workingDir, int port, String extraParameters)
         throws IOException
     {
         Process p = Runtime.getRuntime().exec(String.format("redis-server %s --dir %s --port %d %s",
+            configurationFile, workingDir, port, extraParameters));
+        this.pipe(p.getInputStream(), System.out);
+        this.pipe(p.getErrorStream(), System.err);
+
+        this.sleep(50);
+
+        return p;
+    }
+
+    protected Process startSentinelServer(String configurationFile, String workingDir, int port, String extraParameters)
+        throws IOException
+    {
+        Process p = Runtime.getRuntime().exec(String.format("redis-sentinel %s --dir %s --port %d %s",
             configurationFile, workingDir, port, extraParameters));
         this.pipe(p.getInputStream(), System.out);
         this.pipe(p.getErrorStream(), System.err);
@@ -93,16 +106,16 @@ public abstract class AbstractRedisServer
         }
     }
 
-    protected void cleanup(String path, int serverNum)
+    protected void cleanup(String testPath, String serverPath, int serverNum)
     {
-        String dumpFileName = String.format("%s/redis/server%d/dump.rdb", path, serverNum);
+        String dumpFileName = String.format("%s/redis/%s%d/dump.rdb", testPath, serverPath, serverNum);
         File dumpFile = new File(dumpFileName);
 
         if ( dumpFile.exists() && ! dumpFile.delete()) {
             System.out.println(String.format("Failed to delete Redis dump file %s", dumpFileName));
         }
 
-        String nodeFileName = String.format("%s/redis/server%d/nodes.conf", path, serverNum);
+        String nodeFileName = String.format("%s/redis/%s%d/nodes.conf", testPath, serverPath, serverNum);
         File nodeFile = new File(nodeFileName);
 
         if ( nodeFile.exists() && ! nodeFile.delete()) {

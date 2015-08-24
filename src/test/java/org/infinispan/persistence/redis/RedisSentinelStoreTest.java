@@ -4,7 +4,7 @@ import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.persistence.BaseStoreTest;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration.Topology;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfigurationBuilder;
-import org.infinispan.persistence.redis.support.RedisServer;
+import org.infinispan.persistence.redis.support.RedisSentinel;
 import org.infinispan.persistence.spi.AdvancedLoadWriteStore;
 import org.infinispan.persistence.spi.PersistenceException;
 import org.infinispan.test.fwk.TestCacheManagerFactory;
@@ -17,14 +17,14 @@ import java.io.IOException;
 @Test(testName = "persistence.redis.RedisServerStoreTest", groups = "functional")
 public class RedisSentinelStoreTest extends BaseStoreTest
 {
-    RedisServer redisServer;
+    RedisSentinel redisServer;
 
     @BeforeClass(alwaysRun = true)
     public void beforeClass()
         throws IOException
     {
         System.out.println("RedisSentinelStoreTest:Setting up");
-        redisServer = new RedisServer();
+        redisServer = new RedisSentinel();
         redisServer.start();
     }
 

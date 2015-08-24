@@ -7,7 +7,7 @@ import org.infinispan.configuration.cache.PersistenceConfigurationBuilder;
 import org.infinispan.persistence.BaseStoreFunctionalTest;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration.Topology;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfigurationBuilder;
-import org.infinispan.persistence.redis.support.RedisServer;
+import org.infinispan.persistence.redis.support.RedisSentinel;
 import org.junit.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -16,13 +16,13 @@ import org.testng.annotations.Test;
 @Test(testName = "persistence.redis.RedisServerStoreFunctionalTest", groups = "functional")
 public class RedisSentinelStoreFunctionalTest extends BaseStoreFunctionalTest
 {
-    private RedisServer redisServer;
+    private RedisSentinel redisServer;
 
     @BeforeClass(alwaysRun = true)
     public void beforeClass()
         throws Exception
     {
-        redisServer = new RedisServer();
+        redisServer = new RedisSentinel();
         redisServer.start();
     }
 

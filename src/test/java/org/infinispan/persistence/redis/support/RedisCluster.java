@@ -1,6 +1,5 @@
 package org.infinispan.persistence.redis.support;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +25,7 @@ public class RedisCluster extends AbstractRedisServer
         for (int serverNum : new int[] {1,2,3}) {
             String workingDir = String.format("%s/redis/server%d", this.testPath, serverNum);
             String configurationFile = String.format("%s/redis/server%d/redis.conf", this.testPath, serverNum);
-            Process p = this.startServer(configurationFile, workingDir, portPosition, "--cluster-enabled yes");
+            Process p = this.startRedisServer(configurationFile, workingDir, portPosition, "--cluster-enabled yes");
 
             this.addSlots(portPosition, startSlot, startSlot + SLOTS_PER_CLUSTER_NODE);
 
@@ -55,7 +54,7 @@ public class RedisCluster extends AbstractRedisServer
         this.sleep(5000);
 
         for (int serverNum : new int[] {1,2,3}) {
-            this.cleanup(this.testPath, serverNum);
+            this.cleanup(this.testPath, "server", serverNum);
         }
     }
 

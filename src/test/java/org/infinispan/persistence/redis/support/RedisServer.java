@@ -18,7 +18,7 @@ public class RedisServer extends AbstractRedisServer
     {
         String workingDir = String.format("%s/redis/server%d", this.testPath, SERVER_NUM);
         String configurationFile = String.format("%s/redis/server%d/redis.conf", this.testPath, SERVER_NUM);
-        serverProcess = this.startServer(configurationFile, workingDir, START_PORT, "");
+        serverProcess = this.startRedisServer(configurationFile, workingDir, START_PORT, "");
 
         System.out.println("All servers started.");
         this.sleep(5000);
@@ -31,6 +31,6 @@ public class RedisServer extends AbstractRedisServer
         System.out.println("Waiting for all servers to terminate and release file locks");
         this.sleep(5000);
 
-        this.cleanup(this.testPath, SERVER_NUM);
+        this.cleanup(this.testPath, "server", SERVER_NUM);
     }
 }
