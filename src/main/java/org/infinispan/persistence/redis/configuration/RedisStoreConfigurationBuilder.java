@@ -1,5 +1,6 @@
 package org.infinispan.persistence.redis.configuration;
 
+import org.infinispan.commons.CacheConfigurationException;
 import org.infinispan.configuration.cache.AbstractStoreConfigurationBuilder;
 import org.infinispan.configuration.cache.PersistenceConfigurationBuilder;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration.Topology;
@@ -100,11 +101,33 @@ final public class RedisStoreConfigurationBuilder
     @Override
     public void validate()
     {
-        // todo: validate master name for sentinel topology
-        // todo: validate sentinel servers for sentinel topology
-        // todo: validate redis servers for cluster and server topology
-
         super.validate();
+
+        Topology topology = this.attributes.attribute(RedisStoreConfiguration.TOPOLOGY).get();
+        String masterName = this.attributes.attribute(RedisStoreConfiguration.MASTER_NAME).get();
+
+        if (topology.equals(Topology.SENTINEL) && (masterName == null || masterName.equals(""))) {
+            // Master name is required
+            throw new CacheConfigurationException("master-name must be defined when using a sentinel topology.");
+        }
+
+        if (topology.equals(Topology.SENTINEL) && this.sentinels.size() == 0) {
+            // One or more Sentinel servers are required
+            throw new CacheConfigurationException("At least one sentinel-server must be defined " +
+                "when using a sentinel topology.");
+        }
+
+        if (topology.equals(Topology.CLUSTER) && this.servers.size() == 0) {
+            // One or more Redis servers are required
+            throw new CacheConfigurationException("One or more redis-server must be defined " +
+                "when using a cluster topology.");
+        }
+
+        if (topology.equals(Topology.SERVER) && this.servers.size() == 0) {
+            // A single Redis servers are required
+            throw new CacheConfigurationException("A redis-server must be defined " +
+                "when using a server topology.");
+        }
     }
 
     @Override
