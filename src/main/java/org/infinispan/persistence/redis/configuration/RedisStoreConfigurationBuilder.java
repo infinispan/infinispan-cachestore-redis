@@ -98,6 +98,16 @@ final public class RedisStoreConfigurationBuilder
     }
 
     @Override
+    public void validate()
+    {
+        // todo: validate master name for sentinel topology
+        // todo: validate sentinel servers for sentinel topology
+        // todo: validate redis servers for cluster and server topology
+
+        super.validate();
+    }
+
+    @Override
     public RedisStoreConfigurationBuilder read(RedisStoreConfiguration template)
     {
         super.read(template);
