@@ -197,5 +197,37 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="test-on-create" type="xs:boolean" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    Test a connection for connectivity on creation in to the connection pool. Defaults is false.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="test-on-borrow" type="xs:boolean" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    Test a connection for connectivity on borrow from connection pool. Defaults is false.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="test-on-return" type="xs:boolean" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    Test a connection for connectivity on return to the connection pool. Defaults is false.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="test-on-idle" type="xs:boolean" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    Test a connection for connectivity whilst idling. Defaults is false.
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 </xs:schema>

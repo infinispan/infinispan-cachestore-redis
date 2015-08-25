@@ -29,6 +29,10 @@ final public class RedisSentinelConnectionPool implements RedisConnectionPool
         poolConfig.setMaxIdle(connectionPoolConfiguration.maxIdle());
         poolConfig.setMinEvictableIdleTimeMillis(connectionPoolConfiguration.minEvictableIdleTime());
         poolConfig.setTimeBetweenEvictionRunsMillis(connectionPoolConfiguration.timeBetweenEvictionRuns());
+        poolConfig.setTestOnCreate(connectionPoolConfiguration.testOnCreate());
+        poolConfig.setTestOnBorrow(connectionPoolConfiguration.testOnBorrow());
+        poolConfig.setTestOnReturn(connectionPoolConfiguration.testOnReturn());
+        poolConfig.setTestWhileIdle(connectionPoolConfiguration.testOnIdle());
 
         sentinelPool = new JedisSentinelPool(
             configuration.masterName(),

@@ -21,7 +21,11 @@ public enum Attribute
     SOCKET_TIMEOUT("socket-timeout"),
     CONNECTION_TIMEOUT("connection-timeout"),
     MASTER_NAME("master-name"),
-    MAX_REDIRECTIONS("max-redirections")
+    MAX_REDIRECTIONS("max-redirections"),
+    TEST_ON_CREATE("test-on-create"),
+    TEST_ON_BORROW("test-on-borrow"),
+    TEST_ON_RETURN("test-on-return"),
+    TEST_ON_IDLE("test-on-idle")
     ;
 
     private final String name;

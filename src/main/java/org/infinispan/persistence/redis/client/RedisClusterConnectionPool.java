@@ -31,6 +31,10 @@ final public class RedisClusterConnectionPool implements RedisConnectionPool
         poolConfig.setMaxIdle(connectionPoolConfiguration.maxIdle());
         poolConfig.setMinEvictableIdleTimeMillis(connectionPoolConfiguration.minEvictableIdleTime());
         poolConfig.setTimeBetweenEvictionRunsMillis(connectionPoolConfiguration.timeBetweenEvictionRuns());
+        poolConfig.setTestOnCreate(connectionPoolConfiguration.testOnCreate());
+        poolConfig.setTestOnBorrow(connectionPoolConfiguration.testOnBorrow());
+        poolConfig.setTestOnReturn(connectionPoolConfiguration.testOnReturn());
+        poolConfig.setTestWhileIdle(connectionPoolConfiguration.testOnIdle());
 
         this.cluster = new JedisCluster(
             clusterNodes,

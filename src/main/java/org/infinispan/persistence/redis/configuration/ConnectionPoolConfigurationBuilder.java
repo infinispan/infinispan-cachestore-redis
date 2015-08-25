@@ -11,6 +11,10 @@ final public class ConnectionPoolConfigurationBuilder extends AbstractRedisStore
     private int minIdle = 1;
     private long timeBetweenEvictionRuns = 120000;
     private long minEvictableIdleTime = 1800000;
+    private boolean testOnCreate = false;
+    private boolean testOnBorrow = false;
+    private boolean testOnReturn = false;
+    private boolean testOnIdle = false;
 
     ConnectionPoolConfigurationBuilder(RedisStoreConfigurationBuilder builder)
     {
@@ -77,6 +81,30 @@ final public class ConnectionPoolConfigurationBuilder extends AbstractRedisStore
         return this;
     }
 
+    public ConnectionPoolConfigurationBuilder testOnCreate(boolean testOnCreate)
+    {
+        this.testOnCreate = testOnCreate;
+        return this;
+    }
+
+    public ConnectionPoolConfigurationBuilder testOnBorrow(boolean testOnBorrow)
+    {
+        this.testOnBorrow = testOnBorrow;
+        return this;
+    }
+
+    public ConnectionPoolConfigurationBuilder testOnReturn(boolean testOnReturn)
+    {
+        this.testOnReturn = testOnReturn;
+        return this;
+    }
+
+    public ConnectionPoolConfigurationBuilder testOnIdle(boolean testOnIdle)
+    {
+        this.testOnIdle = testOnIdle;
+        return this;
+    }
+
     @Override
     public void validate()
     {
@@ -92,7 +120,7 @@ final public class ConnectionPoolConfigurationBuilder extends AbstractRedisStore
     @Override
     public ConnectionPoolConfiguration create()
     {
-        return new ConnectionPoolConfiguration(maxTotal, maxIdle, minIdle, timeBetweenEvictionRuns, minEvictableIdleTime);
+        return new ConnectionPoolConfiguration(maxTotal, maxIdle, minIdle, timeBetweenEvictionRuns, minEvictableIdleTime, testOnCreate, testOnBorrow, testOnReturn, testOnIdle);
     }
 
     @Override
@@ -103,6 +131,10 @@ final public class ConnectionPoolConfigurationBuilder extends AbstractRedisStore
         this.minIdle = template.minIdle();
         this.timeBetweenEvictionRuns = template.timeBetweenEvictionRuns();
         this.minEvictableIdleTime = template.minEvictableIdleTime();
+        this.testOnCreate = template.testOnCreate();
+        this.testOnBorrow = template.testOnBorrow();
+        this.testOnReturn = template.testOnReturn();
+        this.testOnIdle = template.testOnIdle();
         return this;
     }
 }

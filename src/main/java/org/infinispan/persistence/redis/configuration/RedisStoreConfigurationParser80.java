@@ -155,6 +155,26 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
                     break;
                 }
 
+                case TEST_ON_CREATE: {
+                    builder.testOnCreate(Boolean.parseBoolean(value));
+                    break;
+                }
+
+                case TEST_ON_BORROW: {
+                    builder.testOnBorrow(Boolean.parseBoolean(value));
+                    break;
+                }
+
+                case TEST_ON_RETURN: {
+                    builder.testOnReturn(Boolean.parseBoolean(value));
+                    break;
+                }
+
+                case TEST_ON_IDLE: {
+                    builder.testOnIdle(Boolean.parseBoolean(value));
+                    break;
+                }
+
                 default:
                     throw ParseUtils.unexpectedAttribute(reader, i);
             }
