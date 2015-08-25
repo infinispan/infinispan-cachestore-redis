@@ -49,10 +49,17 @@ public class RedisSentinelStoreFunctionalTest extends BaseStoreFunctionalTest
     {
         persistence
             .addStore(RedisStoreConfigurationBuilder.class)
-            .topology(Topology.SERVER)
-            .addServer()
+            .topology(Topology.SENTINEL)
+            .masterName("mymaster")
+            .addSentinel()
             .host("localhost")
-            .port(6379)
+            .port(26379)
+            .addSentinel()
+            .host("localhost")
+            .port(26380)
+            .addSentinel()
+            .host("localhost")
+            .port(26381)
             .database(database)
         ;
 

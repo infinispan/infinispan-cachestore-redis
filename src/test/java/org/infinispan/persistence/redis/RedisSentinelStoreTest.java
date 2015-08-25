@@ -41,10 +41,17 @@ public class RedisSentinelStoreTest extends BaseStoreTest
         ConfigurationBuilder builder = TestCacheManagerFactory.getDefaultCacheConfiguration(false);
         RedisStoreConfigurationBuilder storeConfigurationBuilder = builder.persistence().addStore(RedisStoreConfigurationBuilder.class);
         storeConfigurationBuilder
-            .topology(Topology.SERVER)
-            .addServer()
-                .host("localhost")
-                .port(6379)
+            .topology(Topology.SENTINEL)
+            .masterName("mymaster")
+            .addSentinel()
+            .host("localhost")
+            .port(26379)
+            .addSentinel()
+            .host("localhost")
+            .port(26380)
+            .addSentinel()
+            .host("localhost")
+            .port(26381)
         ;
 
         RedisStore store = new RedisStore();

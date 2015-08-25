@@ -3,6 +3,8 @@ package org.infinispan.persistence.redis.client;
 import org.infinispan.persistence.redis.configuration.ConnectionPoolConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisServerConfiguration;
 import org.infinispan.persistence.redis.configuration.RedisStoreConfiguration;
+import org.infinispan.util.logging.Log;
+import org.infinispan.util.logging.LogFactory;
 import redis.clients.jedis.JedisPoolConfig;
 import redis.clients.jedis.JedisSentinelPool;
 
@@ -13,6 +15,7 @@ final public class RedisSentinelConnectionPool implements RedisConnectionPool
 {
     private RedisMarshaller<String> marshaller;
     private JedisSentinelPool sentinelPool;
+    private static final Log log = LogFactory.getLog(RedisSentinelConnectionPool.class, Log.class);
 
     public RedisSentinelConnectionPool(RedisStoreConfiguration configuration, RedisMarshaller<String> marshaller)
     {

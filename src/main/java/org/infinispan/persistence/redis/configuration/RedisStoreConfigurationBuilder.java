@@ -105,6 +105,10 @@ final public class RedisStoreConfigurationBuilder
             this.addServer().host(server.host()).port(server.port());
         }
 
+        for (RedisServerConfiguration server : template.sentinels()) {
+            this.addSentinel().host(server.host()).port(server.port());
+        }
+
         return this;
     }
 
