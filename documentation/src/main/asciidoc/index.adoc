@@ -1,0 +1,7 @@
+= Redis Cache Store
+The Infinispan Community
+:icons: font
+
+== Introduction
+The Redis cache store persists data in link:http://redis.io[Redis].
+
