@@ -3,23 +3,88 @@
 
     <groupId>org.infinispan</groupId>
     <artifactId>infinispan-cachestore-redis</artifactId>
-    <version>8.0.0.CR1</version>
+    <version>8.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
 
     <name>Infinispan Redis CacheStore</name>
     <description>Infinispan CacheStore using Redis</description>
-
-    <properties>
-        <infinispan.core.schema.version>8.0</infinispan.core.schema.version>
-        <version.testng>6.8.8</version.testng>
-    </properties>
-
+    
+    <url>http://www.infinispan.org</url>
+    <organization>
+      <name>JBoss, a division of Red Hat</name>
+      <url>http://www.jboss.org</url>
+    </organization>
+    <licenses>
+      <license>
+         <name>Apache License</name>
+         <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+         <distribution>repo</distribution>
+      </license>
+    </licenses>
     <developers>
         <developer>
             <name>Simon Paulger</name>
             <email>spaulger@codezen.co.uk</email>
         </developer>
+       <developer>
+            <id>placeholder</id>
+            <name>See http://www.infinispan.org for a complete list of contributors</name>
+       </developer>
     </developers>
+    <mailingLists>
+      <mailingList>
+         <name>Infinispan Issues</name>
+         <subscribe>https://lists.jboss.org/mailman/listinfo/infinispan-issues</subscribe>
+         <unsubscribe>https://lists.jboss.org/mailman/listinfo/infinispan-issues</unsubscribe>
+         <post>infinispan-issues@lists.jboss.org</post>
+         <archive>http://lists.jboss.org/pipermail/infinispan-issues/</archive>
+      </mailingList>
+      <mailingList>
+         <name>Infinispan Developers</name>
+         <subscribe>https://lists.jboss.org/mailman/listinfo/infinispan-dev</subscribe>
+         <unsubscribe>https://lists.jboss.org/mailman/listinfo/infinispan-dev</unsubscribe>
+         <post>infinispan-dev@lists.jboss.org</post>
+         <archive>http://lists.jboss.org/pipermail/infinispan-dev/</archive>
+      </mailingList>
+    </mailingLists>
+    <scm>
+      <connection>scm:git:git@github.com:infinispan/infinispan-cachestore-redis.git</connection>
+      <developerConnection>scm:git:git@github.com:infinispan/infinispan-cachestore-redis.git</developerConnection>
+      <url>https://github.com/infinispan/infinispan-cachestore-redis</url>
+    </scm>
+    <issueManagement>
+      <system>jira</system>
+      <url>https://issues.jboss.org/browse/ISPN</url>
+    </issueManagement>
+    <ciManagement>
+      <system>TeamCity</system>
+      <url>http://ci.infinispan.org</url>
+      <notifiers>
+         <notifier>
+            <type>mail</type>
+            <address>infinispan-commits@lists.jboss.org</address>
+         </notifier>
+      </notifiers>
+    </ciManagement>
+    <distributionManagement>
+      <repository>
+         <id>jboss-releases-repository</id>
+         <name>JBoss Release Repository</name>
+         <url>${jboss.releases.repo.url}</url>
+      </repository>
+      <snapshotRepository>
+         <id>jboss-snapshots-repository</id>
+         <name>JBoss Snapshot Repository</name>
+         <url>${jboss.snapshots.repo.url}</url>
+      </snapshotRepository>
+    </distributionManagement>
+
+    <properties>
+        <infinispan.core.schema.version>8.0</infinispan.core.schema.version>
+        <version.testng>6.8.8</version.testng>
+        <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
+        <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/</jboss.snapshots.repo.url>
+    </properties>
 
     <build>
         <resources>
@@ -184,6 +249,7 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.11</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -195,3 +261,4 @@
         </dependency>
     </dependencies>
 </project>
+
