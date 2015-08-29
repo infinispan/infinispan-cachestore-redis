@@ -14,7 +14,7 @@ Supports single servers, Sentinel and Redis cluster.
     xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
                           urn:infinispan:config:store:redis:8.0 http://www.infinispan.org/schemas/infinispan-cachestore-redis-config-8.0.xsd"
     xmlns="urn:infinispan:config:8.0"
-    xmlns:remote="urn:infinispan:config:store:redis:8.0" >
+    xmlns:redis="urn:infinispan:config:store:redis:8.0" >
 
     <cache-container>
         <local-cache>
@@ -40,7 +40,7 @@ Supports single servers, Sentinel and Redis cluster.
     xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
                           urn:infinispan:config:store:redis:8.0 http://www.infinispan.org/schemas/infinispan-cachestore-redis-config-8.0.xsd"
     xmlns="urn:infinispan:config:8.0"
-    xmlns:remote="urn:infinispan:config:store:redis:8.0" >
+    xmlns:redis="urn:infinispan:config:store:redis:8.0" >
 
     <cache-container>
         <local-cache>
@@ -68,7 +68,7 @@ Supports single servers, Sentinel and Redis cluster.
     xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
                           urn:infinispan:config:store:redis:8.0 http://www.infinispan.org/schemas/infinispan-cachestore-redis-config-8.0.xsd"
     xmlns="urn:infinispan:config:8.0"
-    xmlns:remote="urn:infinispan:config:store:redis:8.0" >
+    xmlns:redis="urn:infinispan:config:store:redis:8.0" >
 
     <cache-container>
         <local-cache>
