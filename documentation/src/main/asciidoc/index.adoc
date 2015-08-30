@@ -161,7 +161,8 @@ in Redis. This then requires the cache store to declare the password when
 connecting. The password is added via a password attribute on the redis-store
 XML tag.
 
-`<?xml version="1.0" encoding="UTF-8"?>
+`
+<?xml version="1.0" encoding="UTF-8"?>
 <infinispan
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
