@@ -5,3 +5,187 @@ The Infinispan Community
 == Introduction
 The Redis cache store persists data in link:http://redis.io[Redis].
 
+The cache store supports 3 Redis deployment topologies. They are, single server,
+Sentinel and cluster (Redis v3 required). Redis versions 2.8+ and 3.0+ are
+currently supported.
+
+Data expiration and purging is handled via Redis itself, reducing workload from
+Infinispan servers to manually delete cache entries.
+
+== Topologies
+=== Single Server
+In a single server deployment, the cache store is given the location of a Redis
+master server with which it connects to directly to handle all data storage.
+Using this topology, Redis has no fault tolerance unless a custom solution is
+built on top of Redis. To declare a single server local cache store:
+
+`<?xml version="1.0" encoding="UTF-8"?>
+<infinispan
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
+                          urn:infinispan:config:store:redis:8.0 http://www.infinispan.org/schemas/infinispan-cachestore-redis-config-8.0.xsd"
+    xmlns="urn:infinispan:config:8.0"
+    xmlns:redis="urn:infinispan:config:store:redis:8.0" >
+
+    <cache-container>
+        <local-cache>
+            <persistence passivation="false">
+                <redis-store xmlns="urn:infinispan:config:store:redis:8.0"
+                    topology="server" socket-timeout="10000" connection-timeout="10000">
+                    <redis-server host="server1" />
+                    <connection-pool min-idle="6" max-idle="10" max-total="20" min-evictable-idle-time="30000" time-between-eviction-runs="30000" />
+                </redis-store>
+            </persistence>
+        </local-cache>
+    </cache-container>
+</infinispan>`
+
+Note the topology attribute is declared as server. This is needed to ensure a
+single server Redis topology is applied by the cache store. Only a single Redis
+server need be declared (only the first server will be used if multiple servers
+are declared) and the port will default to the Redis port 6379, but can be
+overridden using the port attribute. All connections are handled via a
+connection pool, which can optionally also test the validity of a connection
+on creation, lease, return from and when idling in the connection the pool.
+
+=== Sentinel
+The Sentinel topology relies on Redis Sentinel servers to connect to a Redis
+master server. Here, Infinispan connects to Redis Sentinel servers, requesting
+a master server name, then gets forwarded on to the correct location of the
+Redis master server. This topology gives resilience via Redis Sentinel,
+providing failure detection and automatic failover of Redis servers.
+
+`<?xml version="1.0" encoding="UTF-8"?>
+ <infinispan
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
+                           urn:infinispan:config:store:redis:8.0 http://www.infinispan.org/schemas/infinispan-cachestore-redis-config-8.0.xsd"
+     xmlns="urn:infinispan:config:8.0"
+     xmlns:redis="urn:infinispan:config:store:redis:8.0" >
+
+     <cache-container>
+         <local-cache>
+             <persistence passivation="false">
+                 <redis-store xmlns="urn:infinispan:config:store:redis:8.0"
+                     topology="sentinel" master-name="mymaster" socket-timeout="10000" connection-timeout="10000">
+                     <sentinel-server host="server1" />
+                     <sentinel-server host="server2" />
+                     <sentinel-server host="server3" />
+                     <connection-pool min-idle="6" max-idle="10" max-total="20" min-evictable-idle-time="30000" time-between-eviction-runs="30000" />
+                 </redis-store>
+             </persistence>
+         </local-cache>
+     </cache-container>
+ </infinispan>`
+
+For a Sentinel deployment, the topology attribute changes to sentinel. A
+master name must also be specified to select the correct Redis master required
+as Sentinel can monitor multiple Redis master servers. The Sentinel server is
+declared using a sentinel-server XML tag, which you’ll notice is different to
+the main Redis servers used in single server and cluster topologies. This is to
+allow defaulting of the Sentinel port to 26379 if not declared. At least one
+Sentinel server must be declared, though if you run more Sentinel servers, they
+should all be declared too for the benefit of failure detection of the Sentinel
+servers themselves.
+
+=== Cluster
+A cluster topology gives Infinispan the ability to connect to a Redis cluster.
+One or more cluster nodes are declared to infinispan (the more the better)
+which are then used to store all data. Redis cluster supports failure detection
+so if a master node in the cluster fails, a slave takes over. Redis v3 is
+required to run a Redis cluster.
+
+
+`<?xml version="1.0" encoding="UTF-8"?>
+<infinispan
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
+                          urn:infinispan:config:store:redis:8.0 http://www.infinispan.org/schemas/infinispan-cachestore-redis-config-8.0.xsd"
+    xmlns="urn:infinispan:config:8.0"
+    xmlns:redis="urn:infinispan:config:store:redis:8.0" >
+
+    <cache-container>
+        <local-cache>
+            <persistence passivation="false">
+                <redis-store xmlns="urn:infinispan:config:store:redis:8.0"
+                    topology="cluster" socket-timeout="10000" connection-timeout="10000">
+                    <redis-server host="server1" port="6379" />
+                    <redis-server host="server2" port="6379" />
+                    <redis-server host="server3" port="6379" />
+                    <connection-pool min-idle="6" max-idle="10" max-total="20" min-evictable-idle-time="30000" time-between-eviction-runs="30000" />
+                </redis-store>
+            </persistence>
+        </local-cache>
+    </cache-container>
+</infinispan>`
+
+For cluster deployments, the topology attribute must change to cluster. One or
+more Redis cluster nodes must be declared to access the cluster which uses the
+redis-server XML tag. Note that when operating a cluster, database IDs are not
+supported.
+
+== Multiple Cache Stores, Single Redis Deployment
+Redis single server and Sentinel deployments support the option of database
+IDs. A database ID allows a single Redis server to host multiple individual
+databases, referenced via an integer ID number. This allows Infinispan to
+support multiple cache stores on the same Redis deployment, isolating the
+data between the stores. Redis cluster does not support the database ID. A
+database ID is defined using the database attribute on the redis-store XML tag.
+
+`<?xml version="1.0" encoding="UTF-8"?>
+<infinispan
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
+                          urn:infinispan:config:store:redis:8.0 http://www.infinispan.org/schemas/infinispan-cachestore-redis-config-8.0.xsd"
+    xmlns="urn:infinispan:config:8.0"
+    xmlns:redis="urn:infinispan:config:store:redis:8.0" >
+
+    <cache-container>
+        <local-cache>
+            <persistence passivation="false">
+                <redis-store xmlns="urn:infinispan:config:store:redis:8.0"
+                    topology="sentinel" master-name="mymaster" socket-timeout="10000" connection-timeout="10000" database="5">
+                    <sentinel-server host="server1" />
+                    <sentinel-server host="server2" />
+                    <sentinel-server host="server3" />
+                    <connection-pool min-idle="6" max-idle="10" max-total="20" min-evictable-idle-time="30000" time-between-eviction-runs="30000" />
+                </redis-store>
+            </persistence>
+        </local-cache>
+    </cache-container>
+</infinispan>`
+
+== Redis Password Authentication
+In order to secure access to a Redis server, a password can optionally be used
+in Redis. This then requires the cache store to declare the password when
+connecting. The password is added via a password attribute on the redis-store
+XML tag.
+
+`<?xml version="1.0" encoding="UTF-8"?>
+<infinispan
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
+                          urn:infinispan:config:store:redis:8.0 http://www.infinispan.org/schemas/infinispan-cachestore-redis-config-8.0.xsd"
+    xmlns="urn:infinispan:config:8.0"
+    xmlns:redis="urn:infinispan:config:store:redis:8.0" >
+
+    <cache-container>
+        <local-cache>
+            <persistence passivation="false">
+                <redis-store xmlns="urn:infinispan:config:store:redis:8.0"
+                    topology="sentinel" master-name="mymaster" socket-timeout="10000" connection-timeout="10000" password="mysecret">
+                    <sentinel-server host="server1" />
+                    <sentinel-server host="server2" />
+                    <sentinel-server host="server3" />
+                    <connection-pool min-idle="6" max-idle="10" max-total="20" min-evictable-idle-time="30000" time-between-eviction-runs="30000" />
+                </redis-store>
+            </persistence>
+        </local-cache>
+    </cache-container>
+</infinispan>`
+
+== What about SSL support?
+Redis does not provide protocol encryption, instead leaving this to other
+specialist software. At this time, the Redis client used to integrate
+Infinispan with Redis servers (Jedis) does not yet support SSL connection
+negotiation natively.
