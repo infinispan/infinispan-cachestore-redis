@@ -19,7 +19,9 @@ master server with which it connects to directly to handle all data storage.
 Using this topology, Redis has no fault tolerance unless a custom solution is
 built on top of Redis. To declare a single server local cache store:
 
-`<?xml version="1.0" encoding="UTF-8"?>
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
 <infinispan
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
@@ -38,7 +40,8 @@ built on top of Redis. To declare a single server local cache store:
             </persistence>
         </local-cache>
     </cache-container>
-</infinispan>`
+</infinispan>
+----
 
 Note the topology attribute is declared as server. This is needed to ensure a
 single server Redis topology is applied by the cache store. Only a single Redis
@@ -55,28 +58,31 @@ a master server name, then gets forwarded on to the correct location of the
 Redis master server. This topology gives resilience via Redis Sentinel,
 providing failure detection and automatic failover of Redis servers.
 
-`<?xml version="1.0" encoding="UTF-8"?>
- <infinispan
-     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-     xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
-                           urn:infinispan:config:store:redis:8.0 http://www.infinispan.org/schemas/infinispan-cachestore-redis-config-8.0.xsd"
-     xmlns="urn:infinispan:config:8.0"
-     xmlns:redis="urn:infinispan:config:store:redis:8.0" >
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<infinispan
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
+                          urn:infinispan:config:store:redis:8.0 http://www.infinispan.org/schemas/infinispan-cachestore-redis-config-8.0.xsd"
+    xmlns="urn:infinispan:config:8.0"
+    xmlns:redis="urn:infinispan:config:store:redis:8.0" >
 
-     <cache-container>
-         <local-cache>
-             <persistence passivation="false">
-                 <redis-store xmlns="urn:infinispan:config:store:redis:8.0"
-                     topology="sentinel" master-name="mymaster" socket-timeout="10000" connection-timeout="10000">
-                     <sentinel-server host="server1" />
-                     <sentinel-server host="server2" />
-                     <sentinel-server host="server3" />
-                     <connection-pool min-idle="6" max-idle="10" max-total="20" min-evictable-idle-time="30000" time-between-eviction-runs="30000" />
-                 </redis-store>
-             </persistence>
-         </local-cache>
-     </cache-container>
- </infinispan>`
+    <cache-container>
+        <local-cache>
+            <persistence passivation="false">
+                <redis-store xmlns="urn:infinispan:config:store:redis:8.0"
+                    topology="sentinel" master-name="mymaster" socket-timeout="10000" connection-timeout="10000">
+                    <sentinel-server host="server1" />
+                    <sentinel-server host="server2" />
+                    <sentinel-server host="server3" />
+                    <connection-pool min-idle="6" max-idle="10" max-total="20" min-evictable-idle-time="30000" time-between-eviction-runs="30000" />
+                </redis-store>
+            </persistence>
+        </local-cache>
+    </cache-container>
+</infinispan>
+----
 
 For a Sentinel deployment, the topology attribute changes to sentinel. A
 master name must also be specified to select the correct Redis master required
@@ -96,7 +102,9 @@ so if a master node in the cluster fails, a slave takes over. Redis v3 is
 required to run a Redis cluster.
 
 
-`<?xml version="1.0" encoding="UTF-8"?>
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
 <infinispan
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
@@ -117,7 +125,8 @@ required to run a Redis cluster.
             </persistence>
         </local-cache>
     </cache-container>
-</infinispan>`
+</infinispan>
+----
 
 For cluster deployments, the topology attribute must change to cluster. One or
 more Redis cluster nodes must be declared to access the cluster which uses the
@@ -132,7 +141,9 @@ support multiple cache stores on the same Redis deployment, isolating the
 data between the stores. Redis cluster does not support the database ID. A
 database ID is defined using the database attribute on the redis-store XML tag.
 
-`<?xml version="1.0" encoding="UTF-8"?>
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
 <infinispan
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="urn:infinispan:config:8.0 http://www.infinispan.org/schemas/infinispan-config-8.0.xsd
@@ -153,7 +164,8 @@ database ID is defined using the database attribute on the redis-store XML tag.
             </persistence>
         </local-cache>
     </cache-container>
-</infinispan>`
+</infinispan>
+----
 
 == Redis Password Authentication
 In order to secure access to a Redis server, a password can optionally be used
@@ -161,7 +173,8 @@ in Redis. This then requires the cache store to declare the password when
 connecting. The password is added via a password attribute on the redis-store
 XML tag.
 
-`
+[source,xml]
+----
 <?xml version="1.0" encoding="UTF-8"?>
 <infinispan
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -183,7 +196,8 @@ XML tag.
             </persistence>
         </local-cache>
     </cache-container>
-</infinispan>`
+</infinispan>
+----
 
 == What about SSL support?
 Redis does not provide protocol encryption, instead leaving this to other
