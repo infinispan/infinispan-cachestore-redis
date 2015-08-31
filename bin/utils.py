@@ -380,6 +380,7 @@ def maven_build_distribution(version):
   mvn_commands = [["clean"], ["install"], ["deploy"]]
     
   for c in mvn_commands:
+    c.append("-Dmaven.test.skip.exec=true")
     if settings['dry_run']:
       c.append("-Dmaven.deploy.skip=true")
     if not settings['verbose']:
