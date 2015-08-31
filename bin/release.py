@@ -180,7 +180,7 @@ def release():
        prettyprint("Unknown argument %s" % sys.argv[3], Levels.WARNING)
        help_and_exit()
 
-  prettyprint("Releasing Infinispan Management Console version %s from branch '%s'" % (version, branch), Levels.INFO)
+  prettyprint("Releasing Infinispan Redis CacheStore version %s from branch '%s'" % (version, branch), Levels.INFO)
   sure = input_with_default("Are you sure you want to continue?", "N")
   if not sure.upper().startswith("Y"):
     prettyprint("... User Abort!", Levels.WARNING)
@@ -198,7 +198,7 @@ def release():
   
   git = Git(branch, version)
   if not git.is_upstream_clone():
-    proceed = input_with_default('This is not a clone of an %supstream%s Infinispan Management Console repository! Are you sure you want to proceed?' % (Colors.UNDERLINE, Colors.END), 'N')
+    proceed = input_with_default('This is not a clone of an %supstream%s Infinispan Redis CacheStore repository! Are you sure you want to proceed?' % (Colors.UNDERLINE, Colors.END), 'N')
     if not proceed.upper().startswith('Y'):
       prettyprint("... User Abort!", Levels.WARNING)
       sys.exit(1)
@@ -221,7 +221,7 @@ def release():
   prettyprint("Step 3: Complete", Levels.INFO)
   
   # Step 3: Build and test in Maven2
-  prettyprint("Step 4: Build and test in Maven2", Levels.INFO)
+  prettyprint("Step 4: Build and test in Maven", Levels.INFO)
   maven_build_distribution(version)
   prettyprint("Step 4: Complete", Levels.INFO)
 

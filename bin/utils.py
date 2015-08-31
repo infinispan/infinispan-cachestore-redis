@@ -7,7 +7,7 @@ import readline
 import shutil
 import random
 settings_file = '%s/.infinispan_dev_settings' % os.getenv('HOME')
-upstream_url = 'git@github.com:infinispan/infinispan-management-console.git'
+upstream_url = 'git@github.com:infinispan/infinispan-cachestore-redis.git'
 ### Known config keys
 local_mvn_repo_dir_key = "local_mvn_repo_dir"
 maven_pom_xml_namespace = "http://maven.apache.org/POM/4.0.0"
