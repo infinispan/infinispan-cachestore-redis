@@ -87,6 +87,9 @@ Supports single servers, Sentinel and Redis cluster.
 </infinispan>
 ```
 
+## Caveats
+
+* When using AWS ElastiCache, always specify an explicit non-zero database index for all `<redis-store/>` configurations, for example `<redis-store database="1"/>`. AWS ElastiCache inserts a special *ElastiCacheMasterReplicationTimestamp* key in the default database (at zero index) to aid replication, which may lead to unexpected unmarshalling IO exceptions when the Infinispan cache needs to iterate over the stored keys.
 
 
 ## License
