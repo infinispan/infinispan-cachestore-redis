@@ -186,7 +186,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
             // If the number of elements in redis is more than the int max size,
             // log the anomaly and return the int max size
             if (dbSize > Integer.MAX_VALUE) {
-                RedisStore.log.info(
+                RedisStore.log.warn(
                     String.format("The Redis store for cache %s is holding more entries than we can count! " +
                             "Total number of entries found %d. Limited to returning count as %d",
                         ctx.getCache().getName(), dbSize, Integer.MAX_VALUE
