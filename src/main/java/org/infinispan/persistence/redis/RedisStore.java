@@ -11,9 +11,7 @@ import org.infinispan.persistence.spi.*;
 import org.infinispan.util.logging.Log;
 import org.infinispan.util.logging.LogFactory;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +21,22 @@ import net.jcip.annotations.ThreadSafe;
 @ConfiguredBy(RedisStoreConfiguration.class)
 final public class RedisStore implements AdvancedLoadWriteStore
 {
+    /**
+     * The instances of this class, keyed by Infinispan cache name.
+     */
+    private static Map<String,RedisStore> instances = new Hashtable<>();
+    
+    
+    /**
+     * Returns the {@link #init initialised} instances of this class.
+     *
+     * @return The instances of this class as an unmodifiable map, keyed by
+     *         Infinispan cache name.
+     */
+    public static Map<String,RedisStore> getInstances() {
+        return Collections.unmodifiableMap(instances);
+    }
+    
     private static final Log log = LogFactory.getLog(RedisStore.class, Log.class);
 
     private InitializationContext ctx = null;
@@ -39,6 +53,11 @@ final public class RedisStore implements AdvancedLoadWriteStore
     {
         RedisStore.log.info("Initialising Redis store for cache " + ctx.getCache().getName());
         this.ctx = ctx;
+    
+        // Register store
+        if (ctx.getCache().getName() != null) {
+            RedisStore.instances.put(ctx.getCache().getName(), this);
+        }
     }
 
     /**
@@ -68,6 +87,11 @@ final public class RedisStore implements AdvancedLoadWriteStore
 
         if (null != this.connectionPool) {
             this.connectionPool.shutdown();
+        }
+    
+        // Unregister store
+        if (ctx.getCache().getName() != null) {
+            RedisStore.instances.remove(ctx.getCache().getName());
         }
     }
 
