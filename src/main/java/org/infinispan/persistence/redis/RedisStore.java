@@ -37,7 +37,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void init(InitializationContext ctx)
     {
-        RedisStore.log.info("Redis cache store initialising");
+        RedisStore.log.info("Initialising Redis store for cache " + ctx.getCache().getName());
         this.ctx = ctx;
     }
 
@@ -47,13 +47,13 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void start()
     {
-        RedisStore.log.info("Redis cache store starting");
+        RedisStore.log.info("Starting Redis store for cache " + ctx.getCache().getName());
 
         try {
             this.connectionPool = RedisConnectionPoolFactory.factory(this.ctx.getConfiguration(), this.ctx.getMarshaller());
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failed to initialise the redis store", ex);
+            RedisStore.log.error("Failed to initialise the Redis store for cache " + ctx.getCache().getName(), ex);
             throw new PersistenceException(ex);
         }
     }
@@ -64,7 +64,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void stop()
     {
-        RedisStore.log.info("Redis cache store stopping");
+        RedisStore.log.info("Stopping Redis store for cache " + ctx.getCache().getName());
 
         if (null != this.connectionPool) {
             this.connectionPool.shutdown();
@@ -101,7 +101,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
         boolean fetchMetadata
     )
     {
-        RedisStore.log.debug("Iterating Redis store entries");
+        RedisStore.log.debug("Iterating Redis store entries for cache " + ctx.getCache().getName());
 
         final InitializationContext ctx = this.ctx;
         final TaskContext taskContext = new TaskContextImpl();
@@ -137,7 +137,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
                             }
                         }
                         catch (Exception ex) {
-                            RedisStore.log.error("Failed to process the redis store key", ex);
+                            RedisStore.log.error("Failed to process a Redis store key for cache " + ctx.getCache().getName(), ex);
                             throw new PersistenceException(ex);
                         }
                     }
@@ -145,7 +145,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
             }
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failed to process the redis store keys", ex);
+            RedisStore.log.error("Failed to process the Redis store keys for cache " + ctx.getCache().getName(), ex);
             throw new PersistenceException(ex);
         }
         finally {
@@ -175,7 +175,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public int size()
     {
-        RedisStore.log.debug("Calculating Redis store size");
+        RedisStore.log.debug("Fetching the Redis store size for cache " + ctx.getCache().getName());
         RedisConnection connection = null;
 
         try {
@@ -187,9 +187,9 @@ final public class RedisStore implements AdvancedLoadWriteStore
             // log the anomaly and return the int max size
             if (dbSize > Integer.MAX_VALUE) {
                 RedisStore.log.info(
-                    String.format("Redis store is holding more elements than we can count! " +
-                            "Total number of elements found %d. Limited to returning count as %d",
-                        dbSize, Integer.MAX_VALUE
+                    String.format("The Redis store for cache %s is holding more entries than we can count! " +
+                            "Total number of entries found %d. Limited to returning count as %d",
+                        ctx.getCache().getName(), dbSize, Integer.MAX_VALUE
                     )
                 );
 
@@ -200,7 +200,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
             }
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failed to fetch element count from the redis store", ex);
+            RedisStore.log.error("Failed to fetch the entry count for the Redis store for cache " + ctx.getCache().getName(), ex);
             throw new PersistenceException(ex);
         }
         finally {
@@ -218,7 +218,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void clear()
     {
-        RedisStore.log.debug("Clearing Redis store");
+        RedisStore.log.debug("Clearing the Redis store for cache " + ctx.getCache().getName());
         RedisConnection connection = null;
 
         try {
@@ -226,7 +226,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
             connection.flushDb();
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failed to clear all elements in the redis store", ex);
+            RedisStore.log.error("Failed to clear the Redis store for cache " + ctx.getCache().getName(), ex);
             throw new PersistenceException(ex);
         }
         finally {
@@ -247,7 +247,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public MarshalledEntry load(Object key)
     {
-        RedisStore.log.debug("Loading entry from Redis store");
+        RedisStore.log.debug("Loading entry from the Redis store for cache " + ctx.getCache().getName());
         RedisConnection connection = null;
 
         try {
@@ -270,7 +270,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
             return this.ctx.getMarshalledEntryFactory().newMarshalledEntry(key, valueBuf, metadataBuf);
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failed to load element from the redis store", ex);
+            RedisStore.log.error("Failed to load entry from the Redis store for cache " + ctx.getCache().getName(), ex);
             throw new PersistenceException(ex);
         }
         finally {
@@ -289,7 +289,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public void write(MarshalledEntry marshalledEntry)
     {
-        RedisStore.log.debug("Writing entry to Redis store");
+        RedisStore.log.debug("Writing entry to the Redis store for cache " + ctx.getCache().getName());
         RedisConnection connection = null;
 
         try {
@@ -317,7 +317,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
             }
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failed to write element to the redis store", ex);
+            RedisStore.log.error("Failed to write entry to the Redis store for cache " + ctx.getCache().getName(), ex);
             throw new PersistenceException(ex);
         }
         finally {
@@ -336,7 +336,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public boolean delete(Object key)
     {
-        RedisStore.log.debug("Deleting entry from Redis store");
+        RedisStore.log.debug("Deleting entry from Redis store for cache " + ctx.getCache().getName());
         RedisConnection connection = null;
 
         try {
@@ -344,7 +344,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
             return connection.delete(key);
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failed to delete element from the redis store", ex);
+            RedisStore.log.error("Failed to delete entry from the Redis store for cache " + ctx.getCache().getName(), ex);
             throw new PersistenceException(ex);
         }
         finally {
@@ -363,7 +363,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     @Override
     public boolean contains(Object key)
     {
-        RedisStore.log.debug("Checking store for Redis entry");
+        RedisStore.log.debug("Checking key in Redis store for cache " + ctx.getCache().getName());
         RedisConnection connection = null;
 
         try {
@@ -371,7 +371,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
             return connection.exists(key);
         }
         catch(Exception ex) {
-            RedisStore.log.error("Failed to discover if element is in the redis store", ex);
+            RedisStore.log.error("Failed to check key in Redis store for cache " + ctx.getCache().getName(), ex);
             throw new PersistenceException(ex);
         }
         finally {
