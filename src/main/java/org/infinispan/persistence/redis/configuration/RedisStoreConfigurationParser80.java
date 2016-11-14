@@ -227,7 +227,7 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
                 }
     
                 default: {
-                    Parser80.parseStoreAttribute(reader, i, builder);
+                    Parser.parseStoreAttribute(reader, i, builder);
                     break;
                 }
             }
