@@ -112,7 +112,7 @@ public class RedisServerStoreFunctionalTest extends BaseStoreFunctionalTest
         this.createCacheStoreConfig(cb2.persistence(), false, 1);
         Configuration c2 = cb2.build();
     
-        Assert.assertTrue(RedisStore.getInstances().isEmpty());
+        int initialNumRedisStoreInstances = RedisStore.getInstances().size();
         
         this.cacheManager.defineConfiguration("testTwoCachesSameCacheStore-1", c1);
         this.cacheManager.defineConfiguration("testTwoCachesSameCacheStore-2", c2);
@@ -124,7 +124,7 @@ public class RedisServerStoreFunctionalTest extends BaseStoreFunctionalTest
         
         RedisStore firstRedisStore = RedisStore.getInstances().get("testTwoCachesSameCacheStore-1");
         RedisStore secondRedisStore = RedisStore.getInstances().get("testTwoCachesSameCacheStore-2");
-        Assert.assertEquals(2, RedisStore.getInstances().size());
+        Assert.assertEquals(initialNumRedisStoreInstances + 2, RedisStore.getInstances().size());
         
         first.put("key1", "val2");
         second.put("key2", "val2");
@@ -135,6 +135,8 @@ public class RedisServerStoreFunctionalTest extends BaseStoreFunctionalTest
         first.stop();
         second.stop();
         
-        Assert.assertTrue(RedisStore.getInstances().isEmpty());
+        Assert.assertNull(RedisStore.getInstances().get("testTwoCachesSameCacheStore-1"));
+        Assert.assertNull(RedisStore.getInstances().get("testTwoCachesSameCacheStore-2"));
+        Assert.assertEquals(initialNumRedisStoreInstances, RedisStore.getInstances().size());
     }
 }
