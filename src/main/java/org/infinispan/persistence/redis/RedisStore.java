@@ -24,7 +24,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
     /**
      * The instances of this class, keyed by Infinispan cache name.
      */
-    private static Map<String,RedisStore> instances = new Hashtable<>();
+    private static Map<String, RedisStore> instances = new Hashtable<>();
     
     
     /**
@@ -33,7 +33,7 @@ final public class RedisStore implements AdvancedLoadWriteStore
      * @return The instances of this class as an unmodifiable map, keyed by
      *         Infinispan cache name.
      */
-    public static Map<String,RedisStore> getInstances() {
+    public static Map<String, RedisStore> getInstances() {
         return Collections.unmodifiableMap(instances);
     }
     
