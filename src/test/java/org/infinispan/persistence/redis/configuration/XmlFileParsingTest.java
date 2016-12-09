@@ -36,6 +36,27 @@ public class XmlFileParsingTest extends AbstractInfinispanTest
         assert store.servers().size() == 2;
     }
 
+    public void testInheritedCacheStoreAttributes() throws Exception
+    {
+        String config = InfinispanStartTag.LATEST +
+            "<cache-container default-cache=\"default\">" +
+            "   <local-cache name=\"default\">\n" +
+            "     <persistence>\n" +
+            "       <redis-store xmlns=\"urn:infinispan:config:store:redis:"+ InfinispanStartTag.LATEST.majorMinor()+ "\"" +
+            "             shared=\"true\" preload=\"true\" >\n" +
+            "         <redis-server host=\"one\" />\n" +
+            "       </redis-store>\n" +
+            "     </persistence>\n" +
+            "   </local-cache>\n" +
+            "</cache-container>" +
+            TestingUtil.INFINISPAN_END_TAG;
+
+        RedisStoreConfiguration store = (RedisStoreConfiguration) buildCacheManagerWithCacheStore(config);
+        assert store.shared();
+        assert store.preload();
+        assert store.servers().size() == 1;
+    }
+
     private StoreConfiguration buildCacheManagerWithCacheStore(final String config)
         throws IOException
     {

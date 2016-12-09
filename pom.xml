@@ -81,7 +81,7 @@
     </distributionManagement>
 
     <properties>
-        <infinispan.core.schema.version>8.0</infinispan.core.schema.version>
+        <infinispan.core.schema.version>8.2</infinispan.core.schema.version>
         <version.testng>6.8.8</version.testng>
         <jboss.releases.repo.url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</jboss.releases.repo.url>
         <jboss.snapshots.repo.url>https://repository.jboss.org/nexus/content/repositories/snapshots/</jboss.snapshots.repo.url>
@@ -209,7 +209,7 @@
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-core</artifactId>
-            <version>8.0.0.Final</version>
+            <version>8.2.3.Final</version>
         </dependency>
 
         <dependency>
@@ -256,7 +256,7 @@
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-core</artifactId>
-            <version>8.0.0.Final</version>
+            <version>8.2.3.Final</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
