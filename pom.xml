@@ -209,7 +209,7 @@
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-core</artifactId>
-            <version>8.0.0.Final</version>
+            <version>11.0.6.Final</version>
         </dependency>
 
         <dependency>
@@ -256,7 +256,7 @@
         <dependency>
             <groupId>org.infinispan</groupId>
             <artifactId>infinispan-core</artifactId>
-            <version>8.0.0.Final</version>
+            <version>11.0.6.Final</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
