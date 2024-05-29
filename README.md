@@ -1,4 +1,10 @@
 
+# Infinispan as a Redis Replacement
+
+> [!IMPORTANT]
+> Infinispan now provides native support for Redis commands, so it's possible for Infinispan to be used as an Apache 2.0 License Redis replacement.
+> See the [Infinispan docs](https://infinispan.org/docs/stable/titles/resp/resp-endpoint.html) for more details.
+
 # infinispan-cachestore-redis
 
 A cache store for storing cache data in Redis using Infinispan.
