@@ -225,6 +225,11 @@ final public class RedisStoreConfigurationParser80 implements ConfigurationParse
                     builder.maxRedirections(Integer.parseInt(value));
                     break;
                 }
+    
+                default: {
+                    Parser80.parseStoreAttribute(reader, i, builder);
+                    break;
+                }
             }
         }
     }
