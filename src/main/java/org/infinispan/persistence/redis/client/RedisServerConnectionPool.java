@@ -30,8 +30,8 @@ final public class RedisServerConnectionPool implements RedisConnectionPool
         server = servers.get(0);
 
         if (servers.size() > 1) {
-            RedisServerConnectionPool.log.warn(String.format("Multiple redis servers defined. Using the first only (%s:%d)",
-                server.host(), server.port()));
+            RedisServerConnectionPool.log.warnf("Multiple redis servers defined. Using the first only (%s:%d)",
+                server.host(), server.port());
         }
 
         ConnectionPoolConfiguration connectionPoolConfiguration = configuration.connectionPool();
